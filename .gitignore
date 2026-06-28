@@ -1,0 +1,17 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+app/build/
+build/
+# TDLib native libs are large and provided per-build, not committed.
+app/src/main/jniLibs/
+
+# Local signed/built apks at repo root
+*.apk
