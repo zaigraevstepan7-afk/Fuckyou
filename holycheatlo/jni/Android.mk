@@ -5,8 +5,9 @@ LOCAL_MODULE := holycheatlo
 LOCAL_SRC_FILES := \
     ../src/main.cpp \
     ../src/ui/menu.cpp \
-    ../src/ui/bar.cpp \
-    ../src/ui/widgets/widgets.cpp \
+    ../src/ui/p8/widgets.cpp \
+    ../src/ui/p8/settings_panel.cpp \
+    ../src/ui/p8/glow.cpp \
     ../src/func/visuals.cpp \
     ../src/func/aim.cpp \
     ../src/func/wallshot.cpp \
@@ -26,6 +27,7 @@ LOCAL_SRC_FILES := \
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)/../src \
     $(LOCAL_PATH)/../src/ui \
+    $(LOCAL_PATH)/../src/ui/p8 \
     $(LOCAL_PATH)/../src/game \
     $(LOCAL_PATH)/../src/func \
     $(LOCAL_PATH)/../src/protect \

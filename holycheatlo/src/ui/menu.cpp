@@ -1,638 +1,528 @@
+// holycheatlo — menu ported from "Imgui Portifolio 8"
+// Adapted to Android / OpenGL (ImGui 1.92.x), default font, touch input.
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "menu.hpp"
-#include "bar.hpp"
 #include "cfg.hpp"
 #include "theme/theme.hpp"
-#include "widgets/widgets.hpp"
 #include "../protect/oxorany.hpp"
+
+#include "p8/colors.h"
+#include "p8/layout.h"
+#include "p8/ui_scale.h"
+#include "p8/fonts.h"
+#include "p8/glow.h"
+#include "p8/widgets.h"
+#include "p8/settings_panel.h"
+
 #include "imgui.h"
 #include "imgui_internal.h"
-#include <cmath>
-#include <ctime>
+
 #include <cstdlib>
-#include <string>
+#include <cmath>
+
+namespace {
+    using namespace settings_panel;
+
+    int   g_tab        = 0;          // 0 Visuals, 1 Aim, 2 Misc, 3 Settings
+    int   g_prev_tab   = 0;
+    float g_tab_fade   = 1.f;
+
+    bool  g_open       = false;
+    float g_open_anim  = 0.f;
+
+    ImVec2 g_panel_pos = { -1.f, -1.f };
+    bool   g_drag      = false;
+    ImVec2 g_drag_off  = { 0.f, 0.f };
+
+    // smoothed content scroll (touch friendly)
+    float g_scroll_tgt = 0.f;
+    float g_scroll_cur = 0.f;
+
+    // settings-backed appearance values
+    ImVec4 g_accent          = colors::accent;
+    float  g_ui_scale_pct    = 170.f;
+    float  g_menu_opacity    = 100.f;
+
+    float lrp(float a, float b, float t) { return a + (b - a) * t; }
+
+    // ── Brand diamond logo (pure draw-list, from the original framework) ───────
+    void draw_brand_logo(ImDrawList* dl, const ImRect& area) {
+        const ImVec2 c = area.GetCenter();
+        const float  s = ui_scale::s(layout::sidebar_logo_size) * 0.5f;
+        const ImU32 accent = ImGui::GetColorU32(colors::accent);
+        const ImU32 glow   = ImGui::GetColorU32(ImVec4(colors::accent.x, colors::accent.y, colors::accent.z, 0.18f));
+
+        dl->AddCircleFilled(c, s + 1.f, glow, 32);
+        dl->AddCircle(c, s, accent, 32, ui_scale::s(1.5f));
+
+        ImVec2 diamond[4] = {
+            { c.x, c.y - s * 0.58f },
+            { c.x + s * 0.50f, c.y },
+            { c.x, c.y + s * 0.58f },
+            { c.x - s * 0.50f, c.y },
+        };
+        dl->AddConvexPolyFilled(diamond, 4, accent);
+        dl->AddCircleFilled(c, ui_scale::s(2.2f), ImGui::GetColorU32(colors::text), 12);
+    }
+
+    void draw_tab_label(ImDrawList* dl, const ImRect& bb, const char* text, ImU32 col) {
+        const ImVec2 ts = ImGui::CalcTextSize(text);
+        const ImVec2 pos = {
+            bb.Min.x + (bb.GetWidth()  - ts.x) * 0.5f,
+            bb.Min.y + (bb.GetHeight() - ts.y) * 0.5f };
+        dl->AddText(pos, col, text);
+    }
+
+    ImRect sidebar_tab_rect(const ImRect& sidebar, float y) {
+        const float tab_w = ui_scale::s(layout::sidebar_tab_w);
+        const float tab_h = ui_scale::s(layout::sidebar_tab_h);
+        const float x = sidebar.GetCenter().x - tab_w * 0.5f;
+        return { { x, y }, { x + tab_w, y + tab_h } };
+    }
+
+    void draw_sidebar(ImDrawList* dl, const ImRect& sidebar, bool& blocks_drag) {
+        using namespace layout;
+
+        static const char* labels[] = { "ESP", "Aim", "Misc", "Set" };
+        const int tab_count = 4;
+
+        dl->AddRectFilled(sidebar.Min, sidebar.Max, ImGui::GetColorU32(colors::sidebar),
+            ui_scale::s(shell_round), ImDrawFlags_RoundCornersLeft);
+
+        const float tab_w  = ui_scale::s(sidebar_tab_w);
+        const float tab_x  = sidebar.GetCenter().x - tab_w * 0.5f;
+        const float logo_y = sidebar.Min.y + ui_scale::s(sidebar_pad);
+        const ImRect logo_area({ tab_x, logo_y }, { tab_x + tab_w, logo_y + ui_scale::s(sidebar_logo_size) });
+        draw_brand_logo(dl, logo_area);
+
+        const float sep_y = logo_area.Max.y + ui_scale::s(sidebar_logo_gap) * 0.5f;
+        dl->AddLine({ sidebar.Min.x + ui_scale::s(14.f), sep_y },
+                    { sidebar.Max.x - ui_scale::s(14.f), sep_y },
+                    ImGui::GetColorU32(colors::sidebar_sep));
+
+        const float tab_h   = ui_scale::s(sidebar_tab_h);
+        const float tab_gap = ui_scale::s(sidebar_tabs_gap);
+        const float nav_h   = (float)tab_count * tab_h + (float)(tab_count - 1) * tab_gap;
+        const float zone_top    = sep_y + ui_scale::s(8.f);
+        const float zone_bottom = sidebar.Max.y - ui_scale::s(sidebar_bottom_pad + sidebar_exit_h + 8.f);
+        float y = zone_top + ImMax(0.f, (zone_bottom - zone_top - nav_h) * 0.5f);
+
+        ImRect tab_rects[4] = {};
+        for (int i = 0; i < tab_count; ++i) {
+            tab_rects[i] = sidebar_tab_rect(sidebar, y);
+            y += tab_h + tab_gap;
+        }
+
+        // animated selection indicator
+        static float indicator_y = 0.f;
+        static bool  indicator_init = false;
+        const ImRect& target = tab_rects[g_tab];
+        if (!indicator_init) { indicator_y = target.Min.y; indicator_init = true; }
+        indicator_y = lrp(indicator_y, target.Min.y, ImMin(1.f, ImGui::GetIO().DeltaTime * 20.f));
+
+        dl->AddRectFilled({ tab_rects[0].Min.x, indicator_y },
+                          { tab_rects[0].Max.x, indicator_y + tab_h },
+                          ImGui::GetColorU32(ImVec4(colors::accent.x, colors::accent.y, colors::accent.z, 0.16f)),
+                          ui_scale::s(sidebar_tab_round));
+
+        static float sel_anim[4]   = {};
+        static float hover_anim[4] = {};
+        const float dt = ImGui::GetIO().DeltaTime;
+        for (int i = 0; i < tab_count; ++i) {
+            const ImRect& bb = tab_rects[i];
+            ImGuiID id = ImGui::GetID((void*)(intptr_t)(100 + i));
+            ImGui::ItemAdd(bb, id);
+            bool hovered = false, held = false;
+            const bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
+            if (hovered || held) blocks_drag = true;
+            if (pressed) g_tab = i;
+
+            const bool selected = (g_tab == i);
+            sel_anim[i]   = lrp(sel_anim[i],   selected ? 1.f : 0.f,          ImMin(1.f, dt * 22.f));
+            hover_anim[i] = lrp(hover_anim[i], hovered && !selected ? 1.f : 0.f, ImMin(1.f, dt * 24.f));
+
+            if (hover_anim[i] > 0.01f)
+                dl->AddRectFilled(bb.Min, bb.Max,
+                    ImGui::GetColorU32(ImVec4(1.f, 1.f, 1.f, 0.05f * hover_anim[i])),
+                    ui_scale::s(sidebar_tab_round));
+
+            const ImVec4 lc = ImLerp(ImLerp(colors::text_muted, colors::text, hover_anim[i] * 0.35f),
+                                     colors::accent, sel_anim[i]);
+            draw_tab_label(dl, bb, labels[i], ImGui::GetColorU32(lc));
+        }
+
+        // exit
+        const ImRect exit_bb = sidebar_tab_rect(sidebar, sidebar.Max.y - ui_scale::s(sidebar_bottom_pad + sidebar_exit_h));
+        ImGuiID exit_id = ImGui::GetID("##p8_exit");
+        ImGui::ItemAdd(exit_bb, exit_id);
+        bool exit_hovered = false, exit_held = false;
+        const bool exit_pressed = ImGui::ButtonBehavior(exit_bb, exit_id, &exit_hovered, &exit_held);
+        if (exit_hovered || exit_held) blocks_drag = true;
+        static float exit_hover = 0.f;
+        exit_hover = lrp(exit_hover, exit_hovered ? 1.f : 0.f, ImMin(1.f, dt * 18.f));
+        if (exit_hover > 0.01f)
+            dl->AddRectFilled(exit_bb.Min, exit_bb.Max,
+                ImGui::GetColorU32(ImVec4(colors::danger.x, colors::danger.y, colors::danger.z, 0.18f * exit_hover)),
+                ui_scale::s(sidebar_exit_round));
+        draw_tab_label(dl, exit_bb, "X",
+            ImGui::GetColorU32(ImLerp(colors::text_muted, colors::danger, exit_hover)));
+        if (exit_pressed) std::exit(0);
+    }
+
+    // ── Pages (wired to holycheatlo cfg) ───────────────────────────────────────
+    template<typename Builder>
+    void draw_panel(ImDrawList* dl, const ImVec2& pos, float width, const char* header,
+                    int rows, bool& blk, Builder build) {
+        draw_header(dl, pos, header);
+        const ImVec2 box_pos = { pos.x, pos.y + header_block_h(header) };
+        const ImRect box = draw_box(dl, box_pos, width, rows);
+        build(dl, box, blk, rows);
+    }
+
+    void visuals_page(bool& blk) {
+        using namespace widgets;
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        const ImVec2 origin = content_origin();
+        const float lw = column_left_width();
+        const float rw = column_right_width();
+
+        // left: ESP
+        draw_panel(dl, origin, lw, oxorany("ESP"), 7, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                static const char* box_types[] = { "Full", "Corner" };
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                checkbox_row("v_box",  oxorany("Box"),         &cfg::esp::box,      next(), b);
+                combo_row   ("v_bt",   oxorany("Box type"),    &cfg::esp::box_type, box_types, 2, next(), b);
+                slider_row  ("v_br",   oxorany("Box rounding"),&cfg::esp::box_rounding, 0.f, 10.f, next(), b, "%.0f");
+                checkbox_row("v_name", oxorany("Name"),        &cfg::esp::nickname, next(), b);
+                checkbox_row("v_hp",   oxorany("Health bar"),  &cfg::esp::health,   next(), b);
+                checkbox_row("v_dist", oxorany("Distance"),    &cfg::esp::distance, next(), b);
+                checkbox_row("v_wep",  oxorany("Weapon"),      &cfg::esp::weapon,   next(), b);
+            });
+
+        // right top: Extra
+        const ImVec2 rp = { origin.x + lw + ui_scale::s(layout::column_gap), origin.y };
+        draw_panel(dl, rp, rw, oxorany("Extra"), 4, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                checkbox_row("v_line", oxorany("Line"),          &cfg::esp::line,          next(), b);
+                checkbox_row("v_skel", oxorany("Skeleton"),      &cfg::esp::skeleton,      next(), b);
+                checkbox_row("v_flag", oxorany("Flags"),         &cfg::esp::flags,         next(), b);
+                checkbox_row("v_drop", oxorany("Dropped items"), &cfg::esp::dropped_items, next(), b);
+            });
+
+        // right bottom: Colors
+        const ImVec2 rcp = { rp.x, rp.y + panel_block_h(oxorany("Extra"), 4) + ui_scale::s(12.f) };
+        draw_panel(dl, rcp, rw, oxorany("Colors"), 6, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                color_row("c_box",  oxorany("Box"),      &cfg::esp::box_col,      next(), b);
+                color_row("c_name", oxorany("Name"),     &cfg::esp::name_col,     next(), b);
+                color_row("c_hp",   oxorany("Health"),   &cfg::esp::health_col,   next(), b);
+                color_row("c_dist", oxorany("Distance"), &cfg::esp::distance_col, next(), b);
+                color_row("c_skel", oxorany("Skeleton"), &cfg::esp::skeleton_col, next(), b);
+                color_row("c_flag", oxorany("Flags"),    &cfg::esp::flags_col,    next(), b);
+            });
+
+        const float lb = origin.y + panel_block_h(oxorany("ESP"), 7);
+        const float rb = rcp.y + panel_block_h(oxorany("Colors"), 6);
+        finalize_scroll(ImMax(lb, rb));
+    }
+
+    void aim_page(bool& blk) {
+        using namespace widgets;
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        const ImVec2 origin = content_origin();
+        const float lw = column_left_width();
+        const float rw = column_right_width();
+
+        draw_panel(dl, origin, lw, oxorany("Aimbot"), 5, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                static const char* bones[] = { "Head", "Body" };
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                checkbox_row("a_en",   oxorany("Enable aimbot"), &cfg::aim::enabled,      next(), b);
+                slider_row  ("a_sm",   oxorany("Smoothing"),     &cfg::aim::smooth,       0.f, 1.f,   next(), b, "%.2f");
+                combo_row   ("a_bone", oxorany("Aimbone"),       &cfg::aim::target,       bones, 2,   next(), b);
+                slider_row  ("a_fov",  oxorany("FOV"),           &cfg::aim::fov,          1.f, 180.f, next(), b, "%.0f");
+                slider_row  ("a_dist", oxorany("Max distance"),  &cfg::aim::max_distance, 20.f, 500.f,next(), b, "%.0f");
+            });
+
+        const ImVec2 rp = { origin.x + lw + ui_scale::s(layout::column_gap), origin.y };
+        draw_panel(dl, rp, rw, oxorany("Options"), 4, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                checkbox_row("a_vis",  oxorany("Visible check"), &cfg::aim::visible_check, next(), b);
+                checkbox_row("a_dfov", oxorany("Draw FOV"),      &cfg::aim::fov_display,   next(), b);
+                checkbox_row("a_ll",   oxorany("Lock line"),     &cfg::aim::lock_line,     next(), b);
+                checkbox_row("a_ld",   oxorany("Lock dot"),      &cfg::aim::lock_dot,      next(), b);
+            });
+
+        const ImVec2 rap = { rp.x, rp.y + panel_block_h(oxorany("Options"), 4) + ui_scale::s(12.f) };
+        draw_panel(dl, rap, rw, oxorany("Aspect"), 4, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                checkbox_row("a_ar",  oxorany("Aspect ratio"),   &cfg::aim::aspect_ratio,         next(), b);
+                slider_row  ("a_arv", oxorany("Aspect value"),   &cfg::aim::aspect_value,         1.f, 3.f, next(), b, "%.2f");
+                checkbox_row("a_as",  oxorany("Aspect stretch"), &cfg::aim::aspect_stretch,       next(), b);
+                slider_row  ("a_asv", oxorany("Stretch value"),  &cfg::aim::aspect_stretch_value, 1.f, 3.f, next(), b, "%.2f");
+            });
+
+        const float lb = origin.y + panel_block_h(oxorany("Aimbot"), 5);
+        const float rb = rap.y + panel_block_h(oxorany("Aspect"), 4);
+        finalize_scroll(ImMax(lb, rb));
+    }
+
+    void misc_page(bool& blk) {
+        using namespace widgets;
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        const ImVec2 origin = content_origin();
+        const float lw = column_left_width();
+        const float rw = column_right_width();
+
+        static float ammo_f = (float)cfg::inf_ammo::value;
+
+        draw_panel(dl, origin, lw, oxorany("Weapon"), 3, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                checkbox_row("m_ws", oxorany("Wallshot"), &cfg::wallshot::enabled, next(), b);
+                checkbox_row("m_ia", oxorany("Inf ammo"), &cfg::inf_ammo::enabled, next(), b);
+                ammo_f = (float)cfg::inf_ammo::value;
+                slider_row  ("m_av", oxorany("Ammo value"), &ammo_f, 100.f, 30000.f, next(), b, "%.0f");
+                cfg::inf_ammo::value = (int)ammo_f;
+            });
+
+        const ImVec2 rp = { origin.x + lw + ui_scale::s(layout::column_gap), origin.y };
+        draw_panel(dl, rp, rw, oxorany("Player"), 3, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                checkbox_row("m_nr",  oxorany("No recoil"),   &cfg::norecoil::enabled,    next(), b);
+                slider_row  ("m_nrm", oxorany("Recoil mult"), &cfg::norecoil::multiplier, 0.f, 0.5f, next(), b, "%.2f");
+                checkbox_row("m_inv", oxorany("Invisible"),   &cfg::test::invisible,      next(), b);
+            });
+
+        const float lb = origin.y + panel_block_h(oxorany("Weapon"), 3);
+        const float rb = origin.y + panel_block_h(oxorany("Player"), 3);
+        finalize_scroll(ImMax(lb, rb));
+    }
+
+    void settings_page(bool& blk) {
+        using namespace widgets;
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        const ImVec2 origin = content_origin();
+        const float lw = column_left_width();
+        const float rw = column_right_width();
+
+        draw_panel(dl, origin, lw, oxorany("Appearance"), 3, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                int i = 0;
+                auto next = [&]() { ImRect r = row_rect(box, i); if (i + 1 < rows) draw_separator(d, r); ++i; return r; };
+                color_row ("s_acc", oxorany("Accent color"), &g_accent,       next(), b);
+                slider_row("s_ui",  oxorany("UI scale"),     &g_ui_scale_pct, 90.f, 220.f, next(), b, "%.0f");
+                slider_row("s_op",  oxorany("Menu opacity"), &g_menu_opacity, 40.f, 100.f, next(), b, "%.0f");
+            });
+
+        const ImVec2 rp = { origin.x + lw + ui_scale::s(layout::column_gap), origin.y };
+        draw_panel(dl, rp, rw, oxorany("Power"), 1, blk,
+            [](ImDrawList* d, const ImRect& box, bool& b, int rows) {
+                (void)rows;
+                if (button_row("s_exit", oxorany("Exit"), row_rect(box, 0), b, colors::danger))
+                    std::exit(0);
+            });
+
+        const float lb = origin.y + panel_block_h(oxorany("Appearance"), 3);
+        const float rb = origin.y + panel_block_h(oxorany("Power"), 1);
+        finalize_scroll(ImMax(lb, rb));
+    }
+
+    void draw_active_page(bool& blk) {
+        switch (g_tab) {
+            case 0: visuals_page(blk);  break;
+            case 1: aim_page(blk);      break;
+            case 2: misc_page(blk);     break;
+            case 3: settings_page(blk); break;
+            default: break;
+        }
+    }
+
+    // ── Floating toggle button ─────────────────────────────────────────────────
+    void render_toggle() {
+        ImGui::SetNextWindowPos(ImVec2(24.f, 24.f), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(108.f, 42.f), ImGuiCond_Always);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.f, 6.f));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, colors::sidebar);
+        ImGui::PushStyleColor(ImGuiCol_Button, colors::control);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::control_hover);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::accent);
+        ImGui::PushStyleColor(ImGuiCol_Text, colors::text);
+
+        if (ImGui::Begin(oxorany("##p8_toggle"), nullptr,
+                ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoSavedSettings)) {
+            if (ImGui::Button(g_open ? oxorany("CLOSE") : oxorany("OPEN"), ImVec2(-1.f, -1.f)))
+                g_open = !g_open;
+        }
+        ImGui::End();
+        ImGui::PopStyleColor(5);
+        ImGui::PopStyleVar();
+    }
+}
 
 namespace ui::menu {
-    using namespace style;
-    using namespace widgets;
-
-    static float  ma      = 0.f;   // master alpha (open animation)
-    static int    tab     = 0;
-    static bool   drag    = false;
-    static ImVec2 doff    = ImVec2(0, 0);
-    static float  scr_tgt = 0.f;
-    static float  scr_cur = 0.f;
-    static float  ta      = 1.f;   // tab-switch fade
-    static bool   tsw     = false;
-    static int    ttab    = 0;
-
-    static float mw  = 1020.f;
-    static float mh  = 660.f;
-    static float sw  = 200.f;
-    static float hh  = 52.f;
-    static float fh  = 38.f;
-
-    // proxy floats for int-backed config values
-    static float anim_count_f = 80.f;
-    static float ammo_value_f = 10000.f;
-
-    static const char* tabs[] = { "Aimbot", "Visuals", "Misc", "Settings" };
-    static constexpr int tc   = sizeof(tabs) / sizeof(tabs[0]);
-
-    static float lrp(float a, float b, float t) { return a + (b - a) * t; }
-
-    // ── Shadow ────────────────────────────────────────────────────────────────
-    static void shadow(ImVec2 p, ImVec2 s, float a) {
-        if (a < 0.01f) return;
-        ImDrawList* bg = ImGui::GetBackgroundDrawList();
-        bg->AddRectFilled(ImVec2(p.x-3,  p.y-3),  ImVec2(p.x+s.x+3,  p.y+s.y+3),  IM_COL32(0,0,0,(int)(50*a)),  8.f);
-        bg->AddRectFilled(ImVec2(p.x-6,  p.y-6),  ImVec2(p.x+s.x+6,  p.y+s.y+6),  IM_COL32(0,0,0,(int)(35*a)), 10.f);
-        bg->AddRectFilled(ImVec2(p.x-10, p.y-10), ImVec2(p.x+s.x+10, p.y+s.y+10), IM_COL32(0,0,0,(int)(20*a)), 12.f);
-        bg->AddRectFilled(ImVec2(p.x-15, p.y-15), ImVec2(p.x+s.x+15, p.y+s.y+15), IM_COL32(0,0,0,(int)(10*a)), 15.f);
-    }
-
-    // ── Section header ──────────────────────────────────────────────────────────
-    static void section(const char* label, float a) {
-        ImGuiWindow* w  = ImGui::GetCurrentWindow();
-        ImDrawList*  dl = w->DrawList;
-        ImVec2 sp = w->DC.CursorPos;
-        dl->AddText(sp, col(clr::text_dim, a), label);
-        ImGui::Dummy(ImVec2(0, ImGui::GetFontSize() + 4.f));
-        separator(a);
-    }
-
-    // ── AIMBOT TAB ───────────────────────────────────────────────────────────────
-    static void aimbot_tab(float a) {
-        section(oxorany("AIMBOT"), a);
-
-        checkbox(oxorany("Aimbot"), &cfg::aim::enabled, a);
-        if (cfg::aim::enabled) {
-            separator(a);
-            slider(oxorany("FOV"),          &cfg::aim::fov,          1.f,  180.f, a, "%.0f");
-            separator(a);
-            slider(oxorany("Smooth"),       &cfg::aim::smooth,       0.f,  1.f,   a, "%.2f");
-            separator(a);
-            slider(oxorany("Max Distance"), &cfg::aim::max_distance, 20.f, 500.f, a, "%.0f");
-            separator(a);
-            spinner(oxorany("Target"), &cfg::aim::target, {"Head", "Body"}, a);
-            separator(a);
-            checkbox(oxorany("Visible Check"), &cfg::aim::visible_check, a);
-            separator(a);
-            checkbox(oxorany("Draw FOV"),      &cfg::aim::fov_display,   a);
-            separator(a);
-            checkbox(oxorany("Lock Line"),     &cfg::aim::lock_line,     a);
-            separator(a);
-            checkbox(oxorany("Lock Dot"),      &cfg::aim::lock_dot,      a);
-        }
-        separator(a);
-
-        section(oxorany("ASPECT RATIO"), a);
-        checkbox(oxorany("Aspect Ratio"), &cfg::aim::aspect_ratio, a);
-        if (cfg::aim::aspect_ratio) {
-            separator(a);
-            slider(oxorany("Aspect Value"), &cfg::aim::aspect_value, 1.0f, 3.0f, a, "%.2f");
-        }
-        separator(a);
-        checkbox(oxorany("Aspect Stretch"), &cfg::aim::aspect_stretch, a);
-        if (cfg::aim::aspect_stretch) {
-            separator(a);
-            slider(oxorany("Stretch Value"), &cfg::aim::aspect_stretch_value, 1.0f, 3.0f, a, "%.2f");
-        }
-        separator(a);
-    }
-
-    // ── VISUALS TAB (ESP) ──────────────────────────────────────────────────────────
-    static void visuals_tab(float a) {
-        section(oxorany("BOX"), a);
-        checkbox(oxorany("Box"), &cfg::esp::box, a);
-        if (cfg::esp::box) {
-            separator(a);
-            spinner(oxorany("Box type"), &cfg::esp::box_type, {"Full", "Corner"}, a);
-            separator(a);
-            slider(oxorany("Box rounding"), &cfg::esp::box_rounding, 0.f, 10.f, a, "%.0f");
-            separator(a);
-            colorpick(oxorany("Box color"), &cfg::esp::box_col, a);
-        }
-        separator(a);
-
-        checkbox(oxorany("Name"), &cfg::esp::nickname, a);
-        if (cfg::esp::nickname) {
-            separator(a);
-            colorpick(oxorany("Name color"), &cfg::esp::name_col, a);
-        }
-        separator(a);
-
-        checkbox(oxorany("Health bar"), &cfg::esp::health, a);
-        if (cfg::esp::health) {
-            separator(a);
-            colorpick(oxorany("Health color"), &cfg::esp::health_col, a);
-        }
-        separator(a);
-
-        checkbox(oxorany("Distance"), &cfg::esp::distance, a);
-        if (cfg::esp::distance) {
-            separator(a);
-            colorpick(oxorany("Distance color"), &cfg::esp::distance_col, a);
-        }
-        separator(a);
-
-        checkbox(oxorany("Skeleton"), &cfg::esp::skeleton, a);
-        if (cfg::esp::skeleton) {
-            separator(a);
-            colorpick(oxorany("Skeleton color"), &cfg::esp::skeleton_col, a);
-        }
-        separator(a);
-
-        checkbox(oxorany("Flags"), &cfg::esp::flags, a);
-        if (cfg::esp::flags) {
-            separator(a);
-            colorpick(oxorany("Flags color"), &cfg::esp::flags_col, a);
-        }
-        separator(a);
-
-        checkbox(oxorany("Weapon"),        &cfg::esp::weapon,        a);
-        separator(a);
-        checkbox(oxorany("Line"),          &cfg::esp::line,          a);
-        separator(a);
-        checkbox(oxorany("Dropped items"), &cfg::esp::dropped_items, a);
-        separator(a);
-    }
-
-    // ── MISC TAB ─────────────────────────────────────────────────────────────────
-    static void misc_tab(float a) {
-        section(oxorany("WEAPON"), a);
-        checkbox(oxorany("Wallshot"), &cfg::wallshot::enabled, a);
-        separator(a);
-        checkbox(oxorany("Inf Ammo"), &cfg::inf_ammo::enabled, a);
-        if (cfg::inf_ammo::enabled) {
-            separator(a);
-            ammo_value_f = (float)cfg::inf_ammo::value;
-            slider(oxorany("Ammo value"), &ammo_value_f, 100.f, 30000.f, a, "%.0f");
-            cfg::inf_ammo::value = (int)ammo_value_f;
-        }
-        separator(a);
-
-        section(oxorany("PLAYER"), a);
-        checkbox(oxorany("No Recoil"), &cfg::norecoil::enabled, a);
-        if (cfg::norecoil::enabled) {
-            separator(a);
-            slider(oxorany("Recoil mult"), &cfg::norecoil::multiplier, 0.f, 0.5f, a, "%.2f");
-        }
-        separator(a);
-        checkbox(oxorany("Invisible"), &cfg::test::invisible, a);
-        separator(a);
-    }
-
-    // ── SETTINGS TAB ───────────────────────────────────────────────────────────────
-    static void settings_tab(float a) {
-        // Info panels
-        section(oxorany("INFO"), a);
-        {
-            ImGuiWindow* w  = ImGui::GetCurrentWindow();
-            ImDrawList*  dl = w->DrawList;
-            ImVec2 p   = w->DC.CursorPos;
-            float  ww  = content_w > 0 ? content_w : ImGui::GetContentRegionAvail().x;
-            float  pad = 8.f * S;
-            float  h   = 26.f * S;
-            float  gap = 4.f * S;
-            constexpr float IR = 5.f;
-            char buf[64];
-
-            dl->AddRectFilled(p, ImVec2(p.x+ww, p.y+h), col(clr::panel, a), IR);
-            dl->AddRect(      p, ImVec2(p.x+ww, p.y+h), col(clr::border, a), IR);
-            snprintf(buf, sizeof(buf), "Screen: %.0f x %.0f", g_sw, g_sh);
-            dl->AddText(ImVec2(p.x+pad, p.y+(h-ImGui::GetFontSize())*0.5f), col(clr::text, a), buf);
-            ImGui::Dummy(ImVec2(0, h+gap));
-
-            ImVec2 p2(p.x, p.y+h+gap);
-            dl->AddRectFilled(p2, ImVec2(p2.x+ww, p2.y+h), col(clr::panel, a), IR);
-            dl->AddRect(      p2, ImVec2(p2.x+ww, p2.y+h), col(clr::border, a), IR);
-            snprintf(buf, sizeof(buf), "FPS: %.0f", ImGui::GetIO().Framerate);
-            dl->AddText(ImVec2(p2.x+pad, p2.y+(h-ImGui::GetFontSize())*0.5f), col(clr::text, a), buf);
-            ImGui::Dummy(ImVec2(0, h+gap));
-        }
-        separator(a);
-
-        section(oxorany("APPEARANCE"), a);
-        colorpick(oxorany("Accent color"), &cfg_accent_color, a);
-        checkbox(oxorany("RGB Menu"), &cfg_rgb_menu, a);
-        if (cfg_rgb_menu) {
-            separator(a);
-            slider(oxorany("RGB Speed"), &cfg_rgb_speed, 0.1f, 5.f, a, "%.1f");
-        }
-        separator(a);
-        checkbox(oxorany("Corner Dots"), &cfg_corner_dots, a);
-        if (cfg_corner_dots) {
-            separator(a);
-            slider(oxorany("Dot Size"), &cfg_corner_dot_size, 1.f, 8.f, a, "%.1f");
-        }
-        separator(a);
-
-        section(oxorany("BACKGROUND ANIMATION"), a);
-        spinner(oxorany("Type"), &cfg_anim_type, {"Snow", "Rain", "Stars"}, a);
-        separator(a);
-        slider(oxorany("Speed"), &cfg_anim_speed, 0.1f, 5.f, a, "%.1f");
-        separator(a);
-        anim_count_f = (float)cfg_anim_count;
-        slider(oxorany("Count"), &anim_count_f, 20.f, 200.f, a, "%.0f");
-        cfg_anim_count = (int)anim_count_f;
-        separator(a);
-
-        button(oxorany("Exit"), a, []() { exit(0); });
-    }
-
-    // ── Background animations ──────────────────────────────────────────────────────
-    static void background_anim() {
-        ImDrawList* bg = ImGui::GetBackgroundDrawList();
-        ImGuiIO& io2 = ImGui::GetIO();
-        if (cfg_anim_type == 0) {
-            struct Flake { float x, y, spd, alpha, sz; };
-            static Flake snow[200]; static bool si = false; static int lc = 0;
-            int cnt = cfg_anim_count; if (cnt > 200) cnt = 200; if (cnt < 10) cnt = 10;
-            if (!si || lc != cnt) {
-                srand(12345u);
-                for (int i = 0; i < cnt; i++) {
-                    snow[i].x     = (float)(rand() % (int)(io2.DisplaySize.x + 1));
-                    snow[i].y     = (float)(rand() % (int)(io2.DisplaySize.y + 1));
-                    snow[i].spd   = 0.5f + (rand() % 100) / 100.f;
-                    snow[i].alpha = 0.10f + (rand() % 35)  / 100.f;
-                    snow[i].sz    = 1.2f  + (rand() % 4);
-                }
-                si = true; lc = cnt;
-            }
-            for (int i = 0; i < cnt; i++) {
-                snow[i].y += snow[i].spd * cfg_anim_speed;
-                snow[i].x += sinf(snow[i].y * 0.018f) * 0.45f;
-                if (snow[i].y > io2.DisplaySize.y + 4.f) {
-                    snow[i].y = -4.f;
-                    snow[i].x = (float)(rand() % (int)io2.DisplaySize.x);
-                }
-                bg->AddCircleFilled(ImVec2(snow[i].x, snow[i].y), snow[i].sz,
-                    IM_COL32(200, 190, 255, (int)(snow[i].alpha * 255)));
-            }
-        } else if (cfg_anim_type == 1) {
-            struct Drop { float x, y, spd, len, alpha; };
-            static Drop rain[200]; static bool ri = false; static int rc = 0;
-            int cnt = cfg_anim_count; if (cnt > 200) cnt = 200; if (cnt < 10) cnt = 10;
-            if (!ri || rc != cnt) {
-                srand(54321u);
-                for (int i = 0; i < cnt; i++) {
-                    rain[i].x     = (float)(rand() % (int)(io2.DisplaySize.x + 1));
-                    rain[i].y     = (float)(rand() % (int)(io2.DisplaySize.y + 1));
-                    rain[i].spd   = 4.f  + (rand() % 80) / 10.f;
-                    rain[i].len   = 8.f  + (rand() % 16);
-                    rain[i].alpha = 0.12f + (rand() % 35) / 100.f;
-                }
-                ri = true; rc = cnt;
-            }
-            for (int i = 0; i < cnt; i++) {
-                rain[i].y += rain[i].spd * cfg_anim_speed;
-                if (rain[i].y > io2.DisplaySize.y + rain[i].len) {
-                    rain[i].y = -rain[i].len;
-                    rain[i].x = (float)(rand() % (int)io2.DisplaySize.x);
-                }
-                bg->AddLine(ImVec2(rain[i].x, rain[i].y),
-                            ImVec2(rain[i].x, rain[i].y + rain[i].len),
-                            IM_COL32(130, 90, 240, (int)(rain[i].alpha * 255)), 1.f);
-            }
-        } else if (cfg_anim_type == 2) {
-            struct Star { float x, y, drift, phase, sz; };
-            static Star stars[200]; static bool sti = false; static int stc = 0;
-            int cnt = cfg_anim_count; if (cnt > 200) cnt = 200; if (cnt < 10) cnt = 10;
-            if (!sti || stc != cnt) {
-                srand(99999u);
-                for (int i = 0; i < cnt; i++) {
-                    stars[i].x     = (float)(rand() % (int)(io2.DisplaySize.x + 1));
-                    stars[i].y     = (float)(rand() % (int)(io2.DisplaySize.y + 1));
-                    stars[i].drift = -0.12f + (rand() % 24) / 100.f;
-                    stars[i].phase = (rand() % 628) / 100.f;
-                    stars[i].sz    = 1.f + (rand() % 3);
-                }
-                sti = true; stc = cnt;
-            }
-            for (int i = 0; i < cnt; i++) {
-                stars[i].phase += 0.022f * cfg_anim_speed;
-                stars[i].x     += stars[i].drift * cfg_anim_speed;
-                if (stars[i].x < -4.f)                    stars[i].x = io2.DisplaySize.x + 2.f;
-                if (stars[i].x > io2.DisplaySize.x + 4.f) stars[i].x = -2.f;
-                float al = 0.25f + 0.40f * sinf(stars[i].phase);
-                float hs = stars[i].sz + 1.f;
-                ImU32 sc = IM_COL32(200, 180, 255, (int)(al * 255));
-                bg->AddLine(ImVec2(stars[i].x - hs, stars[i].y),
-                            ImVec2(stars[i].x + hs, stars[i].y), sc, 1.f);
-                bg->AddLine(ImVec2(stars[i].x, stars[i].y - hs),
-                            ImVec2(stars[i].x, stars[i].y + hs), sc, 1.f);
-            }
-        }
-    }
-
-    // ── RENDER ───────────────────────────────────────────────────────────────────
     void render(bool game_running) {
-        ui::bar::set_game_alpha(1.f);
-        ui::bar::render();
+        (void)game_running;
 
-        float dt = ImGui::GetIO().DeltaTime;
-        if (dt <= 0.f || dt > 0.1f) dt = 0.016f;
+        render_toggle();
 
-        ma = lrp(ma, ui::bar::g_open ? 1.f : 0.f, ImClamp(12.f*dt, 0.f, 1.f));
+        const float dt = ImGui::GetIO().DeltaTime > 0.f ? ImGui::GetIO().DeltaTime : 0.016f;
+        g_open_anim = lrp(g_open_anim, g_open ? 1.f : 0.f, ImMin(1.f, dt * 12.f));
+        if (g_open_anim < 0.01f) return;
 
-        if (ma > 0.01f) {
-            ImDrawList* bg = ImGui::GetBackgroundDrawList();
-            int da = (int)(200 * ma);
-            bg->AddRectFilled(ImVec2(0,0), ImVec2(g_sw,g_sh), IM_COL32(0,0,0,da));
+        // appearance / scale
+        colors::accent = g_accent;
+        ui_scale::set_percent(g_ui_scale_pct);
+
+        // dim backdrop
+        ImGui::GetBackgroundDrawList()->AddRectFilled(
+            ImVec2(0.f, 0.f), ImVec2(g_sw, g_sh), IM_COL32(0, 0, 0, (int)(150 * g_open_anim)));
+
+        const float panel_w = ui_scale::s(layout::window_w);
+        const float panel_h = ui_scale::s(layout::window_h);
+        const float sb_w    = ui_scale::s(layout::sidebar_w);
+        const float round   = ui_scale::s(layout::shell_round);
+
+        if (g_panel_pos.x < 0.f) {
+            g_panel_pos.x = (g_sw - panel_w) * 0.5f;
+            g_panel_pos.y = (g_sh - panel_h) * 0.5f;
         }
 
-        if (ma < 0.01f) return;
+        // tab fade
+        if (g_tab != g_prev_tab) { g_tab_fade = 0.f; g_prev_tab = g_tab; g_scroll_tgt = 0.f; g_scroll_cur = 0.f; }
+        g_tab_fade = lrp(g_tab_fade, 1.f, ImMin(1.f, dt * 12.f));
 
-        // Accent (RGB or fixed)
-        if (cfg_rgb_menu) {
-            float _t = (float)ImGui::GetTime() * cfg_rgb_speed;
-            ImVec4 rc = ImVec4(0.5f + 0.5f * sinf(_t), 0.5f + 0.5f * sinf(_t + 2.094f), 0.5f + 0.5f * sinf(_t + 4.189f), 1.f);
-            clr::accent       = ImVec4(rc.x, rc.y, rc.z, 0.92f);
-            clr::accent_light = ImVec4(rc.x, rc.y, rc.z, 1.0f);
-        } else {
-            clr::accent       = ImVec4(cfg_accent_color.x, cfg_accent_color.y, cfg_accent_color.z, 0.92f);
-            clr::accent_light = ImVec4(cfg_accent_color.x, cfg_accent_color.y, cfg_accent_color.z, 1.0f);
-        }
-        cfg::menu::accent_col = cfg_accent_color;
+        const float master_alpha = g_open_anim * (g_menu_opacity / 100.f);
 
-        tick();
-
-        if (tsw) {
-            ta = lrp(ta, 0.f, ImClamp(18.f*dt, 0.f, 1.f));
-            if (ta < 0.05f) {
-                tab     = ttab;
-                tsw     = false;
-                scr_tgt = 0.f;
-                scr_cur = 0.f;
-            }
-        } else {
-            ta = lrp(ta, 1.f, ImClamp(14.f*dt, 0.f, 1.f));
-        }
-
-        content_alpha = 1.f;
-
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha,            ma);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding,   0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,    ImVec2(0,0));
+        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, master_alpha);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0,0,0,0));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.f, 0.f, 0.f, 0.f));
 
-        ImVec2 wsz(mw, mh);
-        ImGui::SetNextWindowSize(wsz, ImGuiCond_Always);
-        ImGui::SetNextWindowPos(ImVec2((g_sw-mw)*0.5f,(g_sh-mh)*0.5f), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(g_panel_pos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(panel_w, panel_h), ImGuiCond_Always);
 
-        ImGuiWindowFlags wf = ImGuiWindowFlags_NoTitleBar   |
-                              ImGuiWindowFlags_NoResize      |
-                              ImGuiWindowFlags_NoScrollbar   |
-                              ImGuiWindowFlags_NoCollapse    |
-                              ImGuiWindowFlags_NoMove;
-
-        if (ImGui::Begin(oxorany("##holy_menu"), nullptr, wf)) {
-            ImVec2      wp  = ImGui::GetWindowPos();
+        if (ImGui::Begin(layout::main_window_id, nullptr,
+                ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoMove     | ImGuiWindowFlags_NoScrollbar |
+                ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings |
+                ImGuiWindowFlags_NoBackground)) {
+            const ImVec2 wp = ImGui::GetWindowPos();
             ImDrawList* dl  = ImGui::GetWindowDrawList();
-            ImGuiIO&    io  = ImGui::GetIO();
-            ImVec2      mp  = io.MousePos;
+            const ImVec2 mp = ImGui::GetIO().MousePos;
+            const ImRect panel_bb(wp, ImVec2(wp.x + panel_w, wp.y + panel_h));
 
-            background_anim();
-            shadow(wp, wsz, ma);
+            // accent border (background list — not clipped by the panel window) + panel fill
+            const float bw = ui_scale::s(2.f);
+            ImGui::GetBackgroundDrawList()->AddRectFilled(
+                ImVec2(panel_bb.Min.x - bw, panel_bb.Min.y - bw),
+                ImVec2(panel_bb.Max.x + bw, panel_bb.Max.y + bw),
+                ImGui::GetColorU32(colors::accent), round + bw); // GetColorU32 applies style.Alpha (master_alpha)
+            dl->AddRectFilled(panel_bb.Min, panel_bb.Max, ImGui::GetColorU32(colors::panel), round);
 
-            constexpr float MR = 10.f;
-            dl->AddRectFilled(wp, ImVec2(wp.x+wsz.x, wp.y+wsz.y), col(clr::bg, ma), MR);
-            {
-                ImU32 c_tl = IM_COL32(60,  8,  8, (int)(220 * ma));
-                ImU32 c_tr = IM_COL32(35,  6,  6, (int)(200 * ma));
-                ImU32 c_bl = IM_COL32(18,  4,  4, (int)(180 * ma));
-                ImU32 c_br = IM_COL32(10,  2,  2, (int)(160 * ma));
-                dl->AddRectFilledMultiColor(wp, ImVec2(wp.x+wsz.x, wp.y+wsz.y), c_tl, c_tr, c_br, c_bl);
+            bool blocks_drag = false;
+
+            const ImRect sidebar(panel_bb.Min, ImVec2(panel_bb.Min.x + sb_w, panel_bb.Max.y));
+            draw_sidebar(dl, sidebar, blocks_drag);
+
+            // content child (scrolling)
+            ImGui::SetCursorScreenPos(ImVec2(panel_bb.Min.x + sb_w, panel_bb.Min.y));
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.f, 0.f, 0.f, 0.f));
+            ImGui::BeginChild(layout::content_child_id, ImVec2(panel_w - sb_w, panel_h),
+                ImGuiChildFlags_None, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
+
+            const ImRect content_bb(ImGui::GetWindowPos(),
+                ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowWidth(),
+                       ImGui::GetWindowPos().y + ImGui::GetWindowHeight()));
+
+            // smooth scroll (clamped to previous frame's max)
+            float maxy = ImGui::GetScrollMaxY();
+            if (ImGui::IsMouseHoveringRect(content_bb.Min, content_bb.Max)) {
+                float wh = ImGui::GetIO().MouseWheel;
+                if (wh != 0.f) g_scroll_tgt -= wh * ui_scale::s(70.f);
             }
-            dl->AddRect(wp, ImVec2(wp.x+wsz.x, wp.y+wsz.y), col(clr::border_dark, ma), MR);
-            dl->AddRect(ImVec2(wp.x+1,wp.y+1), ImVec2(wp.x+wsz.x-1,wp.y+wsz.y-1), col(clr::border, ma), MR-1.f);
+            g_scroll_tgt = ImClamp(g_scroll_tgt, 0.f, ImMax(maxy, 0.f));
+            g_scroll_cur = lrp(g_scroll_cur, g_scroll_tgt, ImMin(1.f, dt * 16.f));
+            if (fabsf(g_scroll_cur - g_scroll_tgt) < 0.5f) g_scroll_cur = g_scroll_tgt;
+            ImGui::SetScrollY(g_scroll_cur);
 
-            // Header
-            dl->AddRectFilledMultiColor(
-                ImVec2(wp.x+2,wp.y+2), ImVec2(wp.x+wsz.x-2,wp.y+hh),
-                col(clr::sidebar,ma), col(clr::sidebar,ma),
-                col(clr::bg,ma),      col(clr::bg,ma));
-            dl->AddLine(ImVec2(wp.x,wp.y+hh),   ImVec2(wp.x+wsz.x,wp.y+hh),   col(clr::border_dark,ma));
-            dl->AddLine(ImVec2(wp.x,wp.y+hh+1), ImVec2(wp.x+wsz.x,wp.y+hh+1), col(clr::border,ma));
-            {
-                const char* title = oxorany("holycheatlo");
-                ImVec2 tsz = ImGui::CalcTextSize(title);
-                float  tx  = wp.x + (wsz.x - tsz.x) * 0.5f;
-                float  ty2 = wp.y + hh * 0.5f - ImGui::GetFontSize() * 0.5f;
-                dl->AddText(ImVec2(tx, ty2), col(clr::accent_light, ma), title);
-            }
+            ImGui::PushStyleVar(ImGuiStyleVar_Alpha, master_alpha * g_tab_fade);
+            draw_active_page(blocks_drag);
+            ImGui::PopStyleVar();
 
-            // Footer
-            dl->AddLine(ImVec2(wp.x,wp.y+wsz.y-fh),   ImVec2(wp.x+wsz.x,wp.y+wsz.y-fh),   col(clr::border,ma));
-            dl->AddLine(ImVec2(wp.x,wp.y+wsz.y-fh-1), ImVec2(wp.x+wsz.x,wp.y+wsz.y-fh-1), col(clr::border_dark,ma));
-            {
-                time_t now_t = time(0);
-                tm*    ltm   = localtime(&now_t);
-                char   tb[32];
-                if (ltm) snprintf(tb, sizeof(tb), "%02d:%02d:%02d", ltm->tm_hour, ltm->tm_min, ltm->tm_sec);
-                else     snprintf(tb, sizeof(tb), "--:--:--");
-                float footer_y = wp.y + wsz.y - fh + (fh - ImGui::GetFontSize()) * 0.5f;
-                dl->AddText(ImVec2(wp.x+10, footer_y), col(clr::text_dim,ma), oxorany("Time"));
-                ImVec2 lsz = ImGui::CalcTextSize(oxorany("Time "));
-                dl->AddText(ImVec2(wp.x+10+lsz.x, footer_y), col(clr::accent,ma), tb);
-
-                const char* state = game_running ? oxorany("game") : oxorany("waiting");
-                ImVec2 ssz = ImGui::CalcTextSize(state);
-                dl->AddText(ImVec2(wp.x+wsz.x-ssz.x-12.f, footer_y),
-                    game_running ? IM_COL32(120,255,120,(int)(255*ma)) : IM_COL32(255,170,80,(int)(255*ma)),
-                    state);
-            }
-
-            // Sidebar
-            ImVec2 smin(wp.x+2,  wp.y+hh+2);
-            ImVec2 smax(wp.x+sw, wp.y+wsz.y-fh);
-            dl->AddRectFilled(smin, smax, col(clr::sidebar, ma));
-            dl->AddLine(ImVec2(smax.x,smin.y), ImVec2(smax.x,smax.y), col(clr::border,ma));
-
-            float tsy  = smin.y + 16.f;
-            float th   = 50.f;
-            float tg   = 6.f;
-            float tp_l = 16.f;
-
-            for (int i = 0; i < tc; i++) {
-                float ty2 = tsy + i * (th + tg);
-                float tx2 = smin.x + 6.f;
-                float tw2 = sw - 14.f;
-
-                ImVec2 tmin(tx2,      ty2);
-                ImVec2 tmax(tx2+tw2, ty2+th);
-
-                bool sel = (tab == i);
-                bool hov = ImGui::IsMouseHoveringRect(tmin, tmax);
-
-                float sa  = anim("t_"  + std::to_string(i), sel ? 1.f : 0.f,           14.f);
-                float hav = anim("th_" + std::to_string(i), hov && !sel ? 0.4f : 0.f,  14.f);
-
-                constexpr float TR = 6.f;
-                if (sa > 0.01f) {
-                    dl->AddRectFilled(tmin, tmax, col(clr::widget, sa*ma), TR);
-                    dl->AddRect(      tmin, tmax, col(clr::border_light, sa*ma*0.5f), TR, ImDrawFlags_RoundCornersAll, 1.f);
-                    dl->AddRectFilled(tmin, ImVec2(tmin.x+3, tmax.y), col(clr::accent, sa*ma), TR, ImDrawFlags_RoundCornersLeft);
-                } else if (hav > 0.01f) {
-                    dl->AddRectFilled(tmin, tmax, col(clr::panel, hav*ma), TR);
-                }
-
-                ImVec4 ttc = anim_col("tt_" + std::to_string(i), sel ? clr::accent_light : clr::text_dim, 14.f);
-                float ny = ty2 + (th - ImGui::GetFontSize()) * 0.5f;
-                dl->AddText(ImVec2(tx2+tp_l, ny), col(ttc,ma), tabs[i]);
-
-                if (hov && ImGui::IsMouseClicked(0) && ma > 0.5f && !tsw) {
-                    if (!popup() && tab != i) {
-                        ttab  = i;
-                        tsw   = true;
-                    }
-                    close();
-                }
-            }
-
-            // Content
-            float csx = wp.x + sw + 1.f;
-            float cex = wp.x + wsz.x - 2.f;
-
-            float cp_pad = 14.f;
-            float sbw    = 20.f;
-            float sbg    = 10.f;
-
-            content_w = cex - csx - cp_pad*2.f - sbg - sbw;
-
-            float cw  = content_w;
-            float csy = wp.y + hh + 2.f + cp_pad;
-            float ch  = (wp.y + wsz.y - fh) - csy - cp_pad;
-
-            ImVec2 cpos(csx + cp_pad, csy);
-            ImVec2 cmax_v(cpos.x + cw, cpos.y + ch);
-
-            ImGui::SetCursorScreenPos(cpos);
-            ImGui::PushStyleVar(ImGuiStyleVar_Alpha,       ma * ta);
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0,0,0,0));
-            ImGui::PushClipRect(cpos, cmax_v, true);
-
-            content_alpha = ta;
-            ImGui::BeginChild(oxorany("##content"), ImVec2(cw,ch), false, ImGuiWindowFlags_NoScrollbar);
-
-            float sm = ImGui::GetScrollMaxY();
-
-            if (ImGui::IsMouseHoveringRect(cpos, cmax_v) && !popup()) {
-                float wh = io.MouseWheel;
-                if (wh != 0.f) scr_tgt -= wh * 60.f;
-            }
-            scr_tgt = ImClamp(scr_tgt, 0.f, ImMax(sm, 0.f));
-            scr_cur = lrp(scr_cur, scr_tgt, ImClamp(16.f*dt, 0.f, 1.f));
-            if (fabsf(scr_cur - scr_tgt) < 0.5f) scr_cur = scr_tgt;
-            ImGui::SetScrollY(scr_cur);
-
-            switch (tab) {
-                case 0: aimbot_tab(ma);   break;
-                case 1: visuals_tab(ma);  break;
-                case 2: misc_tab(ma);     break;
-                case 3: settings_tab(ma); break;
-            }
-
-            sm = ImGui::GetScrollMaxY();
-            scr_tgt = ImClamp(scr_tgt, 0.f, ImMax(sm, 0.f));
+            maxy = ImGui::GetScrollMaxY();
+            g_scroll_tgt = ImClamp(g_scroll_tgt, 0.f, ImMax(maxy, 0.f));
 
             ImGui::EndChild();
-            ImGui::PopClipRect();
-            ImGui::PopStyleColor(1);
-            ImGui::PopStyleVar(2);
+            ImGui::PopStyleColor();
+            ImGui::PopStyleVar();
 
-            // Scrollbar
-            float sbx = cmax_v.x + sbg;
-            float sby = cpos.y;
-            float sbh = ch;
-
-            if (sm > 0.f) {
-                constexpr float SBR = 4.f;
-                dl->AddRectFilled(ImVec2(sbx, sby), ImVec2(sbx+sbw, sby+sbh), col(clr::bg_two, ma), SBR);
-                dl->AddRect(      ImVec2(sbx, sby), ImVec2(sbx+sbw, sby+sbh), col(clr::border, ma), SBR, ImDrawFlags_RoundCornersAll, 1.f);
-
-                float sr = ch / (ch + sm);
-                float gh = ImMax(sbh * sr, 40.f);
-                float sn = scr_tgt / sm;
-                float gy = sby + (sbh - gh) * sn;
-
-                dl->AddRectFilled(ImVec2(sbx+2, gy+2), ImVec2(sbx+sbw-2, gy+gh-2), col(clr::accent, ma), SBR);
-                dl->AddRect(      ImVec2(sbx+2, gy+2), ImVec2(sbx+sbw-2, gy+gh-2), col(clr::accent_dark, ma), SBR, ImDrawFlags_RoundCornersAll, 1.f);
-
-                ImRect sbr(ImVec2(sbx-30.f,sby), ImVec2(sbx+sbw+10.f,sby+sbh));
-                bool sbhov = ImGui::IsMouseHoveringRect(sbr.Min, sbr.Max);
-                static bool  sbd  = false;
-                static float sbds = 0.f;
-
-                if (sbhov && ImGui::IsMouseClicked(0) && !popup()) {
-                    sbd  = true;
-                    sbds = mp.y - gy;
-                }
-                if (!ImGui::IsMouseDown(0)) sbd = false;
-
-                if (sbd && sm > 0.f) {
-                    float nn = ((mp.y - sbds) - sby) / (sbh - gh);
-                    nn = ImClamp(nn, 0.f, 1.f);
-                    scr_tgt = nn * sm;
-                    scr_cur = scr_tgt;
-                }
+            // custom scrollbar + finger-drag scroll on empty content
+            if (maxy > 0.f) {
+                const float sb_pad = ui_scale::s(4.f);
+                const float bar_w  = ui_scale::s(4.f);
+                const float bx = content_bb.Max.x - bar_w - sb_pad;
+                const float by = content_bb.Min.y + sb_pad;
+                const float bh = content_bb.GetHeight() - sb_pad * 2.f;
+                dl->AddRectFilled(ImVec2(bx, by), ImVec2(bx + bar_w, by + bh),
+                    ImGui::GetColorU32(colors::control), bar_w * 0.5f);
+                const float frac = bh / (bh + maxy);
+                const float gh = ImMax(bh * frac, ui_scale::s(28.f));
+                const float gy = by + (bh - gh) * (g_scroll_tgt / maxy);
+                dl->AddRectFilled(ImVec2(bx, gy), ImVec2(bx + bar_w, gy + gh),
+                    ImGui::GetColorU32(colors::accent), bar_w * 0.5f);
             }
 
-            // Drag (header / empty area, away from tabs/content/scrollbar)
-            bool inm = (mp.x >= wp.x && mp.x <= wp.x+wsz.x &&
-                        mp.y >= wp.y && mp.y <= wp.y+wsz.y);
-
-            if (inm && !popup() && ImGui::IsMouseClicked(0)) {
-                bool ont = false;
-                for (int i = 0; i < tc; i++) {
-                    float ty2 = tsy + i*(th+tg);
-                    float tx2 = smin.x + 6.f;
-                    float tw2 = sw - 14.f;
-                    if (mp.x >= tx2 && mp.x <= tx2+tw2 &&
-                        mp.y >= ty2 && mp.y <= ty2+th) { ont = true; break; }
-                }
-                bool inca = (mp.x >= cpos.x    && mp.x <= cmax_v.x &&
-                             mp.y >= cpos.y    && mp.y <= cmax_v.y);
-                bool insb = (mp.x >= sbx-30.f  && mp.x <= sbx+sbw+10.f &&
-                             mp.y >= sby        && mp.y <= sby+sbh);
-
-                if (!ont && !inca && !insb) {
-                    drag = true;
-                    doff = ImVec2(mp.x-wp.x, mp.y-wp.y);
-                }
+            // finger-drag scroll: start on empty content (no widget under finger)
+            static bool scroll_drag = false;
+            static float last_my = 0.f;
+            const bool in_content = mp.x >= content_bb.Min.x && mp.x <= content_bb.Max.x &&
+                                    mp.y >= content_bb.Min.y && mp.y <= content_bb.Max.y;
+            if (ImGui::IsMouseClicked(0) && in_content && !blocks_drag) { scroll_drag = true; last_my = mp.y; }
+            if (!ImGui::IsMouseDown(0)) scroll_drag = false;
+            if (scroll_drag) {
+                g_scroll_tgt = ImClamp(g_scroll_tgt - (mp.y - last_my), 0.f, ImMax(maxy, 0.f));
+                g_scroll_cur = g_scroll_tgt;
+                last_my = mp.y;
             }
 
-            if (drag) {
+            // panel drag (sidebar empty space)
+            const bool in_panel = mp.x >= panel_bb.Min.x && mp.x <= panel_bb.Max.x &&
+                                  mp.y >= panel_bb.Min.y && mp.y <= panel_bb.Max.y;
+            if (ImGui::IsMouseClicked(0) && in_panel && !in_content && !blocks_drag && !scroll_drag) {
+                g_drag = true;
+                g_drag_off = ImVec2(mp.x - wp.x, mp.y - wp.y);
+            }
+            if (g_drag) {
                 if (ImGui::IsMouseDown(0)) {
-                    ImVec2 np(mp.x-doff.x, mp.y-doff.y);
-                    np.x = ImClamp(np.x, 0.f, g_sw-wsz.x);
-                    np.y = ImClamp(np.y, 0.f, g_sh-wsz.y);
-                    ImGui::SetWindowPos(oxorany("##holy_menu"), np);
+                    g_panel_pos = ImVec2(ImClamp(mp.x - g_drag_off.x, 0.f, g_sw - panel_w),
+                                         ImClamp(mp.y - g_drag_off.y, 0.f, g_sh - panel_h));
+                    ImGui::SetWindowPos(layout::main_window_id, g_panel_pos);
                 } else {
-                    drag = false;
+                    g_drag = false;
                 }
-            }
-            if (popup()) drag = false;
-
-            // Corner dots
-            if (cfg_corner_dots) {
-                float cr  = cfg_win_rounding;
-                float ds  = cfg_corner_dot_size;
-                ImU32 dc  = col(clr::accent, ma);
-                dl->AddCircleFilled(ImVec2(wp.x + cr,        wp.y + cr       ), ds, dc);
-                dl->AddCircleFilled(ImVec2(wp.x+wsz.x - cr,  wp.y + cr       ), ds, dc);
-                dl->AddCircleFilled(ImVec2(wp.x + cr,        wp.y+wsz.y - cr ), ds, dc);
-                dl->AddCircleFilled(ImVec2(wp.x+wsz.x - cr,  wp.y+wsz.y - cr ), ds, dc);
             }
         }
         ImGui::End();
-        ImGui::PopStyleColor(1);
+        ImGui::PopStyleColor();
         ImGui::PopStyleVar(4);
-
-        popups();
     }
-
-} // namespace ui::menu
+}
