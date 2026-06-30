@@ -191,6 +191,14 @@ function javaHooks() {
   });
 }
 
+/* Frida 17-совместимый поиск глобального экспорта */
+function gexp(name) {
+  try { if (Module.findGlobalExportByName) return Module.findGlobalExportByName(name); } catch (e) {}
+  try { if (Module.getGlobalExportByName) return Module.getGlobalExportByName(name); } catch (e) {}
+  try { if (Module.findExportByName) return Module.findExportByName(null, name); } catch (e) {}
+  return null;
+}
+
 /* ----------------------------- НАТИВНЫЙ СЛОЙ ----------------------------- */
 function nativeJNIHooks() {
   // libart экспортирует символы JNI-функций — ловим строки и регистрацию нативов.
@@ -259,8 +267,7 @@ function nativeJNIHooks() {
 /* --- дождаться загрузки libZeninCPP.so, чтобы хукать нативный дешифратор по offset --- */
 function waitForLib() {
   if (!CFG.hookDlopen) return;
-  var dlopen = Module.findExportByName(null, 'android_dlopen_ext') ||
-               Module.findExportByName(null, 'dlopen');
+  var dlopen = gexp('android_dlopen_ext') || gexp('dlopen');
   if (!dlopen) return;
   Interceptor.attach(dlopen, {
     onEnter: function (a) { try { this.p = a[0].readCString(); } catch (e) {} },

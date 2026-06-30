@@ -6,9 +6,17 @@
  */
 function log(m){ console.log('[anti-dbg] ' + m); }
 
+// Frida 17-совместимый поиск экспорта (старый Module.findExportByName удалён).
+function gexp(name){
+  try { if (Module.findGlobalExportByName) return Module.findGlobalExportByName(name); } catch(e){}
+  try { if (Module.getGlobalExportByName) return Module.getGlobalExportByName(name); } catch(e){}
+  try { if (Module.findExportByName) return Module.findExportByName(null, name); } catch(e){}
+  return null;
+}
+
 // 1) ptrace(PTR_TRACEME) — частый трюк защиты; возвращаем 0.
 try {
-  var ptrace = Module.findExportByName(null, 'ptrace');
+  var ptrace = gexp('ptrace');
   if (ptrace) Interceptor.replace(ptrace, new NativeCallback(function(){ return 0; }, 'long',
     ['int','pointer','pointer','pointer']));
   log('ptrace neutralized: ' + !!ptrace);
@@ -16,14 +24,13 @@ try {
 
 // 2) Детект по строкам: strstr/strcmp ищут "frida", "gum-js", "/proc/self/maps", TracerPid.
 ['strstr','strcmp','strcasestr'].forEach(function(fn){
-  var p = Module.findExportByName(null, fn);
+  var p = gexp(fn);
   if (!p) return;
   Interceptor.attach(p, {
     onEnter: function(a){
       try {
         var s = a[1].readCString() || '';
-        if (/frida|gum-js|gmain|linjector|/.test(s) ||
-            /tracerpid|/i.test(s)) { this.fake = true; }
+        if (/frida|gum-js|gmain|linjector/.test(s) || /tracerpid/i.test(s)) { this.fake = true; }
       } catch(e){}
     },
     onLeave: function(r){ if (this.fake) r.replace(ptr(fn==='strcmp'?1:0)); }
@@ -35,7 +42,7 @@ log('string-detect hooks set');
 try {
   var openFns = ['open','open64','fopen'];
   openFns.forEach(function(fn){
-    var p = Module.findExportByName(null, fn); if(!p) return;
+    var p = gexp(fn); if(!p) return;
     Interceptor.attach(p, { onEnter: function(a){
       try { var path = a[0].readCString() || '';
         if (path.indexOf('/proc/') >=0 && (path.indexOf('maps')>=0 || path.indexOf('status')>=0))
@@ -248,6 +255,14 @@ function javaHooks() {
   });
 }
 
+/* Frida 17-совместимый поиск глобального экспорта */
+function gexp(name) {
+  try { if (Module.findGlobalExportByName) return Module.findGlobalExportByName(name); } catch (e) {}
+  try { if (Module.getGlobalExportByName) return Module.getGlobalExportByName(name); } catch (e) {}
+  try { if (Module.findExportByName) return Module.findExportByName(null, name); } catch (e) {}
+  return null;
+}
+
 /* ----------------------------- НАТИВНЫЙ СЛОЙ ----------------------------- */
 function nativeJNIHooks() {
   // libart экспортирует символы JNI-функций — ловим строки и регистрацию нативов.
@@ -316,8 +331,7 @@ function nativeJNIHooks() {
 /* --- дождаться загрузки libZeninCPP.so, чтобы хукать нативный дешифратор по offset --- */
 function waitForLib() {
   if (!CFG.hookDlopen) return;
-  var dlopen = Module.findExportByName(null, 'android_dlopen_ext') ||
-               Module.findExportByName(null, 'dlopen');
+  var dlopen = gexp('android_dlopen_ext') || gexp('dlopen');
   if (!dlopen) return;
   Interceptor.attach(dlopen, {
     onEnter: function (a) { try { this.p = a[0].readCString(); } catch (e) {} },
