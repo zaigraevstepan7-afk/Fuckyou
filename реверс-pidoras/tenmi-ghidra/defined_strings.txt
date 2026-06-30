@@ -1,0 +1,1112 @@
+00100270  /system/bin/linker64
+00101935  __libc_init
+00101941  __cxa_atexit
+0010194e  __register_atfork
+00101960  strlen
+00101967  malloc
+0010196e  strcmp
+00101975  stat
+0010197a  mkdir
+00101980  access
+00101987  exit
+0010198c  usleep
+00101993  pthread_create
+001019a2  pthread_setspecific
+001019b6  vsnprintf
+001019c0  strdup
+001019c7  free
+001019cc  __vsprintf_chk
+001019db  __vsnprintf_chk
+001019eb  rand
+001019f0  atan2f
+001019f7  __memcpy_chk
+00101a04  memcmp
+00101a0b  opendir
+00101a13  readdir
+00101a1b  closedir
+00101a24  fopen
+00101a2a  fclose
+00101a31  __strcat_chk
+00101a3e  __strlen_chk
+00101a4b  strstr
+00101a52  fread
+00101a58  __strcpy_chk
+00101a65  fwrite
+00101a6c  memchr
+00101a73  wmemchr
+00101a7b  ftell
+00101a81  fseek
+00101a87  fflush
+00101a8e  __memset_chk
+00101a9b  qsort
+00101aa1  sscanf
+00101aa8  fork
+00101aad  execvp
+00101ab4  waitpid
+00101abc  stdout
+00101ac3  strncmp
+00101acb  strchr
+00101ad2  atof
+00101ad7  ANativeWindow_getWidth
+00101aee  ANativeWindow_getHeight
+00101b06  clock_gettime
+00101b14  glGetString
+00101b20  glGetIntegerv
+00101b2e  glActiveTexture
+00101b3e  glIsEnabled
+00101b4a  glGenVertexArrays
+00101b5c  glBufferData
+00101b69  glBufferSubData
+00101b79  glScissor
+00101b83  glBindTexture
+00101b91  glDrawElements
+00101ba0  glDeleteVertexArrays
+00101bb5  glIsProgram
+00101bc1  glUseProgram
+00101bce  glBindSampler
+00101bdc  glBindVertexArray
+00101bee  glBindBuffer
+00101bfb  glBlendEquationSeparate
+00101c13  glBlendFuncSeparate
+00101c27  glEnable
+00101c30  glDisable
+00101c3a  glViewport
+00101c45  glGenTextures
+00101c53  glTexParameteri
+00101c63  glPixelStorei
+00101c71  glTexImage2D
+00101c7e  glDeleteTextures
+00101c8f  glCreateShader
+00101c9e  glShaderSource
+00101cad  glCompileShader
+00101cbd  glCreateProgram
+00101ccd  glAttachShader
+00101cdc  glLinkProgram
+00101cea  glDetachShader
+00101cf9  glDeleteShader
+00101d08  glGetUniformLocation
+00101d1d  glGetAttribLocation
+00101d31  glGenBuffers
+00101d3e  glDeleteBuffers
+00101d4e  glDeleteProgram
+00101d5e  glBlendEquation
+00101d6e  glUniform1i
+00101d7a  glUniformMatrix4fv
+00101d8d  glEnableVertexAttribArray
+00101da7  glVertexAttribPointer
+00101dbd  glGetShaderiv
+00101dcb  fprintf
+00101dd3  glGetShaderInfoLog
+00101de6  glGetProgramiv
+00101df5  glGetProgramInfoLog
+00101e09  stderr
+00101e10  __system_property_get
+00101e26  strtol
+00101e2d  ANativeWindow_acquire
+00101e43  eglGetDisplay
+00101e51  printf
+00101e58  glGetError
+00101e63  eglInitialize
+00101e71  eglChooseConfig
+00101e81  eglGetConfigAttrib
+00101e94  ANativeWindow_setBuffersGeometry
+00101eb5  eglCreateContext
+00101ec6  eglCreateWindowSurface
+00101edd  eglMakeCurrent
+00101eec  glClear
+00101ef4  eglSwapBuffers
+00101f03  eglDestroyContext
+00101f15  eglDestroySurface
+00101f27  eglTerminate
+00101f34  ANativeWindow_release
+00101f4a  dlopen
+00101f51  dlsym
+00101f57  dlclose
+00101f5f  sleep
+00101f65  read
+00101f6a  ioctl
+00101f70  __open_2
+00101f79  close
+00101f7f  slCreateEngine
+00101f8e  SL_IID_ENGINE
+00101f9c  SL_IID_PLAY
+00101fa8  SL_IID_SEEK
+00101fb4  __errno
+00101fbc  popen
+00101fc2  pclose
+00101fc9  rewind
+00101fd0  process_vm_readv
+00101fe1  process_vm_writev
+00101ff3  vprintf
+00101ffb  fgets
+00102001  sincosf
+00102009  log
+0010200d  acosf
+00102013  logf
+00102018  pow
+0010201c  powf
+00102021  asinf
+00102027  fmodf
+0010202d  memmove
+00102035  memcpy
+0010203c  pthread_mutex_lock
+0010204f  pthread_mutex_unlock
+00102064  memset
+0010206b  wcslen
+00102072  strtof
+00102079  strtod
+00102080  snprintf
+00102089  strerror_r
+00102094  abort
+0010209a  pthread_detach
+001020a9  nanosleep
+001020b3  pthread_key_create
+001020c6  pthread_cond_broadcast
+001020dd  pthread_cond_wait
+001020ef  pthread_getspecific
+00102103  realloc
+0010210b  setbuf
+00102112  fseeko
+00102119  ftello
+00102120  __sF
+00102125  ungetc
+0010212c  getc
+00102131  ungetwc
+00102139  getwc
+0010213f  fputwc
+00102146  newlocale
+00102150  uselocale
+0010215a  vsscanf
+00102162  strftime_l
+0010216d  mbsrtowcs
+00102177  vasprintf
+00102181  freelocale
+0010218c  iswlower_l
+00102197  wcsnrtombs
+001021a2  wcrtomb
+001021aa  mbsnrtowcs
+001021b5  mbrtowc
+001021bd  mbtowc
+001021c4  __ctype_get_mb_cur_max
+001021db  mbrlen
+001021e2  strtoll_l
+001021ec  strtoull_l
+001021f7  strtold_l
+00102201  syscall
+00102209  vfprintf
+00102212  fputc
+00102218  android_set_abort_message
+00102232  openlog
+0010223a  syslog
+00102241  closelog
+0010224a  posix_memalign
+00102259  __cxa_thread_atexit_impl
+00102272  pthread_once
+0010227f  getauxval
+00102289  pthread_rwlock_wrlock
+0010229f  pthread_rwlock_unlock
+001022b5  dl_iterate_phdr
+001022c5  pthread_rwlock_rdlock
+001022db  __stack_chk_fail
+001022ec  strncpy
+001022f4  libm.so
+001022fc  LIBC
+00102301  libdl.so
+0010230a  libc.so
+00102312  libz.so
+0010231a  liblog.so
+00102324  libandroid.so
+00102332  libEGL.so
+0010233c  libGLESv3.so
+00102349  libOpenSLES.so
+001166e0  unspecified system_category error
+00116709  0123456789
+00116714  locale not supported
+00116729  VTT for 
+00116732  operator+=
+0011673d  wchar_t
+00116745  unsigned short
+00116754  false
+0011675a  unsigned long long
+0011676d   decltype(auto)
+00116781  /storage/emulated/0/melodium
+001167a4  RightLeg
+001167af  Missing EndMultiSelect()
+001167c8  Missing PopItemFlag()
+001167de  LeftCtrl
+001167e7  KeypadEnter
+001167f3  GamepadFaceDown
+00116803  GamepadDpadDown
+00116813  ###NavWindowingList
+00116827  V:%3d
+0011682d  ##ColorButton
+0011683b  _COL3F
+00116842  ##hex
+00116848   Sort=%d%c
+00116853  Position
+0011685c  AImGui
+00116863  Failed to write to memory location: 
+00116888  September
+00116892  %s failed to release mutex
+001168ad  %s:%d: %s
+001168bc  __float128
+001168c7  decltype(auto)
+001168d6   imaginary
+001168e1  libunwind: %s - %s 
+001168f5  DW_EH_PE_funcrel pointer encoding not supported
+00116934  Spine
+0011693c  RightAlt
+00116945  RightBracket
+00116956  G:%0.3f
+0011695e  Original
+00116972  Mismatching PushID/PopID!
+0011698c  ##ContextMenu
+0011699a   Width=%d
+001169a4  _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8EjjijPNS_14SurfaceControlENS_13LayerMetadataEPj
+00116a18  typename 
+00116a22  getSavedFloatRegister
+00116a46  picadff
+00116a56  #MOVE
+00116a5c  Missing TreePop()
+00116a7e  GamepadFaceRight
+00116a8f  #%02X%02X%02X%02X
+00116aa4  _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8EjjijPNS_14SurfaceControlENS_13LayerMetadataE
+00116b11  _ZN7android13LayerMetadata8setInt32Eji
+00116b38  _ZN7android21SurfaceComposerClient23getPhysicalDisplayTokenENS_17PhysicalDisplayIdE
+00116b8c  _ZN7android21SurfaceComposerClient11TransactionC2Ev
+00116bc6  operator=
+00116bd0  operator,
+00116bda  operator>=
+00116be5  __int128
+00116bee  libunwind: malformed DW_CFA_def_cfa DWARF unwind, reg too big 
+00116c35  /storage/emulated/0/Download/
+00116c5e  karambit
+00116c67  Stilet
+00116c6e  Sting
+00116c74  LeftShoulder
+00116c81  LeftHand
+00116c8e  #RESIZE
+00116c96  Must call EndChild() and not End()!
+00116cba  Invalid flags for IsWindowHovered()!
+00116cdf  Insert
+00116cea  GamepadFaceLeft
+00116cfa  ..-         -XXXXXXX-    X    -           X           -XXXXXXX          -          XXXXXXX-     XX          - XX       XX ..-         -X.....X-   X.X   -          X.X          -X.....X          -          X.....X-    X..X         -X..X     X..X---         -XXX.XXX-  X...X  -         X...X         -X....X           -           X....X-    X..X         -X...X   X...XX           -  X.X  - X.....X -        X.....X        -X...X            -            X...X-    X..X         - X...X X...X XX          -  X.X  -X.......X-       X.......X       -X..X.X           -           X.X..X-    X..X         -  X...X...X  X.X         -  X.X  -XXXX.XXXX-       XXXX.XXXX       -X.X X.X          -          X.X X.X-    X..XXX       -   X.....X   X..X        -  X.X  -   X.X   -          X.X          -XX   X.X         -         X.X   XX-    X..X..XXX    -    X...X    X...X       -  X.X  -   X.X   -    XX    X.X    XX    -      X.X        -        X.X      -    X..X..X..XX  -     X.X     X....X      -  X.X  -   X.X   -   X.X    X.X    X.X   -       X.X       -       X.X       -    X..X..X..X.X -    X...X    X.....X     -  X.X  -   X.X   -  X..X    X.X    X..X  -        X.X      -      X.X        -XXX X..X..X..X..X-   X.....X   X......X    -  X.X  -   X.X   - X...XXXXXX.XXXXXX...X -         X.X   XX-XX   X.X         -X..XX........X..X-  X...X...X  X.......X   -  X.X  -   X.X   -X.....................X-          X.X X.X-X.X X.X          -X...X...........X- X...X X...X X........X  -  X.X  -   X.X   - X...XXXXXX.XXXXXX...X -           X.X..X-X..X.X           - X..............X-X...X   X...XX.........X -XXX.XXX-   X.X   -  X..X    X.X    X..X  -            X...X-X...X            -  X.............X-X..X     X..XX..........X-X.....X-   X.X   -   X.X    X.X    X.X   -           X....X-X....X           -  X.............X- XX       XX X......XXXXX-XXXXXXX-   X.X   -    XX    X.X    XX    -          X.....X-X.....X          -   X............X--------------X...X..X    ---------   X.X   -          X.X          -          XXXXXXX-XXXXXXX          -   X...........X -             X..X X..X   -       -XXXX.XXXX-       XXXX.XXXX       -------------------------------------    X..........X -             X.X  X..X   -       -X.......X-       X.......X       -    XX           XX    -           -    X..........X -             XX    X..X  -       - X.....X -        X.....X        -   X.X           X.X   -           -     X........X  -                   X..X  -       -  X...X  -         X...X         -  X..X           X..X  -           -     X........X  -                    XX   -       -   X.X   -          X.X          - X...XXXXXXXXXXXXX...X -           -     XXXXXXXXXX  -             -------------       -    X    -           X           -X.....................X-           -------------------                                 ----------------------------------- X...XXXXXXXXXXXXX...X -                                                                                                 -  X..X           X..X  -                                                                                                 -   X.X           X.X   -                                                                                                 -    XX           XX    -                                           
+001179d9  H: %.3f, S: %.3f, V: %.3f
+001179fc  _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8EjjiiRKNS_2spINS_7IBinderEEENS_3gui13LayerMetadataEPj
+00117a71  _ZN7android7String8C2EPKc
+00117a8b  _ZN7android21SurfaceComposerClient15getDisplayStateERKNS_2spINS_7IBinderEEEPNS_2ui12DisplayStateE
+00117aed  __thread_specific_ptr construction failed
+00117b17  std::exception
+00117b26  std::bad_cast
+00117b34  operator.*
+00117b3f  sizeof 
+00117b47   [enable_if:
+00117b54  libunwind: malformed DW_CFA_val_offset DWARF unwind, reg (%lu) out of range  
+00117bba  CIE version is not 1 or 3
+00117bd9  imgui.ini
+00117be6  GraveAccent
+00117bf2  GamepadDpadRight
+00117c03  GamepadR3
+00117c0d  MouseX1
+00117c15  ###NavUpdateWindowing
+00117c2b  [%s][%s] 
+00117c3a  context
+00117c42   Visible=%d
+00117c4e  vertex shader
+00117c5c  clock_gettime(CLOCK_MONOTONIC) failed
+00117c82  bad_array_new_length
+00117c97  out/llvm-project/libcxxabi/src/private_typeinfo.cpp
+00117ccb  operator&
+00117cd5  operator<<
+00117ce0  operator|
+00117cea  operator>>
+00117cf5  yptnk
+00117cfb  ::friend 
+00117d05  char8_t
+00117d0d  std::nullptr_t
+00117d1c  _Unwind_Resume() can't return
+00117d3a  libunwind: malformed DW_CFA_def_cfa_sf DWARF unwind, reg too big 
+00117d7c  Can't binary search on variable length encoded data.
+00117db9  thread constructor failed
+00117dd3  Mantis
+00117dda  other
+00117de2  Calling PopFont() too many times!
+00117e09  IsChild=1 
+00117e14  0..255
+00117e1b  Too many PopItemWidth!
+00117e32  precision highp float; layout (location = 0) in vec2 Position; layout (location = 1) in vec2 UV; layout (location = 2) in vec4 Color; uniform mat4 ProjMtx; out vec2 Frag_UV; out vec4 Frag_Color; void main() {     Frag_UV = UV;     Frag_Color = Color;     gl_Position = ProjMtx * vec4(Position.xy,0,1); } 
+00117f67  pidof -s %s
+00117f73  unspecified generic_category error
+00117f99  %s failed to acquire mutex
+00117fb4  operator==
+00117fbf  operator++
+00117fca  static_cast
+00117fdb  ro.arch
+00117fe3  getULEB128
+00117ffb  %s/%s_%08X
+0011800c  #%02X%02X%02X
+0011801a   Weight=%.4f
+00118027  #version 300 es
+00118037  #version %d
+00118043  : no conversion
+00118054  ios_base::clear
+0011806e  long double
+0011807a   complex
+00118083  unsigned 
+0011808d  libunwind: malformed DW_CFA_offset_extended DWARF unwind, reg too big 
+001180d7  FDE has zero length
+001180f1  Jkommando
+00118100  RightUpperarm
+00118110  Shift+
+00118117  Period
+00118126  KeypadMultiply
+00118135  GamepadL2
+0011813f  MouseRight
+0011814a  Collapsed=%d
+0011815b  H: %.3f, S: %.3f, V: %.3f, A: %.3f
+0011817e  Weight=%f%n
+0011818a   UserID=%08X
+00118197  ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to link %s! With GLSL %s 
+001181e6  eglGetDisplay error: %u 
+001181ff  _ZN7android7String8D2Ev
+0011821b  terminate_handler unexpectedly returned
+00118243  catching a class without an object?
+00118267  non-virtual thunk to 
+0011827d  Invalid access!
+0011828d  operator&&
+00118298  dynamic_cast
+001182a5  Popping empty vector!
+001182bb  noexcept
+001182c4  truncated uleb128 expression
+001182e1  libunwind: unsupported .eh_frame_hdr version: %u at %lx 
+0011832a  /storage/emulated/0/melodium/audio/hit.wav
+00118366  LeftFoot
+00118373  Ctrl+
+00118379  Missing EndTable()
+0011838c  Open '%s'
+00118396  RightArrow
+001183a1  GamepadFaceUp
+001183af  GamepadLStickDown
+001183c1  IsChild=%d
+001183cc  Size=%d,%d 
+001183d8  ##preview
+001183e2  (%.3ff, %.3ff, %.3ff, %.3ff)
+00118402  [%s][0x%08X,%d] 
+00118413  Failed to open file: 
+0011842e  __cxa_guard_release
+00118442  uncaught
+0011844b  typeinfo name for 
+0011845e  operator co_await
+00118470  reinterpret_cast
+00118486  exynos9810
+00118491  unsupported arm64 register
+001184ac  unsupported restore location for register
+001184d6  getTableEntrySize
+001184ee  Calling End() too many times!
+0011850c  CapsLock
+00118515  KeypadAdd
+00118529  ##picker
+00118532  Color
+00118538  #%02X%02X%02X%02X R:%d, G:%d, B:%d, A:%d (%.3f, %.3f, %.3f, %.3f)
+00118583  std::bad_alloc
+00118592  operator&=
+0011859d  operator[]
+001185a8  operator<
+001185b2  operator new[]
+001185c1  operator|=
+001185d0  decimal128
+001185db  union
+001185e1  truncated sleb128 expression
+001185fe  DW_OP_piece not implemented
+00118627  wstring_convert: from_bytes error
+0011864d  Window
+00118654  ##Popup_%08x
+00118673  ##hsv
+00118679  ##selectable
+00118686  ##previewing_picker
+0011869a  #ifdef GL_ES     precision mediump float; #endif uniform sampler2D Texture; varying vec2 Frag_UV; varying vec4 Frag_Color; void main() {     gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV.st); } 
+00118766  unordered_map::at: key not found
+00118791  terminating due to %s exception of type %s
+001187bf  operator delete[]
+001187d1  sizeof...
+001187db  out/llvm-project/libcxxabi/src/demangle/Utility.h
+0011880d  evaluateExpression
+0011882a  RightShoulder
+00118838  LeftToeBase
+0011884a  Missing PopStyleColor()
+00118862  LeftAlt
+0011886e  LeftBracket
+0011887a  GamepadStart
+00118890  R:%0.3f
+00118898  (%d,%d,%d,%d)
+001188a6  Mismatched BeginTabBar()/EndTabBar()!
+001188d0  uniform mat4 ProjMtx; in vec2 Position; in vec2 UV; in vec4 Color; out vec2 Frag_UV; out vec4 Frag_Color; void main() {     Frag_UV = UV;     Frag_Color = Color;     gl_Position = ProjMtx * vec4(Position.xy,0,1); } 
+001189a8  eglMakeCurrent error: %u 
+001189c2  _ZN7android3gui13LayerMetadataC2Ev
+001189e5  _ZN7android21SurfaceComposerClient11Transaction17setTrustedOverlayERKNS_2spINS_14SurfaceControlEEEb
+00118a49  /proc/%d/maps
+00118a57  Something is wrong with the process: 
+00118a7d  sizeof... 
+00118a88  const_cast
+00118a93  operator~
+00118a9d  operator>>=
+00118aa9  short
+00118aaf  unsigned __int128
+00118ac1  unwind_phase2
+00118acf  malformed uleb128 expression
+00118aec  unsupported restore location for float register
+00118b29  exploits
+00118b36  not found
+00118b40  Calling PopID() too many times!
+00118b60  Reset order###ResetOrder
+00118b79  #CLOSE
+00118b80  RightCtrl
+00118b8a  RightShift
+00118b95  NumLock
+00118b9d  Pos=%d,%d 
+00118bad  #SCROLLX
+00118bb6  B:%0.3f
+00118bbe  A:%0.3f
+00118bc6  %02X%02X%02X
+00118bd3  #%02X%02X%02X R: %d, G: %d, B: %d (%.3f, %.3f, %.3f)
+00118c08  RefScale=%g 
+00118c15  /system/lib64/libutils.so
+00118c2f  _ZNK7android7RefBase9incStrongEPKv
+00118c52  _ZN7android14SurfaceControl10disconnectEv
+00118c7c  thread::detach failed
+00118c9b  decltype
+00118ca4  operator.
+00118cae  operator-
+00118cb8  operator name does not start with 'operator'
+00118ce5  double
+00118cec  libunwind: malformed DW_CFA_register DWARF unwind, reg2 too big 
+00118d2d  DW_EH_PE_aligned pointer encoding not supported
+00118d5d  getSavedRegister
+00118d72  RightHand
+00118d85  ##Child
+00118d8d  ##Tooltip_%02d
+00118d9c  PageDown
+00118dbc  MouseX2
+00118dc4  ##MainMenuBar
+00118ddc  _ZNK7android14SurfaceControl8validateEv
+00118e04  %lx-%lx
+00118e10  initializer for module 
+00118e28  (anonymous namespace)
+00118e3e  operator<=>
+00118e53  getRegister
+00118e67  FDE is really a CIE
+00118e7b  Scorpion
+00118e84  Molotov
+00118e8c  Spine1
+00118e93  RightUpLeg
+00118e9e  Missing EndGroup()
+00118eb1  Missing EndDisabled()
+00118ec7  RightSuper
+00118ed6  Minus
+00118edc  Semicolon
+00118ee6  ScrollLock
+00118ef9  GamepadRStickDown
+00118f0b  #SCROLLY
+00118f14  A:%3d
+00118f1a  ##Text
+00118f21  RefScale=%f
+00118f2d  imgui_impl_opengl3
+00118f40  layout (location = 0) in vec2 Position; layout (location = 1) in vec2 UV; layout (location = 2) in vec4 Color; uniform mat4 ProjMtx; out vec2 Frag_UV; out vec4 Frag_Color; void main() {     Frag_UV = UV;     Frag_Color = Color;     gl_Position = ProjMtx * vec4(Position.xy,0,1); } 
+0011905a  _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8EjjijPNS_14SurfaceControlEii
+001190b6  _ZN7android21SurfaceComposerClient23getInternalDisplayTokenEv
+001190f4  terminating due to %s foreign exception
+0011911c  thread-local initialization routine for 
+00119145  guard variable for 
+00119159  alignof 
+00119162  operator*
+0011916c  unsigned char
+0011917a  > typename 
+00119193  RightToeBase
+001191af  Calling PushStyleVar() variant with wrong type!
+001191df  Calling PopStyleVar() too many times!
+00119205  #SourceExtern
+00119216  GamepadBack
+00119222  GamepadLStickLeft
+00119234  UserID=0x%08X%n
+00119244  fragments shader
+00119255  _ZNK7android14SurfaceControl10getSurfaceEv
+00119280  mutex lock failed
+00119292  %.0Lf
+00119298  terminate_handler unexpectedly threw an exception
+001192ca  unexpected
+001192d5  vtable for 
+001192e4  operator*=
+001192f4   noexcept
+001192fe  string literal
+00119311  char32_t
+0011931a  libunwind: malformed DW_CFA_expression DWARF unwind, reg too big 
+00119371  Copy Link###CopyLink
+00119386  Backslash
+00119390  Pause
+00119396  ProggyClean.ttf, %dpx
+001193ac  -------------------------------- 
+001193ce  ##Combo_%02d
+001193df  S:%3d
+001193e5  %0.3f
+001193f0  Alpha Bar
+001193fa  precision mediump float; uniform sampler2D Texture; in vec2 Frag_UV; in vec4 Frag_Color; layout (location = 0) out vec4 Out_Color; void main() {     Out_Color = Frag_Color * texture(Texture, Frag_UV.st); } 
+001194c9  eglCreateContext error: %u 
+001194e5  /system/lib64/libgui.so
+001194fd  _ZN7android21SurfaceComposerClient13createSurfaceERKNS_7String8EjjijRKNS_2spINS_7IBinderEEENS_13LayerMetadataEPj
+0011956e  typeinfo for 
+0011957c  out/llvm-project/libcxxabi/src/demangle/ItaniumDemangle.h
+001195b6  shrinkToSize() can't expand!
+001195d3  libunwind: malformed DW_CFA_offset_extended_sf DWARF unwind, reg too big 
+0011962d  view-angles
+00119639  RightFoot
+00119651  ##Foreground
+0011965e  Calling EndDisabled() too many times!
+00119684  %*s%.*s
+0011968f  Pos=%i,%i
+00119699  *Unknown item*
+001196a8  R:%3d
+001196ae  %02X%02X%02X%02X
+001196ce   Order=%d
+001196d8  _ZN7android13LayerMetadataC2Ev
+001196f7  _ZN7android21SurfaceComposerClientC2Ev
+0011971e  _ZN7android21SurfaceComposerClient11Transaction5applyEbb
+0011975a  operator<=
+0011976a  out/llvm-project/libcxxabi/src/fallback_malloc.cpp
+0011979d  unknown pointer encoding
+001197b6  getSLEB128
+001197c1  DW_OP_deref_size with bad size
+001197e9  Incendiary
+001197f4  Super+
+001197fb  Missing EndTabBar()
+0011980f  Calling PopItemWidth() too many times!
+00119849  GamepadR2
+00119853  MouseWheelX
+00119867  ModAlt
+00119872  ##ComboPopup
+0011987f  H:%0.3f
+00119887  EndMultiSelect() FocusScope mismatch!
+001198b5  Column %d%n
+001198c1  operator--
+001198cc  <char, std::char_traits<char>
+001198ea  during phase1 personality function said it would stop here, but now in phase2 it did not stop here
+0011994d  libunwind: unsupported .eh_frame_hdr at %lx: need at least 4 bytes of data but only got %zd 
+001199bd  Missing PopFocusScope()
+001199dd  GamepadRStickRight
+001199f2  M:000
+001199f8  ##rgb
+001199fe  Visible=%d%n
+00119a0b  Sort=%d%c%n
+00119a17  eglCreateWindowSurface error: %u 
+00119a39  _ZN7android3gui13LayerMetadata8setInt32Eji
+00119a64  p 00000000 
+00119a70  unsupported locale for standard input
+00119a96  __cxa_guard_abort
+00119aac  decimal32
+00119ab6  setRegister
+00119ac6  Flash
+00119acc  Spine2
+00119ad7  Forgot to shutdown Renderer backend?
+00119afe  LeftShift
+00119b08  KeypadEqual
+00119b14  GamepadRStickUp
+00119b2d  <Unknown>
+00119b37  in vec2 Frag_UV; in vec4 Frag_Color; uniform sampler2D Texture; layout (location = 0) out vec4 Out_Color; void main() {     Out_Color = Frag_Color * texture(Texture, Frag_UV.st); } 
+00119bed  eglInitialize error: %u 
+00119c06  Failed to read memory location: 
+00119c29  thread-local wrapper routine for 
+00119c4b  operator()
+00119c56  libunwind: malformed DW_CFA_restore_extended DWARF unwind, reg too big 
+00119c9e  DW_EH_PE_textrel pointer encoding not supported
+00119cce  DWARF opcode not implemented
+00119cf9  Butterfly
+00119d03  LeftUpLeg
+00119d13  (Main menu bar)
+00119d28  Delete
+00119d2f  LeftSuper
+00119d4a  GamepadLStickRight
+00119d5d  ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to compile %s! With GLSL: %s 
+00119db0  eglChooseConfig error: %u 
+00119dcb  _ZNK7android7RefBase9decStrongEPKv
+00119dee  _ZN7android21SurfaceComposerClient14getDisplayInfoERKNS_2spINS_7IBinderEEEPNS_11DisplayInfoE
+00119e4b  Unknown error %d
+00119e60  __cxa_guard_acquire
+00119e74  noexcept 
+00119e7e  operator delete
+00119e8e   at offset 
+00119e9a  allocator
+00119ea4  unsigned int
+00119eb1  libunwind: malformed DW_CFA_val_expression DWARF unwind, reg too big 
+00119f10  /storage/emulated/0/melodium/audio
+00119f33  Deagle
+00119f3a  Bayonet
+00119f45  ##Background
+00119f57  Missing End()
+00119f65  Missing PopID()
+00119f75  ##Tooltip_DragDrop_%02d
+00119f8d  (Untitled)
+00119f9b  GamepadDpadUp
+00119fa9  GamepadL3
+00119fb3  GamepadRStickLeft
+00119fc5  Collapsed=1 
+00119fd2  H:%3d
+00119fd8  Column %-2d
+00119fe4  _ZN7android21SurfaceComposerClient17getBuiltInDisplayEi
+0011a022  w+bxe
+0011a028  vector
+0011a02f  Wednesday
+0011a041  'block-literal'
+0011a051  basic_iostream
+0011a06a  unknown register
+0011a082  Dagger
+0011a089  RightForearm
+0011a09a  %s%s%s%s%s
+0011a0a5  Size all columns to fit###SizeAll
+0011a0c7  UpArrow
+0011a0d3  GamepadR1
+0011a0e8  shader program
+0011a0f7  ro.build.version.release
+0011a110  _ZN7android21SurfaceComposerClient21getPhysicalDisplayIdsEv
+0011a14c  : out of range
+0011a15b  iostream
+0011a164  terminating due to %s exception of type %s: %s
+0011a198  invocation function for block in 
+0011a1ba  covariant return thunk to 
+0011a1d8  operator%
+0011a1e2  signed char
+0011a1ee  long long
+0011a1f8  decimal64
+0011a207  DW_EH_PE_datarel is invalid with a datarelBase of 0
+0011a23b  Unknown DWARF encoding for search table.
+0011a268  Berretas
+0011a271  LeftForearm
+0011a27d  mel_%d.cfg
+0011a288  Calling PopItemFlag() too many times!
+0011a2b5  M:0.000
+0011a2c9  _ZN7android21SurfaceComposerClient11Transaction5applyEb
+0011a301  basic_string
+0011a313  template parameter object for 
+0011a332  construction vtable for 
+0011a34b  operator/=
+0011a356  operator!
+0011a360  operator->*
+0011a36c  , std::allocator<char>
+0011a383  libunwind: malformed DW_CFA_GNU_negative_offset_extended DWARF unwind, reg too big 
+0011a3d7  Mallard
+0011a3df  LeftLeg
+0011a3eb  imgui_log.txt
+0011a3f9  Calling PopFocusScope() too many times!
+0011a421  Apostrophe
+0011a42c  Slash
+0011a432  ModShift
+0011a43f  B:%3d
+0011a445  0x%08X,%d
+0011a44f  uniform mat4 ProjMtx; attribute vec2 Position; attribute vec2 UV; attribute vec4 Color; varying vec2 Frag_UV; varying vec4 Frag_Color; void main() {     Frag_UV = UV;     Frag_Color = Color;     gl_Position = ProjMtx * vec4(Position.xy,0,1); } 
+0011a544  uniform sampler2D Texture; in vec2 Frag_UV; in vec4 Frag_Color; out vec4 Out_Color; void main() {     Out_Color = Frag_Color * texture(Texture, Frag_UV.st); } 
+0011a5e4  _ZN7android21SurfaceComposerClient11Transaction8setLayerERKNS_2spINS_14SurfaceControlEEEi
+0011a63e  __next_prime overflow
+0011a657  throw
+0011a660  operator
+0011a669  operator/
+0011a673  operator?
+0011a67d  nullptr
+0011a685   typename 
+0011a690  operator"" 
+0011a69c  float
+0011a6a2  libunwind: malformed DW_CFA_register DWARF unwind, reg too big 
+0011a6e2  libunwind: malformed DW_CFA_def_cfa_register DWARF unwind, reg too big 
+0011a72e  closed
+0011a735  Famas
+0011a74a  Debug##Default
+0011a759  ##Menu_%02d
+0011a765  #COLLAPSE
+0011a76f  PageUp
+0011a776  Backspace
+0011a784  Equal
+0011a78a  KeypadDecimal
+0011a798  *Missing Text*
+0011a7a7  G:%3d
+0011a7ad  picker
+0011a7b4  Order=%d%n
+0011a7bf  imgui_impl_android
+0011a7d2  file://%s
+0011a7dc  system
+0011a7e7  __cxa_guard_acquire detected recursive initialization: do you have a function-local static variable whose initialization depends on that function?
+0011a87a  operator<<=
+0011a886  operator%=
+0011a891  operator 
+0011a89b  basic_ostream
+0011a8a9   volatile
+0011a8b3   auto
+0011a8b9  _Unwind_Resume
+0011a8c8  libunwind: malformed DW_CFA_undefined DWARF unwind, reg too big 
+0011a90c  CIE ID is not zero
+0011a928  LeftUpperarm
+0011a937  Missing EndChild()
+0011a94e  Enter
+0011a960  AppForward
+0011a96b  GamepadLStickUp
+0011a97b  MouseWheelY
+0011a991  S:%0.3f
+0011a999  ##current
+0011a9ab  Texture
+0011a9b3  _ZN7android14SurfaceControl10getSurfaceEv
+0011a9e0  unspecified iostream_category error
+0011aa04  %s failed to broadcast
+0011aa1b  operator^
+0011aa25  operator!=
+0011aa33   restrict
+0011aa42  unsigned long
+0011aa50  std::__libcpp_tls_create() failed in __cxa_thread_atexit()
+0011aa8b  CIE start does not match
+0011aab0  Forgot to shutdown Platform backend?
+0011aad5  Invalid flags for IsItemHovered()!
+0011aaf8  Missing PopFont()
+0011ab0d  Size column to fit###SizeOne
+0011ab2a  Size all columns to default###SizeAll
+0011ab5c  KeypadDivide
+0011ab69  MouseMiddle
+0011ab75  Size=%i,%i
+0011ab80  Current
+0011ab8b  Table
+0011ab91  libc++abi
+0011ab9b  operator>
+0011aba5  template<
+0011abaf  basic_istream
+0011abbd  pixel vector[
+0011abe1  Tanto
+0011abe9  ##Tooltip_Hidden
+0011abfa  Escape
+0011ac0b  V:%0.3f
+0011ac16  ##original
+0011ac21  0.00..1.00
+0011ac2c  Width=%d%n
+0011ac37  %d.%d
+0011ac42  libc++abi: 
+0011ac4e  virtual thunk to 
+0011ac60  operator new
+0011ac6d  operator||
+0011ac78  operator+
+0011ac82  typeid 
+0011ac8c   requires 
+0011ac9c  char16_t
+0011aca5  libunwind: malformed DW_CFA_val_offset_sf DWARF unwind, reg too big 
+0011acea  getEncodedP
+0011acf6  DW_OP_fbreg not implemented
+0011ad28  Unknown
+0011ad30  t.me/melrele
+0011ad3f  %s/%08X
+0011ad47  Missing PopStyleVar()
+0011ad5d  DownArrow
+0011ad67  PrintScreen
+0011ad7b  KeypadSubtract
+0011ad8a  _COL4F
+0011ad91  alpha
+0011ad97  Copy as..
+0011ada1  generic
+0011ada9  money_get error
+0011adb9  terminating
+0011adc5  out/llvm-project/libcxxabi/src/cxa_demangle.cpp
+0011adf5  reference temporary for 
+0011ae0e  operator^=
+0011ae19  operator-=
+0011ae24  operator->
+0011ae2f  struct
+0011ae36  libunwind: malformed DW_CFA_same_value DWARF unwind, reg too big 
+0011ae80  Five-Seven
+0011ae8b  Hands
+0011ae95  Enter text
+0011aea0  Space
+0011aea6  (null)
+0011aead  Calling PopStyleColor() too many times!
+0011aed5  Dear ImGui 1.91.4 (19140)
+0011aeef  LeftArrow
+0011aef9  Comma
+0011aeff  GamepadDpadLeft
+0011af0f  GamepadL1
+0011af19  MouseLeft
+0011af23  ModSuper
+0011af2c  xdg-open
+0011af39  ProjMtx
+0011af43  NSt6__ndk117bad_function_callE
+0011b0e5  NSt6__ndk114__shared_countE
+0011b860  fff?333?
+0011bd00  NSt6__ndk112system_errorE
+0011bd1a  NSt6__ndk112__do_messageE
+0011bd34  NSt6__ndk124__generic_error_categoryE
+0011bd5a  NSt6__ndk123__system_error_categoryE
+0011bd80  NSt6__ndk114error_categoryE
+0011bda4  NSt6__ndk18ios_baseE
+0011bdb9  NSt6__ndk18ios_base7failureE
+0011bdd6  NSt6__ndk119__iostream_categoryE
+0011be75  NSt6__ndk19basic_iosIcNS_11char_traitsIcEEEE
+0011bea2  NSt6__ndk115basic_streambufIcNS_11char_traitsIcEEEE
+0011bed6  NSt6__ndk113basic_istreamIcNS_11char_traitsIcEEEE
+0011bf08  NSt6__ndk113basic_ostreamIcNS_11char_traitsIcEEEE
+0011bf3a  NSt6__ndk19basic_iosIwNS_11char_traitsIwEEEE
+0011bf67  NSt6__ndk115basic_streambufIwNS_11char_traitsIwEEEE
+0011bf9b  NSt6__ndk113basic_istreamIwNS_11char_traitsIwEEEE
+0011bfcd  NSt6__ndk113basic_ostreamIwNS_11char_traitsIwEEEE
+0011bfff  NSt6__ndk114basic_ofstreamIcNS_11char_traitsIcEEEE
+0011c032  NSt6__ndk113basic_filebufIcNS_11char_traitsIcEEEE
+0011c065  NSt6__ndk110__stdinbufIcEE
+0011c080  NSt6__ndk111__stdoutbufIcEE
+0011c09c  NSt6__ndk110__stdinbufIwEE
+0011c0b7  NSt6__ndk111__stdoutbufIwEE
+0011ce1f  ?0123456789abcdefABCDEFxX+-pPiInN
+0011daa4  NSt6__ndk16locale5facetE
+0011dabd  NSt6__ndk15ctypeIwEE
+0011dad2  NSt6__ndk110ctype_baseE
+0011daea  NSt6__ndk17codecvtIcc9mbstate_tEE
+0011db0c  NSt6__ndk112codecvt_baseE
+0011db26  NSt6__ndk17codecvtIDsc9mbstate_tEE
+0011db49  NSt6__ndk17codecvtIDsDu9mbstate_tEE
+0011db6d  NSt6__ndk17codecvtIDic9mbstate_tEE
+0011db90  NSt6__ndk17codecvtIDiDu9mbstate_tEE
+0011dbb4  NSt6__ndk17codecvtIwc9mbstate_tEE
+0011dbd6  NSt6__ndk120__codecvt_utf8_utf16IDsEE
+0011dbfc  NSt6__ndk16locale5__impE
+0011dc15  NSt6__ndk17collateIcEE
+0011dc2c  NSt6__ndk17collateIwEE
+0011dc43  NSt6__ndk15ctypeIcEE
+0011dc58  NSt6__ndk18numpunctIcEE
+0011dc70  NSt6__ndk18numpunctIwEE
+0011dc88  NSt6__ndk17num_getIcNS_19istreambuf_iteratorIcNS_11char_traitsIcEEEEEE
+0011dccf  NSt6__ndk19__num_getIcEE
+0011dce8  NSt6__ndk114__num_get_baseE
+0011dd04  NSt6__ndk17num_getIwNS_19istreambuf_iteratorIwNS_11char_traitsIwEEEEEE
+0011dd4b  NSt6__ndk19__num_getIwEE
+0011dd64  NSt6__ndk17num_putIcNS_19ostreambuf_iteratorIcNS_11char_traitsIcEEEEEE
+0011ddab  NSt6__ndk19__num_putIcEE
+0011ddc4  NSt6__ndk114__num_put_baseE
+0011dde0  NSt6__ndk17num_putIwNS_19ostreambuf_iteratorIwNS_11char_traitsIwEEEEEE
+0011de27  NSt6__ndk19__num_putIwEE
+0011de40  NSt6__ndk18time_getIcNS_19istreambuf_iteratorIcNS_11char_traitsIcEEEEEE
+0011de88  NSt6__ndk19time_baseE
+0011de9e  NSt6__ndk120__time_get_c_storageIcEE
+0011dec3  NSt6__ndk18time_getIwNS_19istreambuf_iteratorIwNS_11char_traitsIwEEEEEE
+0011df0b  NSt6__ndk120__time_get_c_storageIwEE
+0011df30  NSt6__ndk18time_putIcNS_19ostreambuf_iteratorIcNS_11char_traitsIcEEEEEE
+0011df78  NSt6__ndk110__time_putE
+0011df90  NSt6__ndk18time_putIwNS_19ostreambuf_iteratorIwNS_11char_traitsIwEEEEEE
+0011dfd8  NSt6__ndk110moneypunctIcLb0EEE
+0011dff7  NSt6__ndk110money_baseE
+0011e00f  NSt6__ndk110moneypunctIcLb1EEE
+0011e02e  NSt6__ndk110moneypunctIwLb0EEE
+0011e04d  NSt6__ndk110moneypunctIwLb1EEE
+0011e06c  NSt6__ndk19money_getIcNS_19istreambuf_iteratorIcNS_11char_traitsIcEEEEEE
+0011e0b5  NSt6__ndk111__money_getIcEE
+0011e0d1  NSt6__ndk19money_getIwNS_19istreambuf_iteratorIwNS_11char_traitsIwEEEEEE
+0011e11a  NSt6__ndk111__money_getIwEE
+0011e136  NSt6__ndk19money_putIcNS_19ostreambuf_iteratorIcNS_11char_traitsIcEEEEEE
+0011e17f  NSt6__ndk111__money_putIcEE
+0011e19b  NSt6__ndk19money_putIwNS_19ostreambuf_iteratorIwNS_11char_traitsIwEEEEEE
+0011e1e4  NSt6__ndk111__money_putIwEE
+0011e200  NSt6__ndk18messagesIcEE
+0011e218  NSt6__ndk113messages_baseE
+0011e233  NSt6__ndk18messagesIwEE
+0011e255  St9exception
+0011e262  St20bad_array_new_length
+0011e27b  St9bad_alloc
+0011e289  St11logic_error
+0011e299  St16invalid_argument
+0011e2ae  St12length_error
+0011e2bf  St12out_of_range
+0011e2d0  St11range_error
+0011e2e0  St13runtime_error
+0011e2f2  St14overflow_error
+0011e306  St9type_info
+0011e313  St8bad_cast
+0011e321  N10__cxxabiv116__shim_type_infoE
+0011e342  N10__cxxabiv117__class_type_infoE
+0011e364  N10__cxxabiv120__si_class_type_infoE
+0011e389  N10__cxxabiv121__vmi_class_type_infoE
+0011e51e  N12_GLOBAL__N_116itanium_demangle11SpecialNameE
+0011e54e  N12_GLOBAL__N_116itanium_demangle4NodeE
+0011e576  N12_GLOBAL__N_116itanium_demangle21CtorVtableSpecialNameE
+0011e5b0  N12_GLOBAL__N_116itanium_demangle8NameTypeE
+0011e5dc  N12_GLOBAL__N_116itanium_demangle10ModuleNameE
+0011e60b  N12_GLOBAL__N_116itanium_demangle24ForwardTemplateReferenceE
+0011e648  N12_GLOBAL__N_116itanium_demangle10BinaryExprE
+0011e677  N12_GLOBAL__N_116itanium_demangle10PrefixExprE
+0011e6a6  N12_GLOBAL__N_116itanium_demangle11PostfixExprE
+0011e6d6  N12_GLOBAL__N_116itanium_demangle18ArraySubscriptExprE
+0011e70d  N12_GLOBAL__N_116itanium_demangle10MemberExprE
+0011e73c  N12_GLOBAL__N_116itanium_demangle7NewExprE
+0011e767  N12_GLOBAL__N_116itanium_demangle10DeleteExprE
+0011e796  N12_GLOBAL__N_116itanium_demangle8CallExprE
+0011e7c2  N12_GLOBAL__N_116itanium_demangle14ConversionExprE
+0011e7f5  N12_GLOBAL__N_116itanium_demangle15ConditionalExprE
+0011e829  N12_GLOBAL__N_116itanium_demangle8CastExprE
+0011e855  N12_GLOBAL__N_116itanium_demangle13EnclosingExprE
+0011e887  N12_GLOBAL__N_116itanium_demangle14IntegerLiteralE
+0011e8ba  N12_GLOBAL__N_116itanium_demangle8BoolExprE
+0011e8e6  N12_GLOBAL__N_116itanium_demangle16FloatLiteralImplIfEE
+0011e91e  N12_GLOBAL__N_116itanium_demangle16FloatLiteralImplIdEE
+0011e956  N12_GLOBAL__N_116itanium_demangle16FloatLiteralImplIeEE
+0011e98e  N12_GLOBAL__N_116itanium_demangle13StringLiteralE
+0011e9c0  N12_GLOBAL__N_116itanium_demangle15UnnamedTypeNameE
+0011e9f4  N12_GLOBAL__N_116itanium_demangle26SyntheticTemplateParamNameE
+0011ea33  N12_GLOBAL__N_116itanium_demangle21TypeTemplateParamDeclE
+0011ea6d  N12_GLOBAL__N_116itanium_demangle32ConstrainedTypeTemplateParamDeclE
+0011eab2  N12_GLOBAL__N_116itanium_demangle24NonTypeTemplateParamDeclE
+0011eaef  N12_GLOBAL__N_116itanium_demangle25TemplateTemplateParamDeclE
+0011eb2d  N12_GLOBAL__N_116itanium_demangle21TemplateParamPackDeclE
+0011eb67  N12_GLOBAL__N_116itanium_demangle15ClosureTypeNameE
+0011eb9b  N12_GLOBAL__N_116itanium_demangle10LambdaExprE
+0011ebca  N12_GLOBAL__N_116itanium_demangle11EnumLiteralE
+0011ebfa  N12_GLOBAL__N_116itanium_demangle13FunctionParamE
+0011ec2c  N12_GLOBAL__N_116itanium_demangle8FoldExprE
+0011ec58  N12_GLOBAL__N_116itanium_demangle22ParameterPackExpansionE
+0011ec93  N12_GLOBAL__N_116itanium_demangle10BracedExprE
+0011ecc2  N12_GLOBAL__N_116itanium_demangle15BracedRangeExprE
+0011ecf6  N12_GLOBAL__N_116itanium_demangle12InitListExprE
+0011ed27  N12_GLOBAL__N_116itanium_demangle29PointerToMemberConversionExprE
+0011ed69  N12_GLOBAL__N_116itanium_demangle15ExprRequirementE
+0011ed9d  N12_GLOBAL__N_116itanium_demangle15TypeRequirementE
+0011edd1  N12_GLOBAL__N_116itanium_demangle17NestedRequirementE
+0011ee07  N12_GLOBAL__N_116itanium_demangle12RequiresExprE
+0011ee38  N12_GLOBAL__N_116itanium_demangle13SubobjectExprE
+0011ee6a  N12_GLOBAL__N_116itanium_demangle19SizeofParamPackExprE
+0011eea2  N12_GLOBAL__N_116itanium_demangle13NodeArrayNodeE
+0011eed4  N12_GLOBAL__N_116itanium_demangle9ThrowExprE
+0011ef01  N12_GLOBAL__N_116itanium_demangle13QualifiedNameE
+0011ef33  N12_GLOBAL__N_116itanium_demangle8DtorNameE
+0011ef5f  N12_GLOBAL__N_116itanium_demangle22ConversionOperatorTypeE
+0011ef9a  N12_GLOBAL__N_116itanium_demangle15LiteralOperatorE
+0011efce  N12_GLOBAL__N_116itanium_demangle19GlobalQualifiedNameE
+0011f006  N12_GLOBAL__N_116itanium_demangle19SpecialSubstitutionE
+0011f03e  N12_GLOBAL__N_116itanium_demangle27ExpandedSpecialSubstitutionE
+0011f07e  N12_GLOBAL__N_116itanium_demangle10AbiTagAttrE
+0011f0ad  N12_GLOBAL__N_116itanium_demangle21StructuredBindingNameE
+0011f0e7  N12_GLOBAL__N_116itanium_demangle12CtorDtorNameE
+0011f118  N12_GLOBAL__N_116itanium_demangle12ModuleEntityE
+0011f149  N12_GLOBAL__N_116itanium_demangle20MemberLikeFriendNameE
+0011f182  N12_GLOBAL__N_116itanium_demangle10NestedNameE
+0011f1b1  N12_GLOBAL__N_116itanium_demangle9LocalNameE
+0011f1de  N12_GLOBAL__N_116itanium_demangle13ParameterPackE
+0011f210  N12_GLOBAL__N_116itanium_demangle12TemplateArgsE
+0011f241  N12_GLOBAL__N_116itanium_demangle20NameWithTemplateArgsE
+0011f27a  N12_GLOBAL__N_116itanium_demangle20TemplateArgumentPackE
+0011f2b3  N12_GLOBAL__N_116itanium_demangle25TemplateParamQualifiedArgE
+0011f2f1  N12_GLOBAL__N_116itanium_demangle12EnableIfAttrE
+0011f322  N12_GLOBAL__N_116itanium_demangle23ExplicitObjectParameterE
+0011f35e  N12_GLOBAL__N_116itanium_demangle16FunctionEncodingE
+0011f393  N12_GLOBAL__N_116itanium_demangle9DotSuffixE
+0011f3c0  N12_GLOBAL__N_116itanium_demangle12NoexceptSpecE
+0011f3f1  N12_GLOBAL__N_116itanium_demangle20DynamicExceptionSpecE
+0011f42a  N12_GLOBAL__N_116itanium_demangle12FunctionTypeE
+0011f45b  N12_GLOBAL__N_116itanium_demangle13ObjCProtoNameE
+0011f48d  N12_GLOBAL__N_116itanium_demangle17VendorExtQualTypeE
+0011f4c3  N12_GLOBAL__N_116itanium_demangle8QualTypeE
+0011f4ef  N12_GLOBAL__N_116itanium_demangle15TransformedTypeE
+0011f523  N12_GLOBAL__N_116itanium_demangle12BinaryFPTypeE
+0011f554  N12_GLOBAL__N_116itanium_demangle10BitIntTypeE
+0011f583  N12_GLOBAL__N_116itanium_demangle20PostfixQualifiedTypeE
+0011f5bc  N12_GLOBAL__N_116itanium_demangle15PixelVectorTypeE
+0011f5f0  N12_GLOBAL__N_116itanium_demangle10VectorTypeE
+0011f61f  N12_GLOBAL__N_116itanium_demangle9ArrayTypeE
+0011f64c  N12_GLOBAL__N_116itanium_demangle19PointerToMemberTypeE
+0011f684  N12_GLOBAL__N_116itanium_demangle22ElaboratedTypeSpefTypeE
+0011f6bf  N12_GLOBAL__N_116itanium_demangle11PointerTypeE
+0011f6ef  N12_GLOBAL__N_116itanium_demangle13ReferenceTypeE
+0011fc47  NcNSt6__ndk110__function6__funcIZN7structs11mdictionary4findINS2_7mstringEmEENS2_5EntryIT_T0_EERKNS_8functionIFbiS7_S8_EEEbEUliNS6_IS5_mEEE_NS_9allocatorISG_EEFbiSF_EEE
+0011fcf0  NSt6__ndk110__function6__baseIFbiN7structs5EntryINS2_7mstringEmEEEEE
+0011fd35  ZN7structs11mdictionary4findINS_7mstringEmEENS_5EntryIT_T0_EERKNSt6__ndk18functionIFbiS4_S5_EEEbEUliNS3_IS2_mEEE_
+0011fda7  NSt6__ndk110__function6__funcIZN7globals5utils11getRoomPropEmPKcmE3$_0NS_9allocatorIS6_EEFbiN7structs7mstringEmEEE
+0011fe1a  NSt6__ndk110__function6__baseIFbiN7structs7mstringEmEEE
+0011fe52  ZN7globals5utils11getRoomPropEmPKcmE3$_0
+0011fe7b  NSt6__ndk110__function6__funcIZN7globals5utils13getPlayerPropE13CPhotonPlayerPKcmE3$_0NS_9allocatorIS7_EEFbiN7structs7mstringEmEEE
+0011fefe  ZN7globals5utils13getPlayerPropE13CPhotonPlayerPKcmE3$_0
+0011ff4d  _NSt6__ndk110__function6__funcIZ4mainE3$_1NS_9allocatorIS2_EEFvbEEE
+0011ff91  NSt6__ndk110__function6__baseIFvbEEE
+0011ffb6  Z4mainE3$_1
+00120006  *1NSt6__ndk110__function6__baseIFbimEEE
+0012002e  NSt6__ndk110__function6__funcIZ6hitlogvE3$_0NS_9allocatorIS2_EEFbimEEE
+00120075  Z6hitlogvE3$_0
+00120084  NSt6__ndk110__function6__funcIZ8hitsoundvE3$_0NS_9allocatorIS2_EEFbimEEE
+001200cd  Z8hitsoundvE3$_0
+00120248  NSt6__ndk110__function6__funcIZN9anticheat4initEmE3$_0NS_9allocatorIS3_EEFbi5ptr_tI15EGEEGDDFEGEBGHAEEEE
+001202b1  NSt6__ndk110__function6__baseIFbi5ptr_tI15EGEEGDDFEGEBGHAEEEE
+001202ef  ZN9anticheat4initEmE3$_0
+00120308  NSt6__ndk110__function6__funcIZN9anticheat4initEmE3$_1NS_9allocatorIS3_EEFbi5ptr_tI15EGEEGDDFEGEBGHAEEEE
+00120371  ZN9anticheat4initEmE3$_1
+0012038a  NSt6__ndk118codecvt_utf8_utf16IDsLm1114111ELNS_12codecvt_modeE0EEE
+001203dc  NSt6__ndk110__function6__funcIZN8exploits6taptapEvE3$_0NS_9allocatorIS3_EEFvPN7structs4safeEEEE
+0012043c  NSt6__ndk110__function6__baseIFvPN7structs4safeEEEE
+00120470  ZN8exploits6taptapEvE3$_0
+0012a851  zR
+0014034d  zPLR
+002267c0  (%a %b %d %H:%M:%S %Y
+002396e1   1996 Microsoft Corporation. All Rights ReservedVerdanaRegularMicrosoft:Verdana Regular:Version 1 (Microsoft)VerdanaVersion 2.35VerdanaVerdana is a trademark of Microsoft Corporation
+00239ac7   !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`a
+0023b3ec  #D+s++++++++++++++++sssssssss+s+s+++++ss++++s++++
+00259389  currency
+0025b969   1996 Microsoft Corporation. All Rights ReservedVerdanaBoldMicrosoft:Verdana Bold:Version 1 (Microsoft)Verdana BoldVersion 2.35Verdana-BoldVerdana is a trademark of Microsoft Corporation
+0025bfe7   !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`a
+0025d92d  s++++++sss+++++++++ss+sts++++++++s++s++ssssssssssss
+0025d978  ++s+++
+0027b378  currency
+0027daf2  ddddddddd
+0027db37  #5#dddddddd
+0027db99  #dddddddddddddddddddd
+0027dc7a  ,ddddddddd
+0027dd11  dddddddd
+0027de51  ,ddddddddd
+0027deb2  ddddddddd
+0027dee8  ,ddddddd
+0027e2ea  ddddddddd
+0027e492  ddddddddd
+0027e4ed  ,ddddddddd
+0027e8f2  ddddddddd
+0027eadb  ,ddddddd
+0027eb67  #5#dddddddd
+0027ebcd  ,dddddddddddd
+0027ec01  dddddddd
+0027ec66  ddddddddd
+0027ecae  ddddddddddddd
+0027ed85  ,ddddddddd
+0027ef2b  Xddddddd
+0027f06e  ddddddddd
+0027f3ff  ,ddddddddddddddddddd
+0027f764  ddddddddddddddddddd
+0027f7da  ddddddddd
+0027f816  ddddddddd
+0027fa16  ,ddddddddd
+002800b6  ,ddddddddd
+0028063a  ,ddddddddd
+0028067c  dddddddd
+0028074f  ddddddddd
+0028085f  ddddddddd
+002808df  ddddddddd
+00280960  dddddddddd
+00280fcf  ,ddddddd
+00281052  ddddddddd
+00281897  ,ddddddd
+00281e03  ddddddddddddddd
+002821f2  Copyright (c) 2013 by Style-7. All rights reserved. http://www.styleseven.comSmallest Pixel-7RegularStyle-7: Smallest Pixel-7: 2013Smallest Pixel-7Version 1.000SmallestPixel-7Style-7Sizenko Alexanderhttp://www.styleseven.comFreeware for personal using only.Smallest Pixel-7
+002828a6  periodcentered	afii10071	afii61352	afii10101	afii10105	afii10054	afii10102	afii10104	afii10017	afii10018	afii10019	afii10020	afii10021	afii10022	afii10024	afii10025	afii10026	afii10027	afii10028	afii10029	afii10030	afii10031	afii10032	afii10033	afii10034	afii10035	afii10036	afii10037	afii10038	afii10039	afii10040	afii10041	afii10042	afii10043	afii10044	afii10045	afii10046	afii10047	afii10048	afii10049	afii10065	afii10066	afii10067	afii10068	afii10069	afii10070	afii10072	afii10073	afii10074	afii10075	afii10076	afii10077	afii10078	afii10079	afii10080	afii10081	afii10082	afii10083	afii10084	afii10085	afii10086	afii10087	afii10088	afii10089	afii10090	afii10091	afii10092	afii10093	afii10094	afii10095	afii10096	afii10097afii10045.001afii10047.001
+.shstrtab::00000001  .init_array
+.shstrtab::0000000d  .text
+.shstrtab::00000013  .got
+.shstrtab::00000018  .note.android.ident
+.shstrtab::0000002c  .got.plt
+.shstrtab::00000035  .rela.plt
+.shstrtab::0000003f  .bss
+.shstrtab::00000044  .dynstr
+.shstrtab::0000004c  .eh_frame_hdr
+.shstrtab::0000005a  .gnu.version_r
+.shstrtab::00000069  .interp
+.shstrtab::00000071  .data.rel.ro
+.shstrtab::0000007e  .rela.dyn
+.shstrtab::00000088  .gnu.version
+.shstrtab::00000095  .dynsym
+.shstrtab::0000009d  .gnu.hash
+.shstrtab::000000a7  .relro_padding
+.shstrtab::000000b6  .eh_frame
+.shstrtab::000000c0  .gcc_except_table
+.shstrtab::000000d2  __lcxx_override
+.shstrtab::000000e2  .note.gnu.build-id
+.shstrtab::000000f5  .dynamic
+.shstrtab::000000fe  .shstrtab
+.shstrtab::00000108  .rodata
+.shstrtab::00000110  .data
