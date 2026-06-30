@@ -40,6 +40,7 @@
 #define OFF_PLAYER_SOUND_CTRL       0xE0   // PlayerSoundController*
 #define OFF_PLAYER_MAIN_CAMERA      0xE8   // PlayerMainCamera*
 #define OFF_PLAYER_FPS_CAMERA       0xF0   // PlayerFPSCamera*
+#define OFF_PLAYER_PHOTON_VIEW      0x150  // PhotonView*
 #define OFF_PLAYER_PHOTON_PTR       0x160  // PhotonPlayer* (локальный PhotonPlayer)
 
 // ── View / Skeleton (PlayerCharacterView) ────────────────────────────────────
@@ -135,6 +136,7 @@
 #define OFF_WC_AMMO_RESERVE         0xA4   // int   AmmoReserve
 #define OFF_WC_WEAPON_PARAMETERS    0xA8   // WeaponParameters*
 #define OFF_WC_IS_FIRING            0xC1   // bool  IsFiring
+#define OFF_WEAPON_ID               0x18   // int — weapon id (1..69 = gun)
 
 // ── WeaponParameters / GunParameters (combat, Holy combat features) ──────────
 #define OFF_WP_AMMUNITION           0x130  // Ammunition*

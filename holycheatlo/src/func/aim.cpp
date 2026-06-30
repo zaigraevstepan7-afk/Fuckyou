@@ -11,25 +11,24 @@
 #include <string>
 
 namespace {
-    static constexpr float kPi = 3.14159265f;
-    static constexpr float kVerticalFovDeg = 70.f;
-    static constexpr uint64_t kOffPlayerManagerLocalPlayer = 0x70;
-    static constexpr uint64_t kOffPlayerAimController = 0x80;
-    static constexpr uint64_t kOffAimControllerAimingData = 0x90;
-    // offsets0382 (2).cs:
-    // AimingData fields: Vector3 @ 0x18 and Vector3 @ 0x24
-    static constexpr uint64_t kOffAimingDataPitch = 0x18;
-    static constexpr uint64_t kOffAimingDataYaw = 0x1C;
-    static constexpr uint64_t kOffAimingDataPitchYawVec3 = 0x18;
-    static constexpr uint64_t kOffAimingDataSecondVec3 = 0x24;
+    static constexpr float kPi = AIMBOT_PI;
+    static constexpr float kVerticalFovDeg = AIMBOT_VERTICAL_FOV_DEG;
+    static constexpr uint64_t kOffPlayerManagerLocalPlayer = OFF_PM_LOCAL_PLAYER;
+    static constexpr uint64_t kOffPlayerAimController = OFF_PLAYER_AIM_CONTROLLER;
+    static constexpr uint64_t kOffAimControllerAimingData = OFF_AIM_CONTROLLER_DATA;
+    // v0.39.1: AimingData fields — Vector3 @ 0x18 and Vector3 @ 0x24
+    static constexpr uint64_t kOffAimingDataPitch = OFF_AIMDATA_PITCH;
+    static constexpr uint64_t kOffAimingDataYaw = OFF_AIMDATA_YAW;
+    static constexpr uint64_t kOffAimingDataPitchYawVec3 = OFF_AIMDATA_PITCH_YAW_VEC3;
+    static constexpr uint64_t kOffAimingDataSecondVec3 = OFF_AIMDATA_SECOND_VEC3;
 
-    static constexpr uint64_t kOffLocalPlayerMainCamera = 0xE8;
-    static constexpr uint64_t kOffPlayerMainCameraCamera = 0x20;
-    static constexpr uint64_t kOffPlayerMainCameraMainCamera = 0x40;
-    static constexpr uint64_t kOffCameraMovementControllerCamera = 0xA0;
-    static constexpr uint64_t kOffCameraNativeCamera = 0x10;
-    static constexpr uint64_t kOffNativeCameraAspectRatio = 0x4F0;
-    static constexpr uint64_t kOffNativeCameraFov = 0x180;
+    static constexpr uint64_t kOffLocalPlayerMainCamera = OFF_PLAYER_MAIN_CAMERA;
+    static constexpr uint64_t kOffPlayerMainCameraCamera = OFF_CAM_TRANSFORM;
+    static constexpr uint64_t kOffPlayerMainCameraMainCamera = OFF_PLAYER_MAIN_CAM_DATA;
+    static constexpr uint64_t kOffCameraMovementControllerCamera = OFF_CAM_MOVEMENT_CTRL;
+    static constexpr uint64_t kOffCameraNativeCamera = OFF_CAM_NATIVE;
+    static constexpr uint64_t kOffNativeCameraAspectRatio = OFF_NATIVE_CAM_ASPECT;
+    static constexpr uint64_t kOffNativeCameraFov = OFF_NATIVE_CAM_FOV_FIELD;
 
     static bool likely_ptr(uint64_t p) {
         return p > 0x10000ull && p < 0x0000FFFFFFFFFFFFull;
@@ -150,15 +149,15 @@ void aim::run() {
 
     matrix ViewMatrix = player::view_matrix(LocalPlayer);
     Vector3 LocalPosition = player::position(LocalPlayer);
-    int LocalTeam = rpm<uint8_t>(LocalPlayer + oxorany(0x79));
+    int LocalTeam = rpm<uint8_t>(LocalPlayer + oxorany(OFF_PLAYER_TEAM));
 
-    uint64_t PlayerList = rpm<uint64_t>(PlayerManager + oxorany(0x28));
+    uint64_t PlayerList = rpm<uint64_t>(PlayerManager + oxorany(OFF_PM_PLAYER_LIST));
     if (!PlayerList) return;
 
-    int PlayerCount = rpm<int>(PlayerList + oxorany(0x20));
+    int PlayerCount = rpm<int>(PlayerList + oxorany(OFF_LIST_COUNT));
     if (PlayerCount <= 0 || PlayerCount > 64) return;
 
-    uint64_t ListBuffer = rpm<uint64_t>(PlayerList + oxorany(0x18));
+    uint64_t ListBuffer = rpm<uint64_t>(PlayerList + oxorany(OFF_LIST_BUFFER));
     if (!ListBuffer) return;
 
     const ImVec2 center(g_sw * 0.5f, g_sh * 0.5f);
@@ -169,10 +168,10 @@ void aim::run() {
     bool found = false;
 
     for (int i = 0; i < PlayerCount; i++) {
-        uint64_t Player = rpm<uint64_t>(ListBuffer + oxorany(0x30) + oxorany(0x18) * i);
+        uint64_t Player = rpm<uint64_t>(ListBuffer + oxorany(OFF_LIST_ENTRY_BASE) + oxorany(OFF_LIST_ENTRY_STRIDE) * i);
         if (!Player || Player == LocalPlayer) continue;
 
-        uint8_t PlayerTeam = rpm<uint8_t>(Player + oxorany(0x79));
+        uint8_t PlayerTeam = rpm<uint8_t>(Player + oxorany(OFF_PLAYER_TEAM));
         if (PlayerTeam == static_cast<uint8_t>(LocalTeam)) continue;
 
         int Health = player::health(Player);

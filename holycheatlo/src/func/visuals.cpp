@@ -18,14 +18,14 @@
 extern ImFont* espFont;
 
 namespace {
-    static constexpr uint64_t kOffPlayerManagerLocalPlayer = 0x70;
-    static constexpr uint64_t kOffPlayerWeaponryController = 0x88;
-    static constexpr uint64_t kOffPlayerPhotonView = 0x150;
-    static constexpr uint64_t kOffWeaponryCurrentWeapon = 0xA0;
+    static constexpr uint64_t kOffPlayerManagerLocalPlayer = OFF_PM_LOCAL_PLAYER;
+    static constexpr uint64_t kOffPlayerWeaponryController = OFF_PLAYER_WEAPON_ROOT;
+    static constexpr uint64_t kOffPlayerPhotonView = OFF_PLAYER_PHOTON_VIEW;
+    static constexpr uint64_t kOffWeaponryCurrentWeapon = OFF_WRC_ACTIVE_WEAPON;
     static constexpr uint64_t kOffWeaponryCurrentWeaponAlt = 0x98;
-    static constexpr uint64_t kOffWeaponParameters = 0xA8;
+    static constexpr uint64_t kOffWeaponParameters = OFF_WC_WEAPON_PARAMETERS;
     static constexpr uint64_t kOffWeaponParametersAlt = 0xA0;
-    static constexpr uint64_t kOffWeaponId = 0x18;
+    static constexpr uint64_t kOffWeaponId = OFF_WEAPON_ID;
     static constexpr uint64_t kOffGunShootingLoopState = 0x148;
     static constexpr uint64_t kOffGunStateSimple = 0x188;
     static constexpr uint64_t kOffGunAimingModeSimple = 0x190;

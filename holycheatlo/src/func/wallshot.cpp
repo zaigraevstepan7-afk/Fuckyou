@@ -6,16 +6,16 @@
 #include <vector>
 
 namespace {
-    static constexpr uint64_t kOffPlayerManagerStaticLegacy = 132435632;
-    static constexpr uint64_t kOffPlayerManagerLocalPlayer = 0x70;
-    static constexpr uint64_t kOffPlayerWeaponryController = 0x88;
-    static constexpr uint64_t kOffWeaponryCurrentWeapon = 0xA0;
-    static constexpr uint64_t kOffWeaponWeaponParameters = 0xA8;
-    static constexpr uint64_t kOffWeaponParametersAmmunition = 0x130;
+    static constexpr uint64_t kOffPlayerManagerStaticLegacy = OFF_PLAYER_MANAGER_ALT2;
+    static constexpr uint64_t kOffPlayerManagerLocalPlayer = OFF_PM_LOCAL_PLAYER;
+    static constexpr uint64_t kOffPlayerWeaponryController = OFF_PLAYER_WEAPON_ROOT;
+    static constexpr uint64_t kOffWeaponryCurrentWeapon = OFF_WRC_ACTIVE_WEAPON;
+    static constexpr uint64_t kOffWeaponWeaponParameters = OFF_WC_WEAPON_PARAMETERS;
+    static constexpr uint64_t kOffWeaponParametersAmmunition = OFF_WP_AMMUNITION;
 
     // GunParameters
-    static constexpr uint64_t kOffGunParametersPenetrationPower = 0x1A4;
-    static constexpr uint64_t kOffGunParametersPenetrationPowerSafe = 0x264;
+    static constexpr uint64_t kOffGunParametersPenetrationPower = OFF_WP_PENETRATION_POWER;
+    static constexpr uint64_t kOffGunParametersPenetrationPowerSafe = OFF_WP_PENETRATION_SAFE;
 
     struct SafeIntMem {
         int salt;

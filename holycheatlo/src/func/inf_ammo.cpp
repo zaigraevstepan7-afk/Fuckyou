@@ -6,18 +6,18 @@
 #include <vector>
 
 namespace {
-    static constexpr uint64_t kOffPlayerManagerStaticLegacy = 132435632;
-    static constexpr uint64_t kOffPlayerManagerLocalPlayer = 0x70;
-    static constexpr uint64_t kOffPlayerWeaponryController = 0x88;
-    static constexpr uint64_t kOffWeaponryCurrentWeapon = 0xA0;
-    static constexpr uint64_t kOffWeaponWeaponParameters = 0xA8;
-    static constexpr uint64_t kOffWeaponParametersAmmunition = 0x130;
+    static constexpr uint64_t kOffPlayerManagerStaticLegacy = OFF_PLAYER_MANAGER_ALT2;
+    static constexpr uint64_t kOffPlayerManagerLocalPlayer = OFF_PM_LOCAL_PLAYER;
+    static constexpr uint64_t kOffPlayerWeaponryController = OFF_PLAYER_WEAPON_ROOT;
+    static constexpr uint64_t kOffWeaponryCurrentWeapon = OFF_WRC_ACTIVE_WEAPON;
+    static constexpr uint64_t kOffWeaponWeaponParameters = OFF_WC_WEAPON_PARAMETERS;
+    static constexpr uint64_t kOffWeaponParametersAmmunition = OFF_WP_AMMUNITION;
 
-    // Ammunition fields from offsets0382 (2).txt
-    static constexpr uint64_t kOffAmmoMagazineCapacity = 0x10;
-    static constexpr uint64_t kOffAmmoCapacity = 0x12;
-    static constexpr uint64_t kOffAmmoMagazineCapacitySafe = 0x14;
-    static constexpr uint64_t kOffAmmoCapacitySafe = 0x20;
+    // Ammunition fields (v0.39.1)
+    static constexpr uint64_t kOffAmmoMagazineCapacity = OFF_AMMO_MAGAZINE_CAP;
+    static constexpr uint64_t kOffAmmoCapacity = OFF_AMMO_CAP;
+    static constexpr uint64_t kOffAmmoMagazineCapacitySafe = OFF_AMMO_MAGAZINE_CAP_SAFE;
+    static constexpr uint64_t kOffAmmoCapacitySafe = OFF_AMMO_CAP_SAFE;
 
     struct SafeIntMem {
         int salt;

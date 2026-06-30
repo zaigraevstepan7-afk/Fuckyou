@@ -6,12 +6,12 @@
 #include <cmath>
 
 namespace {
-    static constexpr uint64_t kOffPlayerManagerStaticLegacy = 132435632;
-    static constexpr uint64_t kOffPlayerManagerLocalPlayer = 0x70;
-    static constexpr uint64_t kOffPlayerWeaponryController = 0x88;
-    static constexpr uint64_t kOffWeaponryCurrentWeapon = 0xA0;
-    static constexpr uint64_t kOffWeaponWeaponParameters = 0xA8;
-    static constexpr uint64_t kOffWeaponParametersAmmunition = 0x130;
+    static constexpr uint64_t kOffPlayerManagerStaticLegacy = OFF_PLAYER_MANAGER_ALT2;
+    static constexpr uint64_t kOffPlayerManagerLocalPlayer = OFF_PM_LOCAL_PLAYER;
+    static constexpr uint64_t kOffPlayerWeaponryController = OFF_PLAYER_WEAPON_ROOT;
+    static constexpr uint64_t kOffWeaponryCurrentWeapon = OFF_WRC_ACTIVE_WEAPON;
+    static constexpr uint64_t kOffWeaponWeaponParameters = OFF_WC_WEAPON_PARAMETERS;
+    static constexpr uint64_t kOffWeaponParametersAmmunition = OFF_WP_AMMUNITION;
 
     static constexpr uint64_t kOffGunAccuracyData = 0x228;
     static constexpr uint64_t kOffGunRecoilControl = 0x160;
@@ -20,8 +20,8 @@ namespace {
     static constexpr uint64_t kOffGunSafeMaxRandom = 0x1FC;
     static constexpr uint64_t kOffGunSafeExtra = 0x204;
 
-    static constexpr uint64_t kOffGunParametersRecoilControl = 0x150;
-    static constexpr uint64_t kOffGunParametersRecoilParameters = 0x158;
+    static constexpr uint64_t kOffGunParametersRecoilControl = OFF_WP_RECOIL_CONTROL;
+    static constexpr uint64_t kOffGunParametersRecoilParameters = OFF_WP_RECOIL_PARAMETERS;
     static constexpr uint64_t kOffGunParametersRecoilMultOnCrouch = 0x178;
     static constexpr uint64_t kOffGunParametersRecoilAimMult = 0x180;
     static constexpr uint64_t kOffGunParametersRecoilAimMultOnCrouch = 0x188;

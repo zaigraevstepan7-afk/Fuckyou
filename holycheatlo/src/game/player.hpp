@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game.hpp"
+#include "offsets.hpp"
 #include "../other/vector3.h"
 #include "../other/string.h"
 #include "../protect/oxorany.hpp"
@@ -60,8 +61,8 @@ namespace player {
     inline bool transform_position_from_data(uint64_t transform_data, int index, Vector3& out) noexcept {
         if (!likely_ptr(transform_data) || index < 0 || index > 100000) return false;
 
-        uint64_t transform_array = rpm<uint64_t>(transform_data + oxorany(0x18));
-        uint64_t transform_indices = rpm<uint64_t>(transform_data + oxorany(0x20));
+        uint64_t transform_array = rpm<uint64_t>(transform_data + oxorany(OFF_TRANSFORM_DATA_ARRAY));
+        uint64_t transform_indices = rpm<uint64_t>(transform_data + oxorany(OFF_TRANSFORM_DATA_INDICES));
         if (!likely_ptr(transform_array) || !likely_ptr(transform_indices)) return false;
 
         TransformEntry entry = rpm<TransformEntry>(transform_array + (sizeof(TransformEntry) * static_cast<uint64_t>(index)));
@@ -88,18 +89,18 @@ namespace player {
     inline bool transform_position(uint64_t transform, Vector3& out) noexcept {
         if (!likely_ptr(transform)) return false;
 
-        uint64_t native_transform = rpm<uint64_t>(transform + oxorany(0x10));
+        uint64_t native_transform = rpm<uint64_t>(transform + oxorany(OFF_TRANSFORM_NATIVE));
         if (!likely_ptr(native_transform)) return false;
 
-        uint64_t transform_data = rpm<uint64_t>(native_transform + oxorany(0x38));
-        int index = rpm<int>(native_transform + oxorany(0x40));
+        uint64_t transform_data = rpm<uint64_t>(native_transform + oxorany(OFF_NATIVE_TRANSFORM_DATA));
+        int index = rpm<int>(native_transform + oxorany(OFF_NATIVE_TRANSFORM_INDEX));
 
         if (transform_position_from_data(transform_data, index, out)) return true;
 
-        uint64_t nested_data = likely_ptr(transform_data) ? rpm<uint64_t>(transform_data + oxorany(0x18)) : 0;
+        uint64_t nested_data = likely_ptr(transform_data) ? rpm<uint64_t>(transform_data + oxorany(OFF_TRANSFORM_DATA_ARRAY)) : 0;
         if (transform_position_from_data(nested_data, index, out)) return true;
 
-        Vector3 direct = rpm<Vector3>(native_transform + oxorany(0x90));
+        Vector3 direct = rpm<Vector3>(native_transform + oxorany(OFF_NATIVE_TRANSFORM_DIRECT));
         if (sane_world_pos(direct)) {
             out = direct;
             return true;
@@ -109,25 +110,25 @@ namespace player {
     }
 
     inline Vector3 position(uint64_t p) noexcept {
-        uint64_t MovementController = rpm<uint64_t>(p + oxorany(0x98));
+        uint64_t MovementController = rpm<uint64_t>(p + oxorany(OFF_PLAYER_MOVEMENT_CTRL));
         if (!MovementController) return Vector3(0, 0, 0);
 
-        uint64_t TransformData = rpm<uint64_t>(MovementController + oxorany(0xB0));
+        uint64_t TransformData = rpm<uint64_t>(MovementController + oxorany(OFF_MC_TRANSFORM_DATA));
         if (!TransformData) return Vector3(0, 0, 0);
 
-        return rpm<Vector3>(TransformData + oxorany(0x44));
+        return rpm<Vector3>(TransformData + oxorany(OFF_TD_POSITION));
     }
 
     inline uint64_t biped_map(uint64_t p) noexcept {
-        uint64_t view = rpm<uint64_t>(p + oxorany(0x48));
+        uint64_t view = rpm<uint64_t>(p + oxorany(OFF_PLAYER_VIEW_1));
         if (likely_ptr(view)) {
-            uint64_t map = rpm<uint64_t>(view + oxorany(0x48));
+            uint64_t map = rpm<uint64_t>(view + oxorany(OFF_VIEW_BIPED_MAP));
             if (likely_ptr(map)) return map;
         }
 
-        view = rpm<uint64_t>(p + oxorany(0x50));
+        view = rpm<uint64_t>(p + oxorany(OFF_PLAYER_VIEW_2));
         if (likely_ptr(view)) {
-            uint64_t map = rpm<uint64_t>(view + oxorany(0x48));
+            uint64_t map = rpm<uint64_t>(view + oxorany(OFF_VIEW_BIPED_MAP));
             if (likely_ptr(map)) return map;
         }
 
@@ -153,21 +154,21 @@ namespace player {
         if (!likely_ptr(map)) return false;
 
         if (bone_mode == 1) {
-            return read_biped_bone(map, oxorany(0x28), base, out) ||
-                   read_biped_bone(map, oxorany(0x20), base, out);
+            return read_biped_bone(map, oxorany(OFF_BONE_HEAD_1), base, out) ||
+                   read_biped_bone(map, oxorany(OFF_BONE_HEAD_2), base, out);
         }
 
         if (bone_mode == 2) {
-            return read_biped_bone(map, oxorany(0x40), base, out) ||
-                   read_biped_bone(map, oxorany(0x38), base, out) ||
-                   read_biped_bone(map, oxorany(0x30), base, out) ||
-                   read_biped_bone(map, oxorany(0x88), base, out);
+            return read_biped_bone(map, oxorany(OFF_BONE_CHEST_1), base, out) ||
+                   read_biped_bone(map, oxorany(OFF_BONE_CHEST_2), base, out) ||
+                   read_biped_bone(map, oxorany(OFF_BONE_CHEST_3), base, out) ||
+                   read_biped_bone(map, oxorany(OFF_BONE_CHEST_4), base, out);
         }
 
         if (bone_mode == 3) {
             Vector3 left{}, right{};
-            bool has_left = read_biped_bone(map, oxorany(0x98), base, left);
-            bool has_right = read_biped_bone(map, oxorany(0xB8), base, right);
+            bool has_left = read_biped_bone(map, oxorany(OFF_BONE_FOOT_LEFT), base, left);
+            bool has_right = read_biped_bone(map, oxorany(OFF_BONE_FOOT_RIGHT), base, right);
 
             if (has_left && has_right) {
                 out = (left + right) * 0.5f;
@@ -184,13 +185,13 @@ namespace player {
                 return true;
             }
 
-            return read_biped_bone(map, oxorany(0x88), base, out) ||
-                   read_biped_bone(map, oxorany(0x90), base, out) ||
-                   read_biped_bone(map, oxorany(0xB0), base, out);
+            return read_biped_bone(map, oxorany(OFF_BONE_SPINE_1), base, out) ||
+                   read_biped_bone(map, oxorany(OFF_BONE_SPINE_2), base, out) ||
+                   read_biped_bone(map, oxorany(OFF_BONE_SPINE_3), base, out);
         }
 
-        return read_biped_bone(map, oxorany(0x20), base, out) ||
-               read_biped_bone(map, oxorany(0x28), base, out);
+        return read_biped_bone(map, oxorany(OFF_BONE_HEAD_2), base, out) ||
+               read_biped_bone(map, oxorany(OFF_BONE_HEAD_1), base, out);
     }
 
     inline bool bone_position(uint64_t p, int bone_mode, Vector3& out) noexcept {
@@ -198,15 +199,15 @@ namespace player {
     }
 
     inline uint64_t photon_ptr(uint64_t p) noexcept {
-        return rpm<uint64_t>(p + oxorany(0x160));
+        return rpm<uint64_t>(p + oxorany(OFF_PLAYER_PHOTON_PTR));
     }
 
     inline int visibility_state(uint64_t p) noexcept {
-        uint64_t occlusion = rpm<uint64_t>(p + oxorany(0xB8));
+        uint64_t occlusion = rpm<uint64_t>(p + oxorany(OFF_PLAYER_OCCLUSION));
         if (!occlusion) return 0;
 
-        int current = rpm<int>(occlusion + oxorany(0x34));
-        int next = rpm<int>(occlusion + oxorany(0x38));
+        int current = rpm<int>(occlusion + oxorany(OFF_OCCLUSION_CURRENT));
+        int next = rpm<int>(occlusion + oxorany(OFF_OCCLUSION_NEXT));
 
         if (current == 2 || next == 2) return 2;
         if (current == 1 || next == 1) return 1;
@@ -219,21 +220,21 @@ namespace player {
         uint64_t PhotonPlayer = photon_ptr(p);
         if (!PhotonPlayer) return result;
 
-        uint64_t PropertiesRegistry = rpm<uint64_t>(PhotonPlayer + oxorany(0x38));
+        uint64_t PropertiesRegistry = rpm<uint64_t>(PhotonPlayer + oxorany(OFF_PHOTON_PROPS_REG));
         if (!PropertiesRegistry) return result;
 
-        int Count = rpm<int>(PropertiesRegistry + oxorany(0x20));
-        uint64_t PropertiesList = rpm<uint64_t>(PropertiesRegistry + oxorany(0x18));
+        int Count = rpm<int>(PropertiesRegistry + oxorany(OFF_PROPS_COUNT));
+        uint64_t PropertiesList = rpm<uint64_t>(PropertiesRegistry + oxorany(OFF_PROPS_LIST));
 
         for (int i = 0; i < Count; i++) {
-            uint64_t Key = rpm<uint64_t>(PropertiesList + oxorany(0x28) + oxorany(0x18) * i);
-            uint64_t Value = rpm<uint64_t>(PropertiesList + oxorany(0x30) + oxorany(0x18) * i);
+            uint64_t Key = rpm<uint64_t>(PropertiesList + oxorany(OFF_PROPS_KEY_BASE) + oxorany(OFF_LIST_ENTRY_STRIDE) * i);
+            uint64_t Value = rpm<uint64_t>(PropertiesList + oxorany(OFF_PROPS_VAL_BASE) + oxorany(OFF_LIST_ENTRY_STRIDE) * i);
 
             if (!Key) continue;
 
             std::string KeyString = rpm<read_string>(Key).as_utf8();
             if (strstr(KeyString.c_str(), tag)) {
-                result = rpm<T>(Value + oxorany(0x10));
+                result = rpm<T>(Value + oxorany(OFF_PROPS_VALUE_DATA));
                 break;
             }
         }
@@ -248,19 +249,19 @@ namespace player {
     inline read_string name(uint64_t p) noexcept {
         uint64_t PhotonPlayer = photon_ptr(p);
         if (!PhotonPlayer) return {};
-        return rpm<read_string>(rpm<uint64_t>(PhotonPlayer + oxorany(0x20)));
+        return rpm<read_string>(rpm<uint64_t>(PhotonPlayer + oxorany(OFF_PHOTON_NAME)));
     }
 
     inline matrix view_matrix(uint64_t p) noexcept {
-        uint64_t PlayerMainCamera = rpm<uint64_t>(p + oxorany(0xE8));
+        uint64_t PlayerMainCamera = rpm<uint64_t>(p + oxorany(OFF_PLAYER_MAIN_CAMERA));
         if (!PlayerMainCamera) return {};
 
-        uint64_t CameraTransform = rpm<uint64_t>(PlayerMainCamera + oxorany(0x20));
+        uint64_t CameraTransform = rpm<uint64_t>(PlayerMainCamera + oxorany(OFF_CAM_TRANSFORM));
         if (!CameraTransform) return {};
 
-        uint64_t CameraMatrix = rpm<uint64_t>(CameraTransform + oxorany(0x10));
+        uint64_t CameraMatrix = rpm<uint64_t>(CameraTransform + oxorany(OFF_CAM_TRANSFORM_MATRIX));
         if (!CameraMatrix) return {};
 
-        return rpm<matrix>(CameraMatrix + oxorany(0x100));
+        return rpm<matrix>(CameraMatrix + oxorany(OFF_CAM_MATRIX_DATA));
     }
 }
