@@ -16,7 +16,9 @@
 | `disasm/x86_64-readelf-all.txt` | Полный ELF-разбор x86_64 (секции, символы, релокации) | readelf |
 | `disasm/arm64-readelf-all.txt` | Полный ELF-разбор arm64 | readelf |
 | `disasm/arm64-dynamic-symbol-table.txt` | Таблица динамических символов arm64 | objdump -T |
-| `ghidra-decompiled/` | **C-псевдокод всех функций** (Ghidra, arm64) | Ghidra 12.1.2 headless |
+| `ghidra-decompiled/all_functions.c` | **C-псевдокод 2173/2273 функций** (26 МБ) | Ghidra 12.1.2 headless |
+| `ghidra-decompiled/{symbols,defined_strings,functions_index}.txt` | Символы, строки, индекс функций | Ghidra |
+| `info/NATIVE-ANALYSIS.md` | Итоговый разбор по декомпиляции | вручную |
 | `info/` | Сводки, карта JNI, заметки | вручную |
 
 > Примечание: системный `objdump` собран без поддержки aarch64, поэтому полный
