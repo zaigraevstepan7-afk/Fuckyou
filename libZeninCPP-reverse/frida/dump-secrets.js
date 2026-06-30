@@ -291,4 +291,14 @@ function waitForLib() {
 log('[*]', 'dump-secrets.js загружен. Ставлю хуки…');
 try { nativeJNIHooks(); } catch (e) { log('[!]', 'native hooks: ' + e); }
 try { waitForLib(); } catch (e) { log('[!]', 'dlopen hook: ' + e); }
-setTimeout(javaHooks, 0);
+
+// Ждём, пока Java-машина проснётся (процесс может быть заморожен freezer-ом).
+var _jt = 150;
+(function startJava() {
+  if (typeof Java === 'undefined' || !Java.available) {
+    if (_jt-- <= 0) { log('[!]', 'Java VM недоступна. Выведи приложение на ПЕРЕДНИЙ ПЛАН и повтори.'); return; }
+    setTimeout(startJava, 200); return;
+  }
+  try { javaHooks(); }
+  catch (e) { if (_jt-- > 0) setTimeout(startJava, 200); else log('[!]', 'javaHooks: ' + e); }
+})();

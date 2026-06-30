@@ -50,11 +50,13 @@ try {
   });
 } catch(e){}
 
-// 4) Java: Debug.isDebuggerConnected / ApplicationInfo.FLAG_DEBUGGABLE
-setTimeout(function(){
+// 4) Java: Debug.isDebuggerConnected (ждём готовности Java-машины)
+var _at = 150;
+(function jdbg(){
+  if (typeof Java === 'undefined' || !Java.available){ if(_at-- <= 0) return; setTimeout(jdbg,200); return; }
   try { Java.perform(function(){
     var D = Java.use('android.os.Debug');
     D.isDebuggerConnected.implementation = function(){ return false; };
     log('Debug.isDebuggerConnected -> false');
-  }); } catch(e){ log('java anti-dbg: ' + e); }
-}, 0);
+  }); } catch(e){ if(_at-- > 0) setTimeout(jdbg,200); else log('java anti-dbg: ' + e); }
+})();

@@ -52,14 +52,16 @@ try {
   });
 } catch(e){}
 
-// 4) Java: Debug.isDebuggerConnected / ApplicationInfo.FLAG_DEBUGGABLE
-setTimeout(function(){
+// 4) Java: Debug.isDebuggerConnected (ждём готовности Java-машины)
+var _at = 150;
+(function jdbg(){
+  if (typeof Java === 'undefined' || !Java.available){ if(_at-- <= 0) return; setTimeout(jdbg,200); return; }
   try { Java.perform(function(){
     var D = Java.use('android.os.Debug');
     D.isDebuggerConnected.implementation = function(){ return false; };
     log('Debug.isDebuggerConnected -> false');
-  }); } catch(e){ log('java anti-dbg: ' + e); }
-}, 0);
+  }); } catch(e){ if(_at-- > 0) setTimeout(jdbg,200); else log('java anti-dbg: ' + e); }
+})();
 
 /* ==================== dump-secrets.js ==================== */
 /*
@@ -355,4 +357,14 @@ function waitForLib() {
 log('[*]', 'dump-secrets.js загружен. Ставлю хуки…');
 try { nativeJNIHooks(); } catch (e) { log('[!]', 'native hooks: ' + e); }
 try { waitForLib(); } catch (e) { log('[!]', 'dlopen hook: ' + e); }
-setTimeout(javaHooks, 0);
+
+// Ждём, пока Java-машина проснётся (процесс может быть заморожен freezer-ом).
+var _jt = 150;
+(function startJava() {
+  if (typeof Java === 'undefined' || !Java.available) {
+    if (_jt-- <= 0) { log('[!]', 'Java VM недоступна. Выведи приложение на ПЕРЕДНИЙ ПЛАН и повтори.'); return; }
+    setTimeout(startJava, 200); return;
+  }
+  try { javaHooks(); }
+  catch (e) { if (_jt-- > 0) setTimeout(startJava, 200); else log('[!]', 'javaHooks: ' + e); }
+})();
