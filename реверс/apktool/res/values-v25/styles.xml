@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="APKTOOL_DUPLICATE_style_0x7f100139" parent="@style/APKTOOL_DUPLICATE_style_0x7f100144" />
-    <style name="APKTOOL_DUPLICATE_style_0x7f10013a" parent="@style/APKTOOL_DUPLICATE_style_0x7f100145" />
-    <style name="APKTOOL_DUPLICATE_style_0x7f100144" parent="@android:style/Theme.Material.NoActionBar" />
-    <style name="APKTOOL_DUPLICATE_style_0x7f100145" parent="@android:style/Theme.Material.Light.NoActionBar" />
-</resources>
