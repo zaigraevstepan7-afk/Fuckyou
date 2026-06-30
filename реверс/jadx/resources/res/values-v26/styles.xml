@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="resc_res_0x7f10004b" parent="@style/resc_res_0x7f1000b5">
+    </style>
+    <style name="resc_res_0x7f100052" parent="@style/resc_res_0x7f1000b6">
+    </style>
+    <style name="resc_res_0x7f1000b5" parent="@style/resc_res_0x7f1000af">
+        <item name="resc_res_0x7f0300fb">?android:attr/colorError</item>
+    </style>
+    <style name="resc_res_0x7f1000b6" parent="@style/resc_res_0x7f1000b0">
+        <item name="resc_res_0x7f0300fb">?android:attr/colorError</item>
+    </style>
+    <style name="resc_res_0x7f1000b7" parent="@style/resc_res_0x7f1000c1">
+        <item name="android:touchscreenBlocksFocus">true</item>
+        <item name="android:keyboardNavigationCluster">true</item>
+    </style>
+    <style name="resc_res_0x7f1000fa" parent="@style/resc_res_0x7f1000b7">
+    </style>
+    <style name="resc_res_0x7f100337" parent="@android:style/Widget">
+        <item name="android:background">?attr/resc_res_0x7f030114</item>
+        <item name="android:stateListAnimator">@animator/resc_res_0x7f020000</item>
+        <item name="android:touchscreenBlocksFocus">true</item>
+        <item name="android:keyboardNavigationCluster">true</item>
+    </style>
+</resources>

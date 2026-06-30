@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="resc_res_0x7f05001a">#4d1715</color>
+    <color name="resc_res_0x7f05001e">#ffdad6</color>
+    <color name="resc_res_0x7f050021">#12110f</color>
+    <color name="resc_res_0x7f050030">#1f1c1b</color>
+    <color name="resc_res_0x7f050060">#1fffffff</color>
+    <color name="resc_res_0x7f0502f6">#c8b9b6</color>
+    <color name="resc_res_0x7f0502f9">#8a7472</color>
+    <color name="resc_res_0x7f050311">#757575</color>
+    <color name="resc_res_0x7f050314">#404040</color>
+    <color name="resc_res_0x7f050315">#f4edea</color>
+    <color name="resc_res_0x7f050316">#80c8b9b6</color>
+    <color name="resc_res_0x7f050318">#c8b9b6</color>
+</resources>

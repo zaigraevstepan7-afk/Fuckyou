@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="resc_res_0x7f060002">48dp</dimen>
+    <dimen name="resc_res_0x7f06004e">12dp</dimen>
+    <dimen name="resc_res_0x7f060050">14dp</dimen>
+    <dimen name="resc_res_0x7f060098">30dp</dimen>
+    <dimen name="resc_res_0x7f06024a">450dp</dimen>
+    <dimen name="resc_res_0x7f06024b">600dp</dimen>
+    <dimen name="resc_res_0x7f06024c">24dp</dimen>
+    <dimen name="resc_res_0x7f06024f">24dp</dimen>
+    <dimen name="resc_res_0x7f060282">20dp</dimen>
+    <dimen name="resc_res_0x7f060284">4dp</dimen>
+    <dimen name="resc_res_0x7f060288">96dp</dimen>
+    <dimen name="resc_res_0x7f06028b">0dp</dimen>
+    <dimen name="resc_res_0x7f06028c">0dp</dimen>
+    <dimen name="resc_res_0x7f06028d">104dp</dimen>
+    <dimen name="resc_res_0x7f060295">68dp</dimen>
+    <dimen name="resc_res_0x7f060297">28dp</dimen>
+    <dimen name="resc_res_0x7f060298">64dp</dimen>
+    <dimen name="resc_res_0x7f060299">32dp</dimen>
+    <dimen name="resc_res_0x7f06029a">24dp</dimen>
+    <dimen name="resc_res_0x7f06029b">32dp</dimen>
+</resources>

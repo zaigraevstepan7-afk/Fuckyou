@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="4dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp">
+    <TextView
+        android:textAppearance="@style/resc_res_0x7f1001f0"
+        android:textColor="@color/resc_res_0x7f050318"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/resc_res_0x7f0f00c3"/>
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:boxCornerRadiusBottomEnd="18dp"
+        app:boxCornerRadiusBottomStart="18dp"
+        app:boxCornerRadiusTopEnd="18dp"
+        app:boxCornerRadiusTopStart="18dp"
+        app:boxStrokeColor="@color/resc_res_0x7f050019"
+        app:boxStrokeWidth="1dp"
+        app:boxStrokeWidthFocused="2dp"
+        app:hintEnabled="false"
+        style="@style/resc_res_0x7f100471">
+        <com.google.android.material.textfield.TextInputEditText
+            android:textAppearance="@style/resc_res_0x7f1001e7"
+            android:textColor="@color/resc_res_0x7f050315"
+            android:textColorHint="@color/resc_res_0x7f050316"
+            android:id="@+id/resc_res_0x7f0900f1"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:imeOptions="actionDone"
+            android:fontFamily="@font/resc_res_0x7f080000"/>
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

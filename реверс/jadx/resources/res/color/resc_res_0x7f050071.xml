@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_selected="true"
+        android:color="?attr/resc_res_0x7f03010d"/>
+    <item
+        android:state_focused="true"
+        android:color="?attr/resc_res_0x7f03010d"/>
+    <item
+        android:color="?attr/resc_res_0x7f030112"
+        android:state_hovered="true"/>
+    <item android:color="@android:color/transparent"/>
+</selector>

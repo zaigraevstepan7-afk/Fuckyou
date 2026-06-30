@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="resc_res_0x7f060220">0.16</dimen>
+    <dimen name="resc_res_0x7f060221">0.17</dimen>
+    <dimen name="resc_res_0x7f060222">0.4</dimen>
+    <dimen name="resc_res_0x7f060223">0.1</dimen>
+    <dimen name="resc_res_0x7f0602c0">0.24</dimen>
+    <dimen name="resc_res_0x7f0602c1">0.4</dimen>
+    <dimen name="resc_res_0x7f0602c2">0.4</dimen>
+    <dimen name="resc_res_0x7f0602c3">0.24</dimen>
+    <dimen name="resc_res_0x7f0602c4">0.12</dimen>
+    <dimen name="resc_res_0x7f0602c5">0.2</dimen>
+    <dimen name="resc_res_0x7f0602c6">0.2</dimen>
+    <dimen name="resc_res_0x7f0602c7">0.12</dimen>
+</resources>

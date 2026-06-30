@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_selected="true"
+        android:state_pressed="true"
+        android:color="?attr/resc_res_0x7f03010b"
+        android:alpha="@dimen/resc_res_0x7f06017f"/>
+    <item
+        android:state_focused="true"
+        android:state_selected="true"
+        android:color="?attr/resc_res_0x7f03010b"
+        android:alpha="@dimen/resc_res_0x7f06017d"/>
+    <item
+        android:state_selected="true"
+        android:color="?attr/resc_res_0x7f03010b"
+        android:alpha="@dimen/resc_res_0x7f06017e"
+        android:state_hovered="true"/>
+    <item
+        android:state_selected="true"
+        android:color="?attr/resc_res_0x7f030114"
+        android:alpha="@dimen/resc_res_0x7f0601db"/>
+    <item
+        android:state_pressed="true"
+        android:color="?attr/resc_res_0x7f03010b"
+        android:alpha="@dimen/resc_res_0x7f06017f"/>
+    <item
+        android:state_focused="true"
+        android:color="?attr/resc_res_0x7f03010b"
+        android:alpha="@dimen/resc_res_0x7f06017d"/>
+    <item
+        android:color="?attr/resc_res_0x7f03010b"
+        android:alpha="@dimen/resc_res_0x7f06017e"
+        android:state_hovered="true"/>
+    <item
+        android:color="?attr/resc_res_0x7f03010d"
+        android:alpha="@dimen/resc_res_0x7f0601db"/>
+</selector>

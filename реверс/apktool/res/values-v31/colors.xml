@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f050083">ۦ/ۤ۠ۤ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f050084">ۦ/ۤ۠ۥ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f050085">ۦ/ۤ۠ۦ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f050086">ۦ/ۤ۠ۧ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f050087">ۦ/ۤ۠ۨ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f050088">ۦ/ۤۡ۟.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f050089">ۦ/ۤۡ۠.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f05008a">ۦ/ۤۡۡ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f05008b">ۦ/ۤۡۢ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f05008c">ۦ/ۣۤۡ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500a5">@android:color/system_neutral1_1000</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500a6">@android:color/system_neutral1_900</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500a7">@android:color/system_neutral1_0</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500a8">ۦ/ۤۡۤ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500a9">ۦ/ۤۡۥ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500aa">@android:color/system_neutral1_800</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500ab">ۦ/ۤۡۦ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500ac">ۦ/ۤۡۧ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500ad">@android:color/system_neutral1_700</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500ae">ۦ/ۤۡۨ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500af">@android:color/system_neutral1_600</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500b0">@android:color/system_neutral1_500</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500b1">ۦ/ۤۢ۟.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500b2">@android:color/system_neutral1_400</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500b3">@android:color/system_neutral1_300</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500b4">@android:color/system_neutral1_200</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500b5">ۦ/ۤۢ۠.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500b6">@android:color/system_neutral1_100</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500b7">ۦ/ۤۢۡ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500b8">ۦ/ۤۢۢ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500b9">@android:color/system_neutral1_50</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500ba">ۦ/ۣۤۢ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500bb">ۦ/ۤۢۤ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500bc">@android:color/system_neutral1_10</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500bd">@android:color/system_neutral2_1000</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500be">@android:color/system_neutral2_900</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500bf">@android:color/system_neutral2_0</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500c0">ۦ/ۤۢۥ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500c1">ۦ/ۤۢۦ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500c2">@android:color/system_neutral2_800</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500c3">ۦ/ۤۢۧ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500c4">ۦ/ۤۢۨ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500c5">@android:color/system_neutral2_700</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500c6">ۦ/ۣۤ۟.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500c7">@android:color/system_neutral2_600</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500c8">@android:color/system_neutral2_500</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500c9">ۦ/ۣۤ۠.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500ca">@android:color/system_neutral2_400</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500cb">@android:color/system_neutral2_300</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500cc">@android:color/system_neutral2_200</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500cd">ۦ/ۣۤۡ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500ce">@android:color/system_neutral2_100</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500cf">ۦ/ۣۤۢ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500d0">ۦ/ۣۣۤ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500d1">@android:color/system_neutral2_50</color>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500d2">ۦ/ۣۤۤ.xml</item>
+    <item type="color" name="APKTOOL_DUPLICATE_color_0x7f0500d3">ۦ/ۣۤۥ.xml</item>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500d4">@android:color/system_neutral2_10</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500d5">@android:color/system_accent1_1000</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500d6">@android:color/system_accent1_900</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500d7">@android:color/system_accent1_0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500d8">@android:color/system_accent1_800</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500d9">@android:color/system_accent1_700</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500da">@android:color/system_accent1_600</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500db">@android:color/system_accent1_500</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500dc">@android:color/system_accent1_400</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500dd">@android:color/system_accent1_300</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500de">@android:color/system_accent1_200</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500df">@android:color/system_accent1_100</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e0">@android:color/system_accent1_50</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e1">@android:color/system_accent1_10</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e2">@android:color/system_accent2_1000</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e3">@android:color/system_accent2_900</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e4">@android:color/system_accent2_0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e5">@android:color/system_accent2_800</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e6">@android:color/system_accent2_700</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e7">@android:color/system_accent2_600</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e8">@android:color/system_accent2_500</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500e9">@android:color/system_accent2_400</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500ea">@android:color/system_accent2_300</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500eb">@android:color/system_accent2_200</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500ec">@android:color/system_accent2_100</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500ed">@android:color/system_accent2_50</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500ee">@android:color/system_accent2_10</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500ef">@android:color/system_accent3_1000</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f0">@android:color/system_accent3_900</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f1">@android:color/system_accent3_0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f2">@android:color/system_accent3_800</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f3">@android:color/system_accent3_700</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f4">@android:color/system_accent3_600</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f5">@android:color/system_accent3_500</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f6">@android:color/system_accent3_400</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f7">@android:color/system_accent3_300</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f8">@android:color/system_accent3_200</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500f9">@android:color/system_accent3_100</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500fa">@android:color/system_accent3_50</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0500fb">@android:color/system_accent3_10</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050183">@color/APKTOOL_DUPLICATE_color_0x7f0500c9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050186">@color/APKTOOL_DUPLICATE_color_0x7f0500aa</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050187">@color/APKTOOL_DUPLICATE_color_0x7f0500da</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050188">@color/APKTOOL_DUPLICATE_color_0x7f0500b6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050189">@color/APKTOOL_DUPLICATE_color_0x7f0500b6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05018c">@color/APKTOOL_DUPLICATE_color_0x7f0500d8</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05018d">@color/APKTOOL_DUPLICATE_color_0x7f0500df</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05018e">@color/APKTOOL_DUPLICATE_color_0x7f0500e5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05018f">@color/APKTOOL_DUPLICATE_color_0x7f0500ec</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050190">@color/APKTOOL_DUPLICATE_color_0x7f0500b6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050191">@color/APKTOOL_DUPLICATE_color_0x7f0500cc</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050192">@color/APKTOOL_DUPLICATE_color_0x7f0500f2</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050193">@color/APKTOOL_DUPLICATE_color_0x7f0500f9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050194">@color/APKTOOL_DUPLICATE_color_0x7f0500ca</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050195">@color/APKTOOL_DUPLICATE_color_0x7f0500c5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050196">@color/APKTOOL_DUPLICATE_color_0x7f0500de</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050197">@color/APKTOOL_DUPLICATE_color_0x7f0500d9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050198">@color/APKTOOL_DUPLICATE_color_0x7f0500eb</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050199">@color/APKTOOL_DUPLICATE_color_0x7f0500e6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05019a">@color/APKTOOL_DUPLICATE_color_0x7f0500c9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05019b">@color/APKTOOL_DUPLICATE_color_0x7f0500c4</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05019c">@color/APKTOOL_DUPLICATE_color_0x7f0500c0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05019d">@color/APKTOOL_DUPLICATE_color_0x7f0500c1</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05019e">@color/APKTOOL_DUPLICATE_color_0x7f0500c3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05019f">@color/APKTOOL_DUPLICATE_color_0x7f0500be</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501a0">@color/APKTOOL_DUPLICATE_color_0x7f0500c6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501a1">@color/APKTOOL_DUPLICATE_color_0x7f0500c9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501a2">@color/APKTOOL_DUPLICATE_color_0x7f0500c5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501a3">@color/APKTOOL_DUPLICATE_color_0x7f0500f8</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501a4">@color/APKTOOL_DUPLICATE_color_0x7f0500f3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501a5">@color/APKTOOL_DUPLICATE_color_0x7f0500d3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501a8">@color/APKTOOL_DUPLICATE_color_0x7f0500b9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501a9">@color/APKTOOL_DUPLICATE_color_0x7f0500de</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501aa">@color/APKTOOL_DUPLICATE_color_0x7f0500aa</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501ab">@color/APKTOOL_DUPLICATE_color_0x7f0500a6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501ae">@color/APKTOOL_DUPLICATE_color_0x7f0500d7</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501af">@color/APKTOOL_DUPLICATE_color_0x7f0500d6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b0">@color/APKTOOL_DUPLICATE_color_0x7f0500e4</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b1">@color/APKTOOL_DUPLICATE_color_0x7f0500e3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b2">@color/APKTOOL_DUPLICATE_color_0x7f0500a6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b3">@color/APKTOOL_DUPLICATE_color_0x7f0500c5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b4">@color/APKTOOL_DUPLICATE_color_0x7f0500f1</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b5">@color/APKTOOL_DUPLICATE_color_0x7f0500f0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b6">@color/APKTOOL_DUPLICATE_color_0x7f0500c8</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b7">@color/APKTOOL_DUPLICATE_color_0x7f0500cc</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b8">@color/APKTOOL_DUPLICATE_color_0x7f0500da</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501b9">@color/APKTOOL_DUPLICATE_color_0x7f0500df</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501ba">@color/APKTOOL_DUPLICATE_color_0x7f0500e7</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501bb">@color/APKTOOL_DUPLICATE_color_0x7f0500ec</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501bc">@color/APKTOOL_DUPLICATE_color_0x7f0500d3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501bd">@color/APKTOOL_DUPLICATE_color_0x7f0500d3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501be">@color/APKTOOL_DUPLICATE_color_0x7f0500d0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501bf">@color/APKTOOL_DUPLICATE_color_0x7f0500cf</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c0">@color/APKTOOL_DUPLICATE_color_0x7f0500ce</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c1">@color/APKTOOL_DUPLICATE_color_0x7f0500d2</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c2">@color/APKTOOL_DUPLICATE_color_0x7f0500bf</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c3">@color/APKTOOL_DUPLICATE_color_0x7f0500cd</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c4">@color/APKTOOL_DUPLICATE_color_0x7f0500ce</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c5">@color/APKTOOL_DUPLICATE_color_0x7f0500f4</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c6">@color/APKTOOL_DUPLICATE_color_0x7f0500f9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c7">@color/APKTOOL_DUPLICATE_color_0x7f0500d6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c8">@color/APKTOOL_DUPLICATE_color_0x7f0500d9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501c9">@color/APKTOOL_DUPLICATE_color_0x7f0500e3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501ca">@color/APKTOOL_DUPLICATE_color_0x7f0500e6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501cb">@color/APKTOOL_DUPLICATE_color_0x7f0500f0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501cc">@color/APKTOOL_DUPLICATE_color_0x7f0500f3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501cd">@color/APKTOOL_DUPLICATE_color_0x7f0500df</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501ce">@color/APKTOOL_DUPLICATE_color_0x7f0500de</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501cf">@color/APKTOOL_DUPLICATE_color_0x7f0500ec</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501d0">@color/APKTOOL_DUPLICATE_color_0x7f0500eb</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501d1">@color/APKTOOL_DUPLICATE_color_0x7f0500f9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f0501d2">@color/APKTOOL_DUPLICATE_color_0x7f0500f8</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050221">@color/APKTOOL_DUPLICATE_color_0x7f050162</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050222">@color/APKTOOL_DUPLICATE_color_0x7f050163</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050223">@color/APKTOOL_DUPLICATE_color_0x7f050168</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050224">@color/APKTOOL_DUPLICATE_color_0x7f050169</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050225">@color/APKTOOL_DUPLICATE_color_0x7f0501d4</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050226">@color/APKTOOL_DUPLICATE_color_0x7f0501d5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050227">@color/APKTOOL_DUPLICATE_color_0x7f0501da</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050228">@color/APKTOOL_DUPLICATE_color_0x7f0501db</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050229">@color/APKTOOL_DUPLICATE_color_0x7f0500a5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05022a">@color/APKTOOL_DUPLICATE_color_0x7f0500a6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05022b">@color/APKTOOL_DUPLICATE_color_0x7f0500a7</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05022c">@color/APKTOOL_DUPLICATE_color_0x7f0500aa</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05022d">@color/APKTOOL_DUPLICATE_color_0x7f0500ad</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05022e">@color/APKTOOL_DUPLICATE_color_0x7f0500af</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05022f">@color/APKTOOL_DUPLICATE_color_0x7f0500b0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050230">@color/APKTOOL_DUPLICATE_color_0x7f0500b2</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050231">@color/APKTOOL_DUPLICATE_color_0x7f0500b3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050232">@color/APKTOOL_DUPLICATE_color_0x7f0500b4</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050233">@color/APKTOOL_DUPLICATE_color_0x7f0500b6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050234">@color/APKTOOL_DUPLICATE_color_0x7f0500b9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050235">@color/APKTOOL_DUPLICATE_color_0x7f0500bc</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050236">@color/APKTOOL_DUPLICATE_color_0x7f0500bd</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050237">@color/APKTOOL_DUPLICATE_color_0x7f0500be</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050238">@color/APKTOOL_DUPLICATE_color_0x7f0500bf</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050239">@color/APKTOOL_DUPLICATE_color_0x7f0500c2</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05023a">@color/APKTOOL_DUPLICATE_color_0x7f0500c5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05023b">@color/APKTOOL_DUPLICATE_color_0x7f0500c7</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05023c">@color/APKTOOL_DUPLICATE_color_0x7f0500c8</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05023d">@color/APKTOOL_DUPLICATE_color_0x7f0500ca</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05023e">@color/APKTOOL_DUPLICATE_color_0x7f0500cb</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05023f">@color/APKTOOL_DUPLICATE_color_0x7f0500cc</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050240">@color/APKTOOL_DUPLICATE_color_0x7f0500ce</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050241">@color/APKTOOL_DUPLICATE_color_0x7f0500d1</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050242">@color/APKTOOL_DUPLICATE_color_0x7f0500d4</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050243">@color/APKTOOL_DUPLICATE_color_0x7f0500d5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050244">@color/APKTOOL_DUPLICATE_color_0x7f0500d6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050245">@color/APKTOOL_DUPLICATE_color_0x7f0500d7</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050246">@color/APKTOOL_DUPLICATE_color_0x7f0500d8</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050247">@color/APKTOOL_DUPLICATE_color_0x7f0500d9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050248">@color/APKTOOL_DUPLICATE_color_0x7f0500da</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050249">@color/APKTOOL_DUPLICATE_color_0x7f0500db</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05024a">@color/APKTOOL_DUPLICATE_color_0x7f0500dc</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05024b">@color/APKTOOL_DUPLICATE_color_0x7f0500dd</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05024c">@color/APKTOOL_DUPLICATE_color_0x7f0500de</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05024d">@color/APKTOOL_DUPLICATE_color_0x7f0500df</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05024e">@color/APKTOOL_DUPLICATE_color_0x7f0500e0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05024f">@color/APKTOOL_DUPLICATE_color_0x7f0500e1</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050250">@color/APKTOOL_DUPLICATE_color_0x7f0500e2</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050251">@color/APKTOOL_DUPLICATE_color_0x7f0500e3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050252">@color/APKTOOL_DUPLICATE_color_0x7f0500e4</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050253">@color/APKTOOL_DUPLICATE_color_0x7f0500e5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050254">@color/APKTOOL_DUPLICATE_color_0x7f0500e6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050255">@color/APKTOOL_DUPLICATE_color_0x7f0500e7</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050256">@color/APKTOOL_DUPLICATE_color_0x7f0500e8</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050257">@color/APKTOOL_DUPLICATE_color_0x7f0500e9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050258">@color/APKTOOL_DUPLICATE_color_0x7f0500ea</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050259">@color/APKTOOL_DUPLICATE_color_0x7f0500eb</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05025a">@color/APKTOOL_DUPLICATE_color_0x7f0500ec</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05025b">@color/APKTOOL_DUPLICATE_color_0x7f0500ed</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05025c">@color/APKTOOL_DUPLICATE_color_0x7f0500ee</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05025d">@color/APKTOOL_DUPLICATE_color_0x7f0500ef</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05025e">@color/APKTOOL_DUPLICATE_color_0x7f0500f0</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f05025f">@color/APKTOOL_DUPLICATE_color_0x7f0500f1</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050260">@color/APKTOOL_DUPLICATE_color_0x7f0500f2</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050261">@color/APKTOOL_DUPLICATE_color_0x7f0500f3</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050262">@color/APKTOOL_DUPLICATE_color_0x7f0500f4</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050263">@color/APKTOOL_DUPLICATE_color_0x7f0500f5</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050264">@color/APKTOOL_DUPLICATE_color_0x7f0500f6</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050265">@color/APKTOOL_DUPLICATE_color_0x7f0500f7</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050266">@color/APKTOOL_DUPLICATE_color_0x7f0500f8</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050267">@color/APKTOOL_DUPLICATE_color_0x7f0500f9</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050268">@color/APKTOOL_DUPLICATE_color_0x7f0500fa</color>
+    <color name="APKTOOL_DUPLICATE_color_0x7f050269">@color/APKTOOL_DUPLICATE_color_0x7f0500fb</color>
+</resources>
