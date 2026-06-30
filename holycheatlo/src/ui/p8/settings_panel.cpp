@@ -1,3 +1,4 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "settings_panel.h"
 
 #include "fonts.h"
