@@ -3,7 +3,7 @@
 # создаёт скрипт и внедряет его в Zenin External. От тебя: root + запущенное приложение.
 set -e
 PKG="com.reddit.frontpage"
-VER="17.15.3"
+VER="16.7.19"   # 16.x: встроенный Java-мост (в 17.x его убрали)
 ARCH="$(getprop ro.product.cpu.abi 2>/dev/null || echo arm64-v8a)"
 case "$ARCH" in
   arm64*) FA="android-arm64";;
