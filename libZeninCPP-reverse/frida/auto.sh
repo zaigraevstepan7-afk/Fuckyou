@@ -392,14 +392,6 @@ if ! su -c id 2>/dev/null | grep -q "uid=0"; then
 fi
 echo "[*] root есть."
 
-# проверим, установлен ли пакет; если нет — поищем похожий
-if ! su -c "pm list packages" 2>/dev/null | grep -q "package:$PKG\$"; then
-  echo "[!] пакет '$PKG' не найден. Похожие установленные приложения:"
-  su -c "pm list packages" 2>/dev/null | grep -iE "reddit|zenin|frontpage|cheat|loader|mod" || echo "    (ничего похожего)"
-  echo "    Запусти так:  bash auto.sh <точное.имя.пакета>"
-  exit 1
-fi
-
 echo "[*] ищу процесс $PKG через root (запусти приложение, если ещё нет)…"
 PID=""
 for i in $(seq 1 60); do
