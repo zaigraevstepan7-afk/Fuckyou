@@ -381,8 +381,35 @@ try { waitForLib(); } catch (e) { log('[!]', 'dlopen hook: ' + e); }
 setTimeout(javaHooks, 0);
 JSEOF
 
-echo "[*] ищу процесс $PKG (запусти приложение, если ещё нет)…"
-for i in $(seq 1 60); do PID=$(pidof "$PKG" 2>/dev/null | tr " " "\n" | head -1); [ -n "$PID" ] && break; echo "    жду запуск приложения… ($i)"; sleep 1; done
-if [ -z "$PID" ]; then echo "[!] приложение не запущено. Открой Zenin External и запусти снова: bash auto.sh"; exit 1; fi
-echo "[*] PID=$PID, внедряю combined.js (нужен root)…"
-su -c "$HOME/frida-inject -p $PID -s $HOME/combined.js -i" | tee "$HOME/dump.log"
+# Можно задать пакет вручную: bash auto.sh <package.name>
+[ -n "$1" ] && PKG="$1"
+
+echo "[*] проверяю root…"
+if ! su -c id 2>/dev/null | grep -q "uid=0"; then
+  echo "[!] нет root (su не вернул uid=0). Frida-inject без root не сможет внедриться."
+  echo "    Если телефон не рутован — напиши мне, соберу APK с frida-gadget (без root)."
+  exit 1
+fi
+echo "[*] root есть."
+
+# проверим, установлен ли пакет; если нет — поищем похожий
+if ! su -c "pm list packages" 2>/dev/null | grep -q "package:$PKG\$"; then
+  echo "[!] пакет '$PKG' не найден. Похожие установленные приложения:"
+  su -c "pm list packages" 2>/dev/null | grep -iE "reddit|zenin|frontpage|cheat|loader|mod" || echo "    (ничего похожего)"
+  echo "    Запусти так:  bash auto.sh <точное.имя.пакета>"
+  exit 1
+fi
+
+echo "[*] ищу процесс $PKG через root (запусти приложение, если ещё нет)…"
+PID=""
+for i in $(seq 1 60); do
+  PID=$(su -c "pidof $PKG" 2>/dev/null | tr ' ' '\n' | head -1)
+  [ -n "$PID" ] && break
+  echo "    жду запуск приложения… ($i)"; sleep 1
+done
+if [ -z "$PID" ]; then
+  echo "[!] приложение не запущено за 60с. Открой Zenin External и запусти снова: bash auto.sh"
+  exit 1
+fi
+echo "[*] PID=$PID, внедряю combined.js…"
+su -c "$HOME/frida-inject -p $PID -s $HOME/combined.js -i" 2>&1 | tee "$HOME/dump.log"
