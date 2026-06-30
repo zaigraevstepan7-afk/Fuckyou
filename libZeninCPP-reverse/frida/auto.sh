@@ -14,15 +14,21 @@ case "$ARCH" in
 esac
 echo "[*] arch=$ARCH -> $FA, frida $VER"
 
-echo "[*] ставлю зависимости…"
-pkg install -y curl xz-utils >/dev/null 2>&1 || true
-
 cd "$HOME"
+URL="https://github.com/frida/frida/releases/download/$VER/frida-inject-$VER-$FA.xz"
 if [ ! -x ./frida-inject ]; then
-  echo "[*] качаю frida-inject…"
-  curl -L -o fi.xz "https://github.com/frida/frida/releases/download/$VER/frida-inject-$VER-$FA.xz"
-  unxz -f fi.xz
-  mv "fi" frida-inject 2>/dev/null || mv frida-inject-* frida-inject 2>/dev/null || true
+  echo "[*] качаю и распаковываю frida-inject через python (curl/xz не нужны)…"
+  python3 - "$URL" <<'PYEOF'
+import sys, urllib.request, lzma
+url = sys.argv[1]
+print("    GET", url)
+req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+data = urllib.request.urlopen(req, timeout=120).read()
+print("    скачано:", len(data), "байт, распаковываю xz…")
+raw = lzma.decompress(data)
+open("frida-inject", "wb").write(raw)
+print("    записано frida-inject:", len(raw), "байт")
+PYEOF
   chmod +x frida-inject
 fi
 echo "[*] frida-inject готов: $(./frida-inject --version 2>/dev/null || echo ok)"
