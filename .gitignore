@@ -1,0 +1,9 @@
+# Build artifacts
+**/obj/
+**/libs/
+*.o
+*.o.d
+*.so
+
+# Scratch / extraction workspace
+_work/
