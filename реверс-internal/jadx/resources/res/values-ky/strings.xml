@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Бүттү</string>
+    <string name="abc_capital_off">ӨЧҮК</string>
+    <string name="abc_capital_on">КҮЙҮК</string>
+    <string name="abc_search_hint">Издөө…</string>
+    <string name="abc_searchview_description_clear">Сурамды өчүрүү</string>
+    <string name="abc_searchview_description_search">Издөө</string>
+    <string name="abc_searchview_description_submit">Сурам тапшыруу</string>
+    <string name="abc_searchview_description_voice">Айтып издөө</string>
+    <string name="abc_toolbar_collapse_description">Жыйыштыруу</string>
+    <string name="androidx_compose_foundation_autofill">Автотолтуруу</string>
+    <string name="bottomsheet_drag_handle_content_description">Тизменин керектүү жерине сүйрөп баруу</string>
+    <string name="default_error_message">Киргизилген маалымат жараксыз</string>
+    <string name="default_popup_window_title">Калкыма терезе</string>
+    <string name="error_a11y_label">Ката: жараксыз</string>
+    <string name="in_progress">Аткарылууда</string>
+    <string name="indeterminate">Жарым-жартылай текшерилди</string>
+    <string name="m3_loading_indicator_content_description">Жүктөлүүдө</string>
+    <string name="m3c_dialog">Диалог</string>
+    <string name="mtrl_button_snackbar_close_content_description">Жабуу</string>
+    <string name="not_selected">Тандалган жок</string>
+    <string name="password_toggle_content_description">Сырсөздү көрсөтүү</string>
+    <string name="selected">Тандалды</string>
+    <string name="state_empty">Бош</string>
+    <string name="state_off">Өчүк</string>
+    <string name="state_on">Күйүк</string>
+    <string name="switch_role">Которгуч</string>
+    <string name="tab">Өтмөк</string>
+    <string name="template_percent">%1$d пайыз.</string>
+</resources>

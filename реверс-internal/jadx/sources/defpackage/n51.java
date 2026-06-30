@@ -1,0 +1,33 @@
+package defpackage;
+
+/* JADX INFO: compiled from: r8-map-id-7d02091066cdaef854dd62631b7ece0560bf3f98008d2b2dd5cfb5f5ba2a990d */
+/* JADX INFO: loaded from: classes.dex */
+public final class n51 extends t51 {
+    public final float c;
+    public final float d;
+
+    public n51(float f, float f2) {
+        super(3);
+        this.c = f;
+        this.d = f2;
+    }
+
+    public final boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof n51)) {
+            return false;
+        }
+        n51 n51Var = (n51) obj;
+        return Float.compare(this.c, n51Var.c) == 0 && Float.compare(this.d, n51Var.d) == 0;
+    }
+
+    public final int hashCode() {
+        return Float.hashCode(this.d) + (Float.hashCode(this.c) * 31);
+    }
+
+    public final String toString() {
+        return "RelativeMoveTo(dx=" + this.c + ", dy=" + this.d + ")";
+    }
+}

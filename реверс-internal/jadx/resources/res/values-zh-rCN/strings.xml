@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">完成</string>
+    <string name="abc_capital_off">关闭</string>
+    <string name="abc_capital_on">开启</string>
+    <string name="abc_search_hint">搜索…</string>
+    <string name="abc_searchview_description_clear">清除查询</string>
+    <string name="abc_searchview_description_search">搜索</string>
+    <string name="abc_searchview_description_submit">提交查询</string>
+    <string name="abc_searchview_description_voice">语音搜索</string>
+    <string name="abc_toolbar_collapse_description">收起</string>
+    <string name="androidx_compose_foundation_autofill">自动填充</string>
+    <string name="bottomsheet_drag_handle_content_description">拖动手柄</string>
+    <string name="default_error_message">输入无效</string>
+    <string name="default_popup_window_title">弹出式窗口</string>
+    <string name="error_a11y_label">错误：无效</string>
+    <string name="in_progress">进行中</string>
+    <string name="indeterminate">部分选中</string>
+    <string name="m3_loading_indicator_content_description">正在加载</string>
+    <string name="m3c_dialog">对话框</string>
+    <string name="mtrl_button_snackbar_close_content_description">关闭</string>
+    <string name="not_selected">未选择</string>
+    <string name="password_toggle_content_description">显示密码</string>
+    <string name="selected">已选择</string>
+    <string name="state_empty">空白</string>
+    <string name="state_off">已关闭</string>
+    <string name="state_on">已开启</string>
+    <string name="switch_role">开关</string>
+    <string name="tab">标签页</string>
+    <string name="template_percent">百分之 %1$d。</string>
+</resources>

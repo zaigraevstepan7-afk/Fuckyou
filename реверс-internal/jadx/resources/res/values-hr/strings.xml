@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Gotovo</string>
+    <string name="abc_capital_off">ISKLJUČENO</string>
+    <string name="abc_capital_on">UKLJUČENO</string>
+    <string name="abc_search_hint">Pretražite…</string>
+    <string name="abc_searchview_description_clear">Izbriši upit</string>
+    <string name="abc_searchview_description_search">Pretraži</string>
+    <string name="abc_searchview_description_submit">Pošalji upit</string>
+    <string name="abc_searchview_description_voice">Glasovno pretraživanje</string>
+    <string name="abc_toolbar_collapse_description">Sažmi</string>
+    <string name="androidx_compose_foundation_autofill">Automatsko popunjavanje</string>
+    <string name="bottomsheet_drag_handle_content_description">Marker za povlačenje</string>
+    <string name="default_error_message">Nevažeći unos</string>
+    <string name="default_popup_window_title">Skočni prozor</string>
+    <string name="error_a11y_label">Pogreška: nije važeće</string>
+    <string name="in_progress">U tijeku</string>
+    <string name="indeterminate">Djelomično potvrđeno</string>
+    <string name="m3_loading_indicator_content_description">Učitavanje</string>
+    <string name="m3c_dialog">Dijaloški okvir</string>
+    <string name="mtrl_button_snackbar_close_content_description">Zatvori</string>
+    <string name="not_selected">Nije odabrano</string>
+    <string name="password_toggle_content_description">Prikaži zaporku</string>
+    <string name="selected">Odabrano</string>
+    <string name="state_empty">Prazno</string>
+    <string name="state_off">Isključeno</string>
+    <string name="state_on">Uključeno</string>
+    <string name="switch_role">Prekidač</string>
+    <string name="tab">Kartica</string>
+    <string name="template_percent">%1$d posto.</string>
+</resources>

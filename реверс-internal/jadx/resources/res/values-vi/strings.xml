@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Xong</string>
+    <string name="abc_capital_off">TẮT</string>
+    <string name="abc_capital_on">BẬT</string>
+    <string name="abc_search_hint">Tìm kiếm…</string>
+    <string name="abc_searchview_description_clear">Xóa truy vấn</string>
+    <string name="abc_searchview_description_search">Tìm kiếm</string>
+    <string name="abc_searchview_description_submit">Gửi truy vấn</string>
+    <string name="abc_searchview_description_voice">Tìm kiếm bằng giọng nói</string>
+    <string name="abc_toolbar_collapse_description">Thu gọn</string>
+    <string name="androidx_compose_foundation_autofill">Tự động điền</string>
+    <string name="bottomsheet_drag_handle_content_description">Nút kéo</string>
+    <string name="default_error_message">Giá trị nhập không hợp lệ</string>
+    <string name="default_popup_window_title">Cửa sổ bật lên</string>
+    <string name="error_a11y_label">Lỗi: không hợp lệ</string>
+    <string name="in_progress">Đang thực hiện</string>
+    <string name="indeterminate">Đã kiểm tra một phần</string>
+    <string name="m3_loading_indicator_content_description">Đang tải</string>
+    <string name="m3c_dialog">Hộp thoại</string>
+    <string name="mtrl_button_snackbar_close_content_description">Đóng</string>
+    <string name="not_selected">Chưa chọn</string>
+    <string name="password_toggle_content_description">Hiện mật khẩu</string>
+    <string name="selected">Đã chọn</string>
+    <string name="state_empty">Trống</string>
+    <string name="state_off">Đang tắt</string>
+    <string name="state_on">Đang bật</string>
+    <string name="switch_role">Chuyển</string>
+    <string name="tab">Thẻ</string>
+    <string name="template_percent">%1$d%%.</string>
+</resources>

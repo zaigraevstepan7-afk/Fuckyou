@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Готово</string>
+    <string name="abc_capital_off">ИЗКЛ.</string>
+    <string name="abc_capital_on">ВКЛ.</string>
+    <string name="abc_search_hint">Търсете…</string>
+    <string name="abc_searchview_description_clear">Изчистване на заявката</string>
+    <string name="abc_searchview_description_search">Търсене</string>
+    <string name="abc_searchview_description_submit">Изпращане на заявката</string>
+    <string name="abc_searchview_description_voice">Гласово търсене</string>
+    <string name="abc_toolbar_collapse_description">Свиване</string>
+    <string name="androidx_compose_foundation_autofill">Автоматично попълване</string>
+    <string name="bottomsheet_drag_handle_content_description">Манипулатор за преместване с плъзгане</string>
+    <string name="default_error_message">Въведеното е невалидно</string>
+    <string name="default_popup_window_title">Изскачащ прозорец</string>
+    <string name="error_a11y_label">Грешка: невалидно</string>
+    <string name="in_progress">В ход</string>
+    <string name="indeterminate">Частично отметнато</string>
+    <string name="m3_loading_indicator_content_description">Зарежда се</string>
+    <string name="m3c_dialog">Диалогов прозорец</string>
+    <string name="mtrl_button_snackbar_close_content_description">Затваряне</string>
+    <string name="not_selected">Не е избрано</string>
+    <string name="password_toggle_content_description">Показване на паролата</string>
+    <string name="selected">Избрано</string>
+    <string name="state_empty">Празно</string>
+    <string name="state_off">Изключено</string>
+    <string name="state_on">Включено</string>
+    <string name="switch_role">Превключване</string>
+    <string name="tab">Раздел</string>
+    <string name="template_percent">%1$d процента.</string>
+</resources>

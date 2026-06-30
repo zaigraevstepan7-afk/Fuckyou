@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Gatavs</string>
+    <string name="abc_capital_off">IZSLĒGT</string>
+    <string name="abc_capital_on">IESLĒGT</string>
+    <string name="abc_search_hint">Meklējiet…</string>
+    <string name="abc_searchview_description_clear">Notīrīt vaicājumu</string>
+    <string name="abc_searchview_description_search">Meklēt</string>
+    <string name="abc_searchview_description_submit">Iesniegt vaicājumu</string>
+    <string name="abc_searchview_description_voice">Meklēt ar balsi</string>
+    <string name="abc_toolbar_collapse_description">Sakļaut</string>
+    <string name="androidx_compose_foundation_autofill">Automātiskā aizpilde</string>
+    <string name="bottomsheet_drag_handle_content_description">Vilkšanas turis</string>
+    <string name="default_error_message">Nederīga ievade</string>
+    <string name="default_popup_window_title">Uznirstošais logs</string>
+    <string name="error_a11y_label">Kļūda: nederīga</string>
+    <string name="in_progress">Notiek apstrāde</string>
+    <string name="indeterminate">Daļēji atzīmēta</string>
+    <string name="m3_loading_indicator_content_description">Notiek ielāde…</string>
+    <string name="m3c_dialog">Dialoglodziņš</string>
+    <string name="mtrl_button_snackbar_close_content_description">Aizvērt</string>
+    <string name="not_selected">Nav atlasīts</string>
+    <string name="password_toggle_content_description">Rādīt paroli</string>
+    <string name="selected">Atlasīts</string>
+    <string name="state_empty">Tukšs</string>
+    <string name="state_off">Izslēgts</string>
+    <string name="state_on">Ieslēgts</string>
+    <string name="switch_role">Slēdzis</string>
+    <string name="tab">Cilne</string>
+    <string name="template_percent">Procenti: %1$d.</string>
+</resources>

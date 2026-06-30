@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">हो गया</string>
+    <string name="abc_capital_off">बंद</string>
+    <string name="abc_capital_on">चालू</string>
+    <string name="abc_search_hint">खोजें…</string>
+    <string name="abc_searchview_description_clear">क्‍वेरी हटाएं</string>
+    <string name="abc_searchview_description_search">खोजें</string>
+    <string name="abc_searchview_description_submit">क्वेरी सबमिट करें</string>
+    <string name="abc_searchview_description_voice">बोलकर खोजें</string>
+    <string name="abc_toolbar_collapse_description">छोटा करें</string>
+    <string name="androidx_compose_foundation_autofill">ऑटोमैटिक तरीके से जानकारी भरने की सुविधा</string>
+    <string name="bottomsheet_drag_handle_content_description">खींचकर छोड़ने वाला हैंडल</string>
+    <string name="default_error_message">अमान्य इनपुट</string>
+    <string name="default_popup_window_title">पॉप-अप विंडो</string>
+    <string name="error_a11y_label">गड़बड़ी: यह अमान्य है</string>
+    <string name="in_progress">जारी है</string>
+    <string name="indeterminate">कुछ विकल्पों को चुना गया</string>
+    <string name="m3_loading_indicator_content_description">लोड हो रहा है</string>
+    <string name="m3c_dialog">डायलॉग</string>
+    <string name="mtrl_button_snackbar_close_content_description">बंद करें</string>
+    <string name="not_selected">नहीं चुना गया</string>
+    <string name="password_toggle_content_description">पासवर्ड दिखाएं</string>
+    <string name="selected">चुना गया</string>
+    <string name="state_empty">कोई भी तार नहीं लगा है</string>
+    <string name="state_off">बंद है</string>
+    <string name="state_on">चालू है</string>
+    <string name="switch_role">स्विच करें</string>
+    <string name="tab">टैब</string>
+    <string name="template_percent">%1$d प्रतिशत.</string>
+</resources>

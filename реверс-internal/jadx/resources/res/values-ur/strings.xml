@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">ہو گیا</string>
+    <string name="abc_capital_off">آف</string>
+    <string name="abc_capital_on">آن</string>
+    <string name="abc_search_hint">تلاش کریں…</string>
+    <string name="abc_searchview_description_clear">استفسار صاف کریں</string>
+    <string name="abc_searchview_description_search">تلاش کریں</string>
+    <string name="abc_searchview_description_submit">استفسار جمع کرائیں</string>
+    <string name="abc_searchview_description_voice">صوتی تلاش</string>
+    <string name="abc_toolbar_collapse_description">سکیڑیں</string>
+    <string name="androidx_compose_foundation_autofill">آٹو فل</string>
+    <string name="bottomsheet_drag_handle_content_description">گھسیٹنے کا ہینڈل</string>
+    <string name="default_error_message">غلط ان پٹ</string>
+    <string name="default_popup_window_title">پاپ اپ ونڈو</string>
+    <string name="error_a11y_label">خرابی: غلط</string>
+    <string name="in_progress">پیشرفت میں</string>
+    <string name="indeterminate">جزوی طور پر چیک کردہ</string>
+    <string name="m3_loading_indicator_content_description">لوڈ ہو رہا ہے</string>
+    <string name="m3c_dialog">ڈائلاگ</string>
+    <string name="mtrl_button_snackbar_close_content_description">بند کریں</string>
+    <string name="not_selected">غیر منتخب کردہ</string>
+    <string name="password_toggle_content_description">پاس ورڈ دکھائیں</string>
+    <string name="selected">منتخب کردہ</string>
+    <string name="state_empty">خالی ہے</string>
+    <string name="state_off">آف ہے</string>
+    <string name="state_on">آن ہے</string>
+    <string name="switch_role">سوئچ</string>
+    <string name="tab">ٹیب</string>
+    <string name="template_percent">%1$d فیصد۔</string>
+</resources>

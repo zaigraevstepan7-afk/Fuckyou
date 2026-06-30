@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Tapos na</string>
+    <string name="abc_capital_off">I-OFF</string>
+    <string name="abc_capital_on">I-ON</string>
+    <string name="abc_search_hint">Maghanap…</string>
+    <string name="abc_searchview_description_clear">I-clear ang query</string>
+    <string name="abc_searchview_description_search">Maghanap</string>
+    <string name="abc_searchview_description_submit">Isumite ang query</string>
+    <string name="abc_searchview_description_voice">Paghahanap gamit ang boses</string>
+    <string name="abc_toolbar_collapse_description">I-collapse</string>
+    <string name="androidx_compose_foundation_autofill">Autofill</string>
+    <string name="bottomsheet_drag_handle_content_description">I-drag ang handle</string>
+    <string name="default_error_message">Invalid na input</string>
+    <string name="default_popup_window_title">Window ng Pop-Up</string>
+    <string name="error_a11y_label">Error: invalid</string>
+    <string name="in_progress">Isinasagawa</string>
+    <string name="indeterminate">Bahagyang may check</string>
+    <string name="m3_loading_indicator_content_description">Naglo-load</string>
+    <string name="m3c_dialog">Dialog</string>
+    <string name="mtrl_button_snackbar_close_content_description">Isara</string>
+    <string name="not_selected">Hindi napili</string>
+    <string name="password_toggle_content_description">Ipakita ang password</string>
+    <string name="selected">Napili</string>
+    <string name="state_empty">Walang laman</string>
+    <string name="state_off">Naka-off</string>
+    <string name="state_on">Naka-on</string>
+    <string name="switch_role">Lumipat</string>
+    <string name="tab">Tab</string>
+    <string name="template_percent">%1$d (na) porsyento.</string>
+</resources>

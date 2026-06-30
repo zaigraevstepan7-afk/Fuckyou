@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">ಆಯಿತು</string>
+    <string name="abc_capital_off">ಆಫ್</string>
+    <string name="abc_capital_on">ಆನ್</string>
+    <string name="abc_search_hint">ಹುಡುಕಿ…</string>
+    <string name="abc_searchview_description_clear">ಪ್ರಶ್ನೆಯನ್ನು ತೆರವುಗೊಳಿಸಿ</string>
+    <string name="abc_searchview_description_search">ಹುಡುಕಿ</string>
+    <string name="abc_searchview_description_submit">ಪ್ರಶ್ನೆಯನ್ನು ಸಲ್ಲಿಸಿ</string>
+    <string name="abc_searchview_description_voice">ಧ್ವನಿ ಹುಡುಕಾಟ</string>
+    <string name="abc_toolbar_collapse_description">ಕುಗ್ಗಿಸಿ</string>
+    <string name="androidx_compose_foundation_autofill">ಆಟೋಫಿಲ್</string>
+    <string name="bottomsheet_drag_handle_content_description">ಹ್ಯಾಂಡಲ್ ಡ್ರ್ಯಾಗ್ ಮಾಡಿ</string>
+    <string name="default_error_message">ಅಮಾನ್ಯ ಇನ್‌ಪುಟ್</string>
+    <string name="default_popup_window_title">ಪಾಪ್-ಅಪ್ ವಿಂಡೋ</string>
+    <string name="error_a11y_label">ದೋಷ: ಅಮಾನ್ಯ</string>
+    <string name="in_progress">ಪ್ರಗತಿಯಲ್ಲಿದೆ</string>
+    <string name="indeterminate">ಭಾಗಶಃ ಪರೀಕ್ಷಿಸಲಾಗಿದೆ</string>
+    <string name="m3_loading_indicator_content_description">ಲೋಡ್ ಆಗುತ್ತಿದೆ</string>
+    <string name="m3c_dialog">ಡೈಲಾಗ್</string>
+    <string name="mtrl_button_snackbar_close_content_description">ಮುಚ್ಚಿರಿ</string>
+    <string name="not_selected">ಆಯ್ಕೆ ಮಾಡಿಲ್ಲ</string>
+    <string name="password_toggle_content_description">ಪಾಸ್‌ವರ್ಡ್ ತೋರಿಸಿ</string>
+    <string name="selected">ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ</string>
+    <string name="state_empty">ಖಾಲಿ</string>
+    <string name="state_off">ಆಫ್ ಆಗಿದೆ</string>
+    <string name="state_on">ಆನ್ ಆಗಿದೆ</string>
+    <string name="switch_role">ಬದಲಿಸಿ</string>
+    <string name="tab">ಟ್ಯಾಬ್</string>
+    <string name="template_percent">%1$d ಶೇಕಡಾ.</string>
+</resources>

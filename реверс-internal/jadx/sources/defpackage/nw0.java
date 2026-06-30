@@ -1,0 +1,25 @@
+package defpackage;
+
+/* JADX INFO: compiled from: r8-map-id-7d02091066cdaef854dd62631b7ece0560bf3f98008d2b2dd5cfb5f5ba2a990d */
+/* JADX INFO: loaded from: classes.dex */
+public final class nw0 extends ls {
+    public bk1 h;
+    public wc1 i;
+    public float j;
+    public /* synthetic */ Object k;
+    public final /* synthetic */ qw0 l;
+    public int m;
+
+    /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
+    public nw0(qw0 qw0Var, ls lsVar) {
+        super(lsVar);
+        this.l = qw0Var;
+    }
+
+    @Override // defpackage.ye
+    public final Object q(Object obj) {
+        this.k = obj;
+        this.m |= Integer.MIN_VALUE;
+        return qw0.c(this.l, null, null, 0.0f, 0.0f, this);
+    }
+}

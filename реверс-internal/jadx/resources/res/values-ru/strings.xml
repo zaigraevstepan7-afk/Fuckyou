@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Готово</string>
+    <string name="abc_capital_off">ВЫКЛ</string>
+    <string name="abc_capital_on">ВКЛ</string>
+    <string name="abc_search_hint">Введите запрос</string>
+    <string name="abc_searchview_description_clear">Удалить запрос</string>
+    <string name="abc_searchview_description_search">Поиск</string>
+    <string name="abc_searchview_description_submit">Отправить запрос</string>
+    <string name="abc_searchview_description_voice">Голосовой поиск</string>
+    <string name="abc_toolbar_collapse_description">Свернуть</string>
+    <string name="androidx_compose_foundation_autofill">Автозаполнение</string>
+    <string name="bottomsheet_drag_handle_content_description">Маркер перемещения</string>
+    <string name="default_error_message">Неправильный ввод</string>
+    <string name="default_popup_window_title">Всплывающее окно</string>
+    <string name="error_a11y_label">Ошибка: недопустимое значение</string>
+    <string name="in_progress">Выполняется</string>
+    <string name="indeterminate">Отмечено частично</string>
+    <string name="m3_loading_indicator_content_description">Загрузка</string>
+    <string name="m3c_dialog">Диалоговое окно</string>
+    <string name="mtrl_button_snackbar_close_content_description">Закрыть</string>
+    <string name="not_selected">Не выбрано</string>
+    <string name="password_toggle_content_description">Показать пароль</string>
+    <string name="selected">Выбрано</string>
+    <string name="state_empty">Пусто</string>
+    <string name="state_off">Отключено</string>
+    <string name="state_on">Включено</string>
+    <string name="switch_role">Переключатель</string>
+    <string name="tab">Вкладка</string>
+    <string name="template_percent">Процентов: %1$d.</string>
+</resources>

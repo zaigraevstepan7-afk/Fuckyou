@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Nimemaliza</string>
+    <string name="abc_capital_off">IMEZIMWA</string>
+    <string name="abc_capital_on">IMEWASHWA</string>
+    <string name="abc_search_hint">Tafuta…</string>
+    <string name="abc_searchview_description_clear">Futa hoja</string>
+    <string name="abc_searchview_description_search">Tafuta</string>
+    <string name="abc_searchview_description_submit">Wasilisha hoja</string>
+    <string name="abc_searchview_description_voice">Kutafuta kwa kutamka</string>
+    <string name="abc_toolbar_collapse_description">Kunja</string>
+    <string name="androidx_compose_foundation_autofill">Jaza kiotomatiki</string>
+    <string name="bottomsheet_drag_handle_content_description">Aikoni ya buruta</string>
+    <string name="default_error_message">Ulichoweka si sahihi</string>
+    <string name="default_popup_window_title">Dirisha Ibukizi</string>
+    <string name="error_a11y_label">Hitilafu: si sahihi</string>
+    <string name="in_progress">Inaendelea</string>
+    <string name="indeterminate">Imekaguliwa kwa kiasi fulani</string>
+    <string name="m3_loading_indicator_content_description">Inapakia</string>
+    <string name="m3c_dialog">Kidirisha</string>
+    <string name="mtrl_button_snackbar_close_content_description">Funga</string>
+    <string name="not_selected">Hujachagua</string>
+    <string name="password_toggle_content_description">Onyesha nenosiri</string>
+    <string name="selected">Umechagua</string>
+    <string name="state_empty">Tupu</string>
+    <string name="state_off">Imezimwa</string>
+    <string name="state_on">Imewashwa</string>
+    <string name="switch_role">Swichi</string>
+    <string name="tab">Kichupo</string>
+    <string name="template_percent">Asilimia %1$d.</string>
+</resources>

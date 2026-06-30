@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">Болсон</string>
+    <string name="abc_capital_off">ИДЭВХГҮЙ</string>
+    <string name="abc_capital_on">ИДЭВХТЭЙ</string>
+    <string name="abc_search_hint">Хайх…</string>
+    <string name="abc_searchview_description_clear">Асуулга арилгах</string>
+    <string name="abc_searchview_description_search">Хайх</string>
+    <string name="abc_searchview_description_submit">Асуулга илгээх</string>
+    <string name="abc_searchview_description_voice">Дуут хайлт</string>
+    <string name="abc_toolbar_collapse_description">Буулгах</string>
+    <string name="androidx_compose_foundation_autofill">Автоматаар бөглөх хэсэг</string>
+    <string name="bottomsheet_drag_handle_content_description">Чирэх бариул</string>
+    <string name="default_error_message">Буруу оролт</string>
+    <string name="default_popup_window_title">Попап цонх</string>
+    <string name="error_a11y_label">Алдаа: хүчингүй</string>
+    <string name="in_progress">Үргэлжилж байна</string>
+    <string name="indeterminate">Хэсэгчлэн тэмдэглэсэн</string>
+    <string name="m3_loading_indicator_content_description">Ачаалж байна</string>
+    <string name="m3c_dialog">Харилцах цонх</string>
+    <string name="mtrl_button_snackbar_close_content_description">Хаах</string>
+    <string name="not_selected">Сонгоогүй</string>
+    <string name="password_toggle_content_description">Нууц үгийг харуулах</string>
+    <string name="selected">Сонгосон</string>
+    <string name="state_empty">Хоосон</string>
+    <string name="state_off">Унтраалттай</string>
+    <string name="state_on">Асаалттай</string>
+    <string name="switch_role">Сэлгэх</string>
+    <string name="tab">Таб</string>
+    <string name="template_percent">%1$d хувь.</string>
+</resources>

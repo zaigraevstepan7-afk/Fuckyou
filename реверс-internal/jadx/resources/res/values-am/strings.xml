@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">ተከናውኗል</string>
+    <string name="abc_capital_off">አጥፋ</string>
+    <string name="abc_capital_on">አብራ</string>
+    <string name="abc_search_hint">ይፈልጉ…</string>
+    <string name="abc_searchview_description_clear">መጠይቅ አጽዳ</string>
+    <string name="abc_searchview_description_search">ፍለጋ</string>
+    <string name="abc_searchview_description_submit">መጠይቅ አስገባ</string>
+    <string name="abc_searchview_description_voice">የድምጽ ፍለጋ</string>
+    <string name="abc_toolbar_collapse_description">ሰብስብ</string>
+    <string name="androidx_compose_foundation_autofill">ራስ-ሙላ</string>
+    <string name="bottomsheet_drag_handle_content_description">መያዣ ይጎትቱ</string>
+    <string name="default_error_message">ልክ ያልሆነ ግቤት</string>
+    <string name="default_popup_window_title">ብቅ-ባይ መስኮት</string>
+    <string name="error_a11y_label">ስህተት፦ ልክ ያልሆነ</string>
+    <string name="in_progress">በሂደት ላይ</string>
+    <string name="indeterminate">በከፊል የተፈተሸ</string>
+    <string name="m3_loading_indicator_content_description">በመጫን ላይ</string>
+    <string name="m3c_dialog">መገናኛ</string>
+    <string name="mtrl_button_snackbar_close_content_description">ዝጋ</string>
+    <string name="not_selected">ያልተመረጡ</string>
+    <string name="password_toggle_content_description">የይለፍ ቃል አሳይ</string>
+    <string name="selected">ተመርጧል</string>
+    <string name="state_empty">ባዶ</string>
+    <string name="state_off">ጠፍቷል</string>
+    <string name="state_on">በርቷል</string>
+    <string name="switch_role">ማብሪያ/ማጥፊያ</string>
+    <string name="tab">ትር</string>
+    <string name="template_percent">%1$d በመቶ።</string>
+</resources>

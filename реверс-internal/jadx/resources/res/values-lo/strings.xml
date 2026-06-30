@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">ແລ້ວໆ</string>
+    <string name="abc_capital_off">ປິດ</string>
+    <string name="abc_capital_on">ເປີດ</string>
+    <string name="abc_search_hint">ຊອກຫາ…</string>
+    <string name="abc_searchview_description_clear">ລຶບຂໍ້ຄວາມຊອກຫາ</string>
+    <string name="abc_searchview_description_search">ຊອກຫາ</string>
+    <string name="abc_searchview_description_submit">ສົ່ງຂໍ້ມູນ</string>
+    <string name="abc_searchview_description_voice">ຊອກຫາດ້ວຍສຽງ</string>
+    <string name="abc_toolbar_collapse_description">ຫຍໍ້ລົງ</string>
+    <string name="androidx_compose_foundation_autofill">ຕື່ມຂໍ້ມູນອັດຕະໂນມັດ</string>
+    <string name="bottomsheet_drag_handle_content_description">ບ່ອນຈັບລາກ</string>
+    <string name="default_error_message">ຂໍ້ມູນທີ່ປ້ອນເຂົ້າບໍ່ຖືກຕ້ອງ</string>
+    <string name="default_popup_window_title">ໜ້າຈໍປັອບອັບ</string>
+    <string name="error_a11y_label">ຂໍ້ຜິດພາດ: ບໍ່ຖືກຕ້ອງ</string>
+    <string name="in_progress">ກຳ​ລັງ​ດຳ​ເນີນ​ການ</string>
+    <string name="indeterminate">ກວດສອບບາງສ່ວນແລ້ວ</string>
+    <string name="m3_loading_indicator_content_description">ກຳລັງໂຫຼດ</string>
+    <string name="m3c_dialog">ກ່ອງໂຕ້ຕອບ</string>
+    <string name="mtrl_button_snackbar_close_content_description">ປິດ</string>
+    <string name="not_selected">ບໍ່ໄດ້ເລືອກ</string>
+    <string name="password_toggle_content_description">ສະແດງລະຫັດຜ່ານ</string>
+    <string name="selected">ເລືອກແລ້ວ</string>
+    <string name="state_empty">ຫວ່າງເປົ່າ</string>
+    <string name="state_off">ປິດຢູ່</string>
+    <string name="state_on">ເປີດຢູ່</string>
+    <string name="switch_role">ປຸ່ມກົດ</string>
+    <string name="tab">ແຖບ</string>
+    <string name="template_percent">%1$d ເປີ​ເຊັນ.</string>
+</resources>

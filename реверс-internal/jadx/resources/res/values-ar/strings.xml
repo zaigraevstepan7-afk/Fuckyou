@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abc_action_mode_done">تم</string>
+    <string name="abc_capital_off">إيقاف</string>
+    <string name="abc_capital_on">مفعّلة</string>
+    <string name="abc_search_hint">بحث…</string>
+    <string name="abc_searchview_description_clear">محو طلب البحث</string>
+    <string name="abc_searchview_description_search">البحث</string>
+    <string name="abc_searchview_description_submit">إرسال طلب البحث</string>
+    <string name="abc_searchview_description_voice">بحث صوتي</string>
+    <string name="abc_toolbar_collapse_description">تصغير</string>
+    <string name="androidx_compose_foundation_autofill">الملء التلقائي</string>
+    <string name="bottomsheet_drag_handle_content_description">مقبض السحب</string>
+    <string name="default_error_message">إدخال غير صالح</string>
+    <string name="default_popup_window_title">نافذة منبثقة</string>
+    <string name="error_a11y_label">خطأ: غير صالح</string>
+    <string name="in_progress">قيد التقدم</string>
+    <string name="indeterminate">تم وضع علامة في المربّع بشكل جزئي</string>
+    <string name="m3_loading_indicator_content_description">جارٍ التحميل</string>
+    <string name="m3c_dialog">مربّع حوار</string>
+    <string name="mtrl_button_snackbar_close_content_description">إغلاق</string>
+    <string name="not_selected">غير محدّد</string>
+    <string name="password_toggle_content_description">عرض كلمة المرور</string>
+    <string name="selected">محدّد</string>
+    <string name="state_empty">حقل فارغ</string>
+    <string name="state_off">غير مفعَّل</string>
+    <string name="state_on">مفعَّل</string>
+    <string name="switch_role">تبديل</string>
+    <string name="tab">علامة تبويب</string>
+    <string name="template_percent">%1$d في المئة.</string>
+</resources>

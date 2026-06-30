@@ -1,0 +1,14 @@
+package defpackage;
+
+import java.util.LinkedHashMap;
+
+/* JADX INFO: compiled from: r8-map-id-7d02091066cdaef854dd62631b7ece0560bf3f98008d2b2dd5cfb5f5ba2a990d */
+/* JADX INFO: loaded from: classes.dex */
+public final class cx0 extends cu {
+    public cx0(cu cuVar) {
+        cuVar.getClass();
+        LinkedHashMap linkedHashMap = cuVar.a;
+        linkedHashMap.getClass();
+        this.a.putAll(linkedHashMap);
+    }
+}
