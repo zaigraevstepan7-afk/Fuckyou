@@ -1,48 +1,69 @@
-// Standoff 2 internal — corrected il2cpp dump
-// globalMetadata = 0x989E048  (ориентир версии билда)
+// Standoff 2 internal — offsets 0.38.2
+// il2cpp dump: globalMetadata = 0x989E048
 // использовать как libunity_base + offset
 
-// ==== il2cpp api (то, что реально дергается в коде) ====
+// ==== il2cpp api (из ручного экспорт-дампа 0.38.2) ====
 il2cpp_domain_get           = 0x4FF4198
 il2cpp_domain_assembly_open = 0x4FF419C
 il2cpp_assembly_get_image   = 0x4FF4060
 il2cpp_class_from_name      = 0x877F3A4
 il2cpp_array_new            = 0x4FF4044
 il2cpp_object_new           = 0x4FF434C
-il2cpp_resolve_icall        = 0x50157A8   // используется как icall (проверить в globals.hpp)
+il2cpp_resolve_icall (icall)= 0x50157A8
 
-// ==== прочие il2cpp api (для справки) ====
-il2cpp_alloc                = 0x879F9C0
-il2cpp_array_length         = 0x4FF4040
-il2cpp_class_get_field_from_name = 0x4FF40F0
-il2cpp_class_get_fields     = 0x4FF40E8
-il2cpp_class_get_methods    = 0x4FF40F4
-il2cpp_class_get_method_from_name = 0x877D55C
-il2cpp_class_get_name       = 0x4FF40F8
-il2cpp_class_get_parent     = 0x4FF4100
-il2cpp_field_get_offset     = 0x4FF4270
-il2cpp_field_static_get_value = 0x500F2C8
-il2cpp_method_get_name      = 0x4FF4324
-il2cpp_object_unbox         = 0x5015974
-il2cpp_runtime_invoke       = 0x4FF4380
-il2cpp_string_new           = 0x4FF4394
-il2cpp_value_box            = 0x5015970
+// ==== game methods (из dump.cs 0.38.2) ====
+// input
+get_touch (Input::GetTouch)      = 0x6519E38
+get_count (Input::get_touchCount)= 0x651A278
+// screen
+get_width  = 0x531DF7C
+get_height = 0x5312D14
+// transform (public wrappers)
+get_position    = 0x5115B44
+set_position    = 0x511D9C4
+get_forward     = 0x512F1A4
+get_up          = 0x512CD44
+get_eulerAngles = 0x511D7A4
+set_eulerAngles = 0x5130A9C
+get_rotation    = 0x51167D0
+// shader / material
+Shader::Find        = 0x5313BFC
+get_mainTexture     = 0x5330E20
+set_mainTexture     = 0x5310AC4
+Material::get_shader = 0x5328814
+Material::set_shader = 0x532ECE4
+Material::.ctor(Shader) = 0x532C460
+Material::set_color = 0x532A9F4
+Material::SetInt(string,int)   = 0x53136F8
+Material::SetFloat(string,float)= 0x5323E14
+// type / object
+Type::GetType(string)          = 0x5083D98
+Object::FindObjectsOfType(Type)= 0x5120C94
+Object::Instantiate(o,V3,Q)    = 0x5119DC4
+Object::Destroy(o,float)       = 0x5115748
+Object::IsNativeObjectAlive    = 0x5121154
+// renderer
+Renderer::get_material  = 0x5312C0C
+Renderer::set_material  = 0x532CAE0
+Renderer::get_materials = 0x5315FD4
+// gameobject / physics / cc
+GameObject::SetActive   = 0x5123D58
+Physics::Linecast(V3,V3,hit,int)         = 0x5C4C758
+Physics::SphereCast(Ray,f,hit,f,int)     = 0x5C4A8C0
+CharacterController::get_velocity        = 0x5C4FE18
+// camera
+Camera::get_main        = 0x531C214
+Camera::set_fieldOfView = 0x5314164
+Camera::set_clearFlags  = 0x53143F8
+Camera::set_backgroundColor = 0x530E854
+get_projectionMatrix_Injected   = 0x5318154
+get_worldToCameraMatrix_Injected= 0x53246A4
+// component / string
+Component::get_transform  = 0x512CB7C
+Component::get_gameObject = 0x511D4C0
+String::CreateString(sbyte*,int,int) = 0x5705DBC
 
-// ==== struct field offsets (ОБФУСЦИРОВАННЫЙ билд, порядок полей переставлен!) ====
-// Il2CppClass
-Il2CppClass::static_fields = 0x60
-Il2CppClass::namespace     = 0x88
-Il2CppClass::name          = 0xB8
-Il2CppClass::parent        = 0x138
-Il2CppClass::vtable        = 0x1A0
-// MethodInfo
-MethodInfo::methodPointer        = 0x0
-MethodInfo::invokerMethod        = 0x8
-MethodInfo::virtualMethodPointer = 0x18
-MethodInfo::name                 = 0x30
-MethodInfo::slot                 = 0x5A
-
-// ==== metadata globals / helpers (libunity_base + offset) ====
+// ==== metadata globals (0.38.2, для справки) ====
 globalMetadata                       = 0x989E048
 globalMetadataHeader                 = 0x989E050
 typeInfoDefinitionTable              = 0x989E070
@@ -50,6 +71,24 @@ Assembly$$GetAllAssemblies           = 0x4FF4A3C
 MetadataCache$$GetAssemblyTypeHandle = 0x8780428
 MetadataCache$$GetTypeInfoFromHandle = 0x8781D40
 
-// ==== present frame / gfx (НЕ из этого дампа — из старого билда, требуют проверки) ====
-context            = 0xAD63EE0   // gfx present-frame context slot (void**)
-present_frame func = 0x53C0330   // GfxDeviceGLES::PresentFrame
+// ==== struct field offsets (обфусцированный runtime layout) ====
+Il2CppClass::static_fields = 0x60
+Il2CppClass::namespace     = 0x88
+Il2CppClass::name          = 0xB8
+Il2CppClass::parent        = 0x138
+Il2CppClass::vtable        = 0x1A0
+MethodInfo::methodPointer        = 0x0
+MethodInfo::invokerMethod        = 0x8
+MethodInfo::virtualMethodPointer = 0x18
+MethodInfo::name                 = 0x30
+MethodInfo::slot                 = 0x5A
+
+// ==== ВСЁ ЕЩЁ НУЖНО (нет в managed dump.cs — нужен libunity.so 0.38.2) ====
+// present_frame func        = ? (текущее 0x53C0330 — из другой версии)
+// context (present slot)    = ? (текущее 0xAD63EE0 — из другой версии)
+// rendersettings_manager    = ? (native, ~0x3Fxxxxx)
+// call_rendersettings_update= ? (native)
+// ray (Internal_Raycast_Injected delegate slot) = ? (native slot)
+// set_tps / set_fps / set_visible (PlayerController, обфусцированные имена) = ? (xref)
+// Renderer::set_materials   = ? (setter в dump.cs не виден)
+// struct: Il2CppClass::methods / method_count, MethodInfo::parameters_count / genericMethod

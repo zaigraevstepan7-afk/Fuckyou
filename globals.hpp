@@ -97,92 +97,93 @@ public:
     const uint32_t c_anticheatmanager = oxorany(0x7D97618); // decimal to hex //0.36.0
     const uint32_t c_player_controls = oxorany(131738640);  // decimal to hex //0.36.0
 
-    // inputs
-    const uint32_t get_touch = oxorany(0x6A3A5D0); // 0.36.1
-    const uint32_t get_count = oxorany(0x6A3AAE0); // 0.36.1
+    // inputs // 0.38.2
+    const uint32_t get_touch = oxorany(0x6519E38); // 0.38.2  Input::GetTouch(int)
+    const uint32_t get_count = oxorany(0x651A278); // 0.38.2  Input::get_touchCount
 
-    // screen
-    const uint32_t get_width = oxorany(0x4CF171C);  // 0.36.1
-    const uint32_t get_heigth = oxorany(0x4CF1744); // 0.36.1
+    // screen // 0.38.2
+    const uint32_t get_width = oxorany(0x531DF7C);  // 0.38.2  Screen::get_width
+    const uint32_t get_heigth = oxorany(0x5312D14); // 0.38.2  Screen::get_height
 
-    // transform
-    const uint32_t get_position = oxorany(0x4D1194C);     // 0.36.1
-    const uint32_t set_position = oxorany(0x4D119EC);     // 0.36.1
-    const uint32_t get_forward = oxorany(0x4D11F50);      // 0.36.1
-    const uint32_t get_up = oxorany(0x4D11E50);           // 0.36.1
-    const uint32_t get_euler_angles = oxorany(0x4D11BBC); // 0.36.1
-    const uint32_t set_euler_angles = oxorany(0x4D11C44); // 0.36.1
-    const uint32_t get_rotation = oxorany(0x4D11BEC);
+    // transform // 0.38.2 (public wrappers, return by value)
+    const uint32_t get_position = oxorany(0x5115B44);     // 0.38.2
+    const uint32_t set_position = oxorany(0x511D9C4);     // 0.38.2
+    const uint32_t get_forward = oxorany(0x512F1A4);      // 0.38.2
+    const uint32_t get_up = oxorany(0x512CD44);           // 0.38.2
+    const uint32_t get_euler_angles = oxorany(0x511D7A4); // 0.38.2  get_eulerAngles
+    const uint32_t set_euler_angles = oxorany(0x5130A9C); // 0.38.2  set_eulerAngles
+    const uint32_t get_rotation = oxorany(0x51167D0);     // 0.38.2
 
     // playercontroller
-    const uint32_t set_tps = oxorany(0x6C6FB40); // 0.36.1
-    const uint32_t set_fps = oxorany(0x6C6FF48); // 0.36.1
-    const uint32_t set_visible = oxorany(0x6C718F8); // 0.36.1
+    // TODO: обфусцированные имена методов, dump.cs не даёт их найти — нужен xref по libunity.so.
+    const uint32_t set_tps = oxorany(0x6C6FB40); // 0.36.1 (НЕ обновлено, проверить!)
+    const uint32_t set_fps = oxorany(0x6C6FF48); // 0.36.1 (НЕ обновлено, проверить!)
+    const uint32_t set_visible = oxorany(0x6C718F8); // 0.36.1 (НЕ обновлено, проверить!)
 
-    // shader
-    const uint32_t find = oxorany(0x4CF5F5C); // 0.36.1
+    // shader // 0.38.2
+    const uint32_t find = oxorany(0x5313BFC); // 0.38.2  Shader::Find(string)
 
-    // material
-    const uint32_t get_texture = oxorany(0x4CF6870);  // 0.36.1
-    const uint32_t set_texture = oxorany(0x4CF69D4);  // 0.36.1
-    const uint32_t get_shader = oxorany(0x4CF657C);   // 0.36.1
-    const uint32_t set_shader = oxorany(0x4CF65B8);   // 0.36.1
-    const uint32_t new_material = oxorany(0x4CF63B4); // 0.36.1
-    const uint32_t set_color = oxorany(0x4CF671C);    // 0.36.1
-    const uint32_t set_int = oxorany(0x4CF7630);      // 0.36.1
-    const uint32_t set_float = oxorany(0x4CF7704);    // 0.36.1
+    // material // 0.38.2
+    const uint32_t get_texture = oxorany(0x5330E20);  // 0.38.2  get_mainTexture
+    const uint32_t set_texture = oxorany(0x5310AC4);  // 0.38.2  set_mainTexture
+    const uint32_t get_shader = oxorany(0x5328814);   // 0.38.2
+    const uint32_t set_shader = oxorany(0x532ECE4);   // 0.38.2
+    const uint32_t new_material = oxorany(0x532C460); // 0.38.2  Material::.ctor(Shader)
+    const uint32_t set_color = oxorany(0x532A9F4);    // 0.38.2
+    const uint32_t set_int = oxorany(0x53136F8);      // 0.38.2  SetInt(string,int)
+    const uint32_t set_float = oxorany(0x5323E14);    // 0.38.2  SetFloat(string,float)
 
-    // type
-    const uint32_t get_type = oxorany(0x474F8C0);             // 0.36.1
-    const uint32_t find_objects_of_type = oxorany(0x4D0BAA8); // 0.36.1
+    // type // 0.38.2
+    const uint32_t get_type = oxorany(0x5083D98);            // 0.38.2  Type::GetType(string)
+    const uint32_t find_objects_of_type = oxorany(0x5120C94); // 0.38.2  Object::FindObjectsOfType(Type)
 
-    //object
-    const uint32_t object_instantiate = oxorany(0x4D0B180);
-    const uint32_t object_destroy = oxorany(0x4D0B928);
-    const uint32_t is_native_object_alive = oxorany(0x4D0AFE0);
+    //object // 0.38.2
+    const uint32_t object_instantiate = oxorany(0x5119DC4);   // 0.38.2  Instantiate(obj,Vec3,Quat)
+    const uint32_t object_destroy = oxorany(0x5115748);       // 0.38.2  Destroy(obj,float)
+    const uint32_t is_native_object_alive = oxorany(0x5121154); // 0.38.2  IsNativeObjectAlive
 
-    // renderer
-    const uint32_t get_material = oxorany(0x4CF5A2C);  // 0.36.1
-    const uint32_t set_material = oxorany(0x4CF5A68);  // 0.36.1
-    const uint32_t get_materials = oxorany(0x4CF59EC); // 0.36.1
-    const uint32_t set_materials = oxorany(0x4CF5A28); // 0.36.1
+    // renderer // 0.38.2
+    const uint32_t get_material = oxorany(0x5312C0C);  // 0.38.2
+    const uint32_t set_material = oxorany(0x532CAE0);  // 0.38.2
+    const uint32_t get_materials = oxorany(0x5315FD4); // 0.38.2
+    const uint32_t set_materials = oxorany(0x4CF5A28); // 0.36.1 (setter не найден в dump.cs, проверить!)
 
-    // gameobject
-    const uint32_t set_active = oxorany(0x4D07928); // 0.36.1
+    // gameobject // 0.38.2
+    const uint32_t set_active = oxorany(0x5123D58); // 0.38.2  GameObject::SetActive(bool)
 
     // PhotonPlayerExtension
 
-    // fog
-    const uint32_t rendersettings_manager = oxorany(0x3F1B494);     // 0.36.1
-    const uint32_t call_rendersettings_update = oxorany(0x3F20438); // 0.36.1
+    // fog // NATIVE (движок, ~0x3Fxxxxx) — нет в managed dump.cs, нужен libunity.so
+    const uint32_t rendersettings_manager = oxorany(0x3F1B494);     // 0.36.1 (native, проверить!)
+    const uint32_t call_rendersettings_update = oxorany(0x3F20438); // 0.36.1 (native, проверить!)
 
-    // physics
-    const uint32_t linecast = oxorany(0x619AD10);    // 0.36.1
-    const uint32_t sphere_cast = oxorany(0x619AF68); // 0.36.1
+    // physics // 0.38.2
+    const uint32_t linecast = oxorany(0x5C4C758);    // 0.38.2  Linecast(V3,V3,RaycastHit,int)
+    const uint32_t sphere_cast = oxorany(0x5C4A8C0); // 0.38.2  SphereCast(Ray,f,RaycastHit,f,int)
 
-    // charachercontroller
-    const uint32_t get_velocity = oxorany(0x5369B0C); // нахуй
+    // charachercontroller // 0.38.2
+    const uint32_t get_velocity = oxorany(0x5C4FE18); // 0.38.2  CharacterController::get_velocity
 
-    // raycast
-    const uint32_t ray = oxorany(0x84DB9F0); // 0.36.1
+    // raycast // NATIVE слот делегата Internal_Raycast_Injected — нужен libunity.so
+    const uint32_t ray = oxorany(0x84DB9F0); // 0.36.1 (native slot, проверить!)
 
-    // icall
-    const uint32_t icall = oxorany(0x46E5A6C); // 0.36.1
+    // icall // 0.38.2  il2cpp_resolve_icall
+    const uint32_t icall = oxorany(0x50157A8); // 0.38.2
 
-    // camera
-    const uint32_t get_main = oxorany(0x4CE557C);     // 0.36.1
-    const uint32_t set_fov = oxorany(0x4CE423C);      // 0.36.1
-    const uint32_t set_flags = oxorany(0x4CE4708);    // 0.36.1
-    const uint32_t set_bagcolor = oxorany(0x4CE4634); // 0.36.1
-    const uint32_t fsdfds = oxorany(0x4CE4C4C); //0.36.1
-    const uint32_t get_projection_matrix_injected = oxorany(0x4CE4CFC); //0.36.1
+    // camera // 0.38.2
+    const uint32_t get_main = oxorany(0x531C214);     // 0.38.2  Camera::get_main
+    const uint32_t set_fov = oxorany(0x5314164);      // 0.38.2  set_fieldOfView
+    const uint32_t set_flags = oxorany(0x53143F8);    // 0.38.2  set_clearFlags
+    const uint32_t set_bagcolor = oxorany(0x530E854); // 0.38.2  set_backgroundColor
+    const uint32_t fsdfds = oxorany(0x53246A4); // 0.38.2  get_worldToCameraMatrix_Injected
+    const uint32_t get_projection_matrix_injected = oxorany(0x5318154); // 0.38.2
 
-    // component
-    const uint32_t get_transform = oxorany(0x4D04BF4);   // 0.36.1
-    const uint32_t get_game_object = oxorany(0x4D04C30); // 0.36.1
+    // component // 0.38.2
+    const uint32_t get_transform = oxorany(0x512CB7C);   // 0.38.2
+    const uint32_t get_game_object = oxorany(0x511D4C0); // 0.38.2  get_gameObject
 
-    // other
-    const uint32_t create_string = oxorany(0x57DACCC); // 0.36.1
+    // other // 0.38.2
+    const uint32_t create_string = oxorany(0x5705DBC); // 0.38.2  String::CreateString(sbyte*,int,int)
 
     // api // corrected il2cpp export dump (libunity_base + offset)
     const uint32_t il2cpp_domain_get = oxorany(0x4FF4198);
@@ -193,9 +194,10 @@ public:
     const uint32_t il2cpp_object_new = oxorany(0x4FF434C);
 
     // present frame / gfx context
-    // NOTE: значения ниже — из СТАРОГО билда (globalMetadata 0xADF...), НЕ из текущего дампа (0x989...).
-    // Нужны present_frame/context для этого же билда, что и il2cpp-дамп.
-    const uint32_t present_frame = oxorany(0x53C0330); // present_frame func (проверить под текущий билд)
+    // NOTE: билд = 0.38.2 (globalMetadata 0x989E048). Значения ниже — из ДРУГОЙ версии
+    // (0x53C0330/0xAD63EE0, ~0.39.1). NATIVE-функции движка, их нет в managed dump.cs.
+    // Нужен libunity.so от 0.38.2, чтобы найти present_frame/context для этого билда.
+    const uint32_t present_frame = oxorany(0x53C0330); // ДРУГАЯ версия — проверить под 0.38.2!
     const uint32_t context = oxorany(0xAD63EE0);       // gfx present-frame context slot (void**) (проверить)
 };
 
