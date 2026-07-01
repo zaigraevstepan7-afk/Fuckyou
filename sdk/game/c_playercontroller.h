@@ -149,52 +149,33 @@ public:
 #pragma pack(1)
 class c_player_controller
 {
-    char __pad[0x28];
+    // 0.39.1: явные оффсеты (pack(1)). Разметка вытащена из dump.cs 0.39.1 по типам полей.
+    // В 0.39.1 добавлены поля на 0x58-0x70 и 0xD0 -> старый последовательный layout уезжал.
+    char __pad_a[0x28];
 
 public:
-    c_transform *m_pMainCameraHolder;
-    c_transform *m_pFPSCameraHolder;
-    void *m_pFPSDirective;
-    void *m_pZones;
-    c_player_character_view *m_pCharacterView;
-    void *m_pFPSCharacter;
-    bool m_bReconnectedInstance;
-    team_t m_team;
-    char __pad0[0x2];
-    float m_fLocalTime;
-    c_aim_controller *m_pAim;
-    c_weaponry_controller *m_pWeaponry;
-    void *m_pMecanim;
-    c_movement_controller *m_pMovement;
-    void *m_pArmsAnimation;
-    void *m_pHit;
-    void *m_pOcclusion;
-    void *m_pNetwork;
-    void *m_pArmsLOD;
-    void *m_pCharacter;
-    bool m_bCharacterVisible;
-    bool m_bool0;
-    char __pad1[0x2];
-    float m_fSnapshotSetTime;
-    void *m_pSound;
-    c_player_main_camera *m_pMainCamera;
-    void *m_pFPSCamera;
-    void *m_pMarker;
-    c_transform *m_pTransform;
-    void *m_pControllers;
-    void *m_pdControllersByType;
-    c_characher_controller *m_pPhysicCharacter; // cc
-    c_arms_lod_group *m_pLOD;
-    c_characher_lod_group *m_pCharacterLOD;
-    bool m_bIsPreInitialized;
-    bool m_bIsPostInitialized;
-    char __pad2[0x2];
-    view_mode_t m_viewMode;
-    char __pad3[0x3 + 0x8 + 0x4 + 0xC];
-    void *m_pView;
-    int32_t m_iID;
-    int32_t m_iViewID;
-    c_photon_player *m_pPhoton;
+    c_transform *m_pMainCameraHolder;          // 0x28  Transform _mainCameraHolder
+    char __pad_b[0x48 - 0x30];
+    c_player_character_view *m_pCharacterView; // 0x48  PlayerCharacterView
+    char __pad_c[0x79 - 0x50];
+    team_t m_team;                             // 0x79  enum (проверить в игре)
+    char __pad_d[0x80 - 0x7A];
+    c_aim_controller *m_pAim;                  // 0x80  AimController
+    c_weaponry_controller *m_pWeaponry;        // 0x88  WeaponryController
+    char __pad_e[0x98 - 0x90];
+    c_movement_controller *m_pMovement;        // 0x98  MovementController
+    char __pad_f[0xC8 - 0xA0];
+    c_arms_lod_group *m_pLOD;                  // 0xC8  ArmsLodGroup
+    char __pad_g[0xD8 - 0xD0];
+    bool m_bCharacterVisible;                  // 0xD8  bool (проверить в игре)
+    char __pad_h[0xE8 - 0xD9];
+    c_player_main_camera *m_pMainCamera;       // 0xE8  PlayerMainCamera
+    char __pad_i[0x100 - 0xF0];
+    c_transform *m_pTransform;                 // 0x100 Transform
+    char __pad_j[0x128 - 0x108];
+    c_characher_lod_group *m_pCharacterLOD;    // 0x128 CharacterLodGroup
+    char __pad_k[0x160 - 0x130];
+    c_photon_player *m_pPhoton;                // 0x160 PhotonPlayer
 
     void set_tps()
     {
@@ -229,7 +210,7 @@ public:
 class c_characher_lod_group
 {
 public:
-    char pad[0x38];
+    char pad[0x30]; // 0.39.1: CharacterLodGroup::_meshRenderer @ 0x30
     c_renderer *skinned_mesh_render;
 };
 #pragma pack()
