@@ -58,17 +58,18 @@ void new_update(c_player_controller *player)
             if (!is_local)
             {
                 player->m_bCharacterVisible = true;
-                player->set_visible();
+                // 0.39.1: set_visible оффсет (0x6C718F8) от 0.36.1 бьёт в середину функции -> краш.
+                // Вызов отключён до нахождения верного оффсета (m_bCharacterVisible пишется полем).
+                // player->set_visible();
             }
 
             if (c_player->local) {
                 if (g.b_third) {
                     if (c_player->local->m_pPhoton) {
                         if (c_player->local->m_pPhoton->get_health() > 0) {
-                            if (c_player->weapon_parameters && c_globals->holding_gun())
-                                c_player->local->set_tps();
-                            else
-                                c_player->local->set_fps();
+                            // 0.39.1: set_tps/set_fps оффсеты (0.36.1) бьют в середину функций -> краш.
+                            // Third-person отключён до нахождения верных оффсетов.
+                            (void)c_player->local;
                         }
                     }
                 }
@@ -501,10 +502,15 @@ void update::init()
         il2cpp39::set_vtable_slot(gun_controller, 20, (void *)hook_executecommands);
     }
 
+    // 0.39.1: ray (0x84DB9F0, от 0.36.1) указывает в исполняемый КОД (RO), а не в слот делегата.
+    // Запись хука в *ray_delegate = SIGSEGV в этой же функции (первый краш). Отключено до
+    // нахождения верного оффсета слота Internal_Raycast_Injected (silent-aim пока не работает).
+    /*
     void *ray_delegate = (void *)(base + c_offsets->ray);
     while (!*(void **)ray_delegate)
     {
         sleep(1);
     }
     icall_hook(ray_delegate, oxorany("UnityEngine.PhysicsScene::Internal_Raycast_Injected(UnityEngine.PhysicsScene&,UnityEngine.Ray&,System.Single,UnityEngine.RaycastHit&,System.Int32,UnityEngine.QueryTriggerInteraction)"), hook_raycast, &old_raycast);
+    */
 }

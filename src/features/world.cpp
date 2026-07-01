@@ -45,7 +45,8 @@ void world::change_world(c_player_controller *local)
                 material->set_color(float4tocolor(g.m_world));
             }
 
-            renderer->set_materials(materials);
+            // 0.39.1: c_offsets->set_materials (0.36.1) невалиден -> отключено (иначе краш)
+            // renderer->set_materials(materials);
         }
 
         g.b_solid = false;
@@ -55,6 +56,8 @@ void world::change_world(c_player_controller *local)
 
 void world::fog()
 {
+    // 0.39.1: rendersettings_manager/update оффсеты (0.36.1) невалидны -> fog отключён (иначе краш).
+    return;
     if (g.b_fog)
     {
 
