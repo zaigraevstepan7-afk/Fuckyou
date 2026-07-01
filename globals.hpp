@@ -97,109 +97,125 @@ public:
     const uint32_t c_anticheatmanager = oxorany(0x7D97618); // decimal to hex //0.36.0
     const uint32_t c_player_controls = oxorany(131738640);  // decimal to hex //0.36.0
 
-    // inputs // 0.38.2
-    const uint32_t get_touch = oxorany(0x6519E38); // 0.38.2  Input::GetTouch(int)
-    const uint32_t get_count = oxorany(0x651A278); // 0.38.2  Input::get_touchCount
+    // inputs // 0.39.1
+    const uint32_t get_touch = oxorany(0x7118204); // 0.39.1  Input::GetTouch(int)
+    const uint32_t get_count = oxorany(0x71181DC); // 0.39.1  Input::get_touchCount
 
-    // screen // 0.38.2
-    const uint32_t get_width = oxorany(0x531DF7C);  // 0.38.2  Screen::get_width
-    const uint32_t get_heigth = oxorany(0x5312D14); // 0.38.2  Screen::get_height
+    // screen // 0.39.1
+    const uint32_t get_width = oxorany(0x5DEB04C);  // 0.39.1  Screen::get_width
+    const uint32_t get_heigth = oxorany(0x5DF07AC); // 0.39.1  Screen::get_height
 
-    // transform // 0.38.2 (public wrappers, return by value)
-    const uint32_t get_position = oxorany(0x5115B44);     // 0.38.2
-    const uint32_t set_position = oxorany(0x511D9C4);     // 0.38.2
-    const uint32_t get_forward = oxorany(0x512F1A4);      // 0.38.2
-    const uint32_t get_up = oxorany(0x512CD44);           // 0.38.2
-    const uint32_t get_euler_angles = oxorany(0x511D7A4); // 0.38.2  get_eulerAngles
-    const uint32_t set_euler_angles = oxorany(0x5130A9C); // 0.38.2  set_eulerAngles
-    const uint32_t get_rotation = oxorany(0x51167D0);     // 0.38.2
+    // transform // 0.39.1 (public wrappers, return by value)
+    const uint32_t get_position = oxorany(0x602ECFC);     // 0.39.1
+    const uint32_t set_position = oxorany(0x602A9A8);     // 0.39.1
+    const uint32_t get_forward = oxorany(0x603DF30);      // 0.39.1
+    const uint32_t get_up = oxorany(0x6041414);           // 0.39.1
+    const uint32_t get_euler_angles = oxorany(0x60374F8); // 0.39.1  get_eulerAngles
+    const uint32_t set_euler_angles = oxorany(0x6027270); // 0.39.1  set_eulerAngles
+    const uint32_t get_rotation = oxorany(0x6037544);     // 0.39.1
 
     // playercontroller
-    // TODO: обфусцированные имена методов, dump.cs не даёт их найти — нужен xref по libunity.so.
+    // TODO: обфусцированные имена методов PlayerController — по имени в dump.cs не найти,
+    // нужен ручной xref по libunity.so 0.39.1. Значения от 0.36.1 (third-person/visible не работают).
     const uint32_t set_tps = oxorany(0x6C6FB40); // 0.36.1 (НЕ обновлено, проверить!)
     const uint32_t set_fps = oxorany(0x6C6FF48); // 0.36.1 (НЕ обновлено, проверить!)
     const uint32_t set_visible = oxorany(0x6C718F8); // 0.36.1 (НЕ обновлено, проверить!)
 
-    // shader // 0.38.2
-    const uint32_t find = oxorany(0x5313BFC); // 0.38.2  Shader::Find(string)
+    // shader // 0.39.1
+    const uint32_t find = oxorany(0x5E32C98); // 0.39.1  Shader::Find(string)
 
-    // material // 0.38.2
-    const uint32_t get_texture = oxorany(0x5330E20);  // 0.38.2  get_mainTexture
-    const uint32_t set_texture = oxorany(0x5310AC4);  // 0.38.2  set_mainTexture
-    const uint32_t get_shader = oxorany(0x5328814);   // 0.38.2
-    const uint32_t set_shader = oxorany(0x532ECE4);   // 0.38.2
-    const uint32_t new_material = oxorany(0x532C460); // 0.38.2  Material::.ctor(Shader)
-    const uint32_t set_color = oxorany(0x532A9F4);    // 0.38.2
-    const uint32_t set_int = oxorany(0x53136F8);      // 0.38.2  SetInt(string,int)
-    const uint32_t set_float = oxorany(0x5323E14);    // 0.38.2  SetFloat(string,float)
+    // material // 0.39.1
+    const uint32_t get_texture = oxorany(0x5E3777C);  // 0.39.1  get_mainTexture
+    const uint32_t set_texture = oxorany(0x5E33054);  // 0.39.1  set_mainTexture
+    const uint32_t get_shader = oxorany(0x5E394F8);   // 0.39.1
+    const uint32_t set_shader = oxorany(0x5E3C820);   // 0.39.1
+    const uint32_t new_material = oxorany(0x5E3D5B0); // 0.39.1  Material::.ctor(Shader)
+    const uint32_t set_color = oxorany(0x5E330E4);    // 0.39.1
+    const uint32_t set_int = oxorany(0x5E3A520);      // 0.39.1  SetInt(string,int)
+    const uint32_t set_float = oxorany(0x5E355EC);    // 0.39.1  SetFloat(string,float)
 
-    // type // 0.38.2
-    const uint32_t get_type = oxorany(0x5083D98);            // 0.38.2  Type::GetType(string)
-    const uint32_t find_objects_of_type = oxorany(0x5120C94); // 0.38.2  Object::FindObjectsOfType(Type)
+    // type // 0.39.1
+    const uint32_t get_type = oxorany(0x5BD3414);            // 0.39.1  Type::GetType(string)
+    const uint32_t find_objects_of_type = oxorany(0x6039798); // 0.39.1  Object::FindObjectsOfType(Type)
 
-    //object // 0.38.2
-    const uint32_t object_instantiate = oxorany(0x5119DC4);   // 0.38.2  Instantiate(obj,Vec3,Quat)
-    const uint32_t object_destroy = oxorany(0x5115748);       // 0.38.2  Destroy(obj,float)
-    const uint32_t is_native_object_alive = oxorany(0x5121154); // 0.38.2  IsNativeObjectAlive
+    //object // 0.39.1
+    const uint32_t object_instantiate = oxorany(0x602B630);   // 0.39.1  Instantiate(obj,Vec3,Quat)
+    const uint32_t object_destroy = oxorany(0x60384B8);       // 0.39.1  Destroy(obj,float)
+    const uint32_t is_native_object_alive = oxorany(0x6030C4C); // 0.39.1  IsNativeObjectAlive
 
-    // renderer // 0.38.2
-    const uint32_t get_material = oxorany(0x5312C0C);  // 0.38.2
-    const uint32_t set_material = oxorany(0x532CAE0);  // 0.38.2
-    const uint32_t get_materials = oxorany(0x5315FD4); // 0.38.2
+    // renderer // 0.39.1
+    const uint32_t get_material = oxorany(0x5E350D0);  // 0.39.1
+    const uint32_t set_material = oxorany(0x5E3C5A8);  // 0.39.1
+    const uint32_t get_materials = oxorany(0x5E29C88); // 0.39.1
     const uint32_t set_materials = oxorany(0x4CF5A28); // 0.36.1 (setter не найден в dump.cs, проверить!)
 
-    // gameobject // 0.38.2
-    const uint32_t set_active = oxorany(0x5123D58); // 0.38.2  GameObject::SetActive(bool)
+    // gameobject // 0.39.1
+    const uint32_t set_active = oxorany(0x603324C); // 0.39.1  GameObject::SetActive(bool)
 
     // PhotonPlayerExtension
 
-    // fog // NATIVE (движок, ~0x3Fxxxxx) — нет в managed dump.cs, нужен libunity.so
+    // fog // NATIVE (движок) — нет в managed dump.cs, нужен ручной xref по libunity.so
     const uint32_t rendersettings_manager = oxorany(0x3F1B494);     // 0.36.1 (native, проверить!)
     const uint32_t call_rendersettings_update = oxorany(0x3F20438); // 0.36.1 (native, проверить!)
 
-    // physics // 0.38.2
-    const uint32_t linecast = oxorany(0x5C4C758);    // 0.38.2  Linecast(V3,V3,RaycastHit,int)
-    const uint32_t sphere_cast = oxorany(0x5C4A8C0); // 0.38.2  SphereCast(Ray,f,RaycastHit,f,int)
+    // physics // 0.39.1
+    const uint32_t linecast = oxorany(0x7641184);    // 0.39.1  Linecast(V3,V3,RaycastHit,int)
+    const uint32_t sphere_cast = oxorany(0x7641F8C); // 0.39.1  SphereCast(Ray,f,RaycastHit,f,int)
 
-    // charachercontroller // 0.38.2
-    const uint32_t get_velocity = oxorany(0x5C4FE18); // 0.38.2  CharacterController::get_velocity
+    // charachercontroller // 0.39.1
+    const uint32_t get_velocity = oxorany(0x7642F10); // 0.39.1  CharacterController::get_velocity
 
-    // raycast // NATIVE слот делегата Internal_Raycast_Injected — нужен libunity.so
+    // raycast // NATIVE слот делегата Internal_Raycast_Injected — нужен ручной xref по libunity.so
     const uint32_t ray = oxorany(0x84DB9F0); // 0.36.1 (native slot, проверить!)
 
-    // icall // 0.38.2  il2cpp_resolve_icall
-    const uint32_t icall = oxorany(0x50157A8); // 0.38.2
+    // icall // 0.39.1  il2cpp_resolve_icall
+    const uint32_t icall = oxorany(0x5B9A4B8); // 0.39.1
 
-    // camera // 0.38.2
-    const uint32_t get_main = oxorany(0x531C214);     // 0.38.2  Camera::get_main
-    const uint32_t set_fov = oxorany(0x5314164);      // 0.38.2  set_fieldOfView
-    const uint32_t set_flags = oxorany(0x53143F8);    // 0.38.2  set_clearFlags
-    const uint32_t set_bagcolor = oxorany(0x530E854); // 0.38.2  set_backgroundColor
-    const uint32_t fsdfds = oxorany(0x53246A4); // 0.38.2  get_worldToCameraMatrix_Injected
-    const uint32_t get_projection_matrix_injected = oxorany(0x5318154); // 0.38.2
+    // camera // 0.39.1
+    const uint32_t get_main = oxorany(0x5DE51E8);     // 0.39.1  Camera::get_main
+    const uint32_t set_fov = oxorany(0x5DEF034);      // 0.39.1  set_fieldOfView
+    const uint32_t set_flags = oxorany(0x5DFEBD8);    // 0.39.1  set_clearFlags
+    const uint32_t set_bagcolor = oxorany(0x5DDF98C); // 0.39.1  set_backgroundColor
+    const uint32_t fsdfds = oxorany(0x5DF0AD8); // 0.39.1  get_worldToCameraMatrix_Injected
+    const uint32_t get_projection_matrix_injected = oxorany(0x5DE51A4); // 0.39.1
 
-    // component // 0.38.2
-    const uint32_t get_transform = oxorany(0x512CB7C);   // 0.38.2
-    const uint32_t get_game_object = oxorany(0x511D4C0); // 0.38.2  get_gameObject
+    // component // 0.39.1
+    const uint32_t get_transform = oxorany(0x603CFF4);   // 0.39.1
+    const uint32_t get_game_object = oxorany(0x60322E4); // 0.39.1  get_gameObject
 
-    // other // 0.38.2
-    const uint32_t create_string = oxorany(0x5705DBC); // 0.38.2  String::CreateString(sbyte*,int,int)
+    // other // 0.39.1
+    const uint32_t create_string = oxorany(0x5C057D0); // 0.39.1  String::CreateString(sbyte*,int,int) [alt 0x5BFB270]
 
-    // api // corrected il2cpp export dump (libunity_base + offset)
-    const uint32_t il2cpp_domain_get = oxorany(0x4FF4198);
-    const uint32_t il2cpp_domain_assembly_open = oxorany(0x4FF419C);
-    const uint32_t il2cpp_assembly_get_image = oxorany(0x4FF4060);
-    const uint32_t il2cpp_class_from_name = oxorany(0x877F3A4);
-    const uint32_t il2cpp_array_new = oxorany(0x4FF4044);
-    const uint32_t il2cpp_object_new = oxorany(0x4FF434C);
+    // api // 0.39.1 (libunity_base + offset, primary = B-трамплины, callable)
+    const uint32_t il2cpp_domain_get = oxorany(0x5B763D4);
+    const uint32_t il2cpp_domain_assembly_open = oxorany(0x5B763D8);
+    const uint32_t il2cpp_assembly_get_image = oxorany(0x5B7627C);
+    const uint32_t il2cpp_class_from_name = oxorany(0x9B3D990);
+    const uint32_t il2cpp_array_new = oxorany(0x5B76260);
+    const uint32_t il2cpp_object_new = oxorany(0x5B76578);
 
-    // present frame / gfx context
-    // NOTE: билд = 0.38.2 (globalMetadata 0x989E048). Значения ниже — из ДРУГОЙ версии
-    // (0x53C0330/0xAD63EE0, ~0.39.1). NATIVE-функции движка, их нет в managed dump.cs.
-    // Нужен libunity.so от 0.38.2, чтобы найти present_frame/context для этого билда.
-    const uint32_t present_frame = oxorany(0x53C0330); // ДРУГАЯ версия — проверить под 0.38.2!
-    const uint32_t context = oxorany(0xAD63EE0);       // gfx present-frame context slot (void**) (проверить)
+    // present frame / gfx context // 0.39.1 (подтверждено по libunity.so: чистый вход функции)
+    const uint32_t present_frame = oxorany(0x53C0330); // 0.39.1  GfxDeviceGLES::PresentFrame
+    const uint32_t context = oxorany(0xAD63EE0);       // 0.39.1  present-frame context slot (void**)
 };
+
+// il2cpp 0.39.1 обфусцированный runtime-layout структур (поля переставлены!).
+// Оффсеты подтверждены дизассемблером libunity.so 0.39.1 по il2cpp-геттерам.
+// Использовать эти хелперы вместо обращений к полям стандартной il2cpp.h.
+namespace il2cpp39
+{
+    inline uint16_t class_method_count(void *k) { return *reinterpret_cast<uint16_t *>(reinterpret_cast<uintptr_t>(k) + 0xBC); }
+    inline void **class_methods(void *k) { return *reinterpret_cast<void ***>(reinterpret_cast<uintptr_t>(k) + 0x78); }
+    inline const char *method_name(void *m) { return *reinterpret_cast<const char **>(reinterpret_cast<uintptr_t>(m) + 0x18); }
+    inline bool method_is_generic(void *m) { return (*reinterpret_cast<uint8_t *>(reinterpret_cast<uintptr_t>(m) + 0x54)) & 1; }
+    inline uint8_t method_param_count(void *m) { return *reinterpret_cast<uint8_t *>(reinterpret_cast<uintptr_t>(m) + 0x00); }
+    inline uint16_t method_slot(void *m) { return *reinterpret_cast<uint16_t *>(reinterpret_cast<uintptr_t>(m) + 0x52); }
+    inline void *get_method_ptr(void *m) { return *reinterpret_cast<void **>(reinterpret_cast<uintptr_t>(m) + 0x30); }
+    inline void set_method_ptr(void *m, void *hook) { *reinterpret_cast<void **>(reinterpret_cast<uintptr_t>(m) + 0x30) = hook; }
+    // vtable @ +0x198, VirtualInvokeData stride 0x10, methodPtr @ +0x0
+    inline void set_vtable_slot(void *k, uint32_t slot, void *hook) { *reinterpret_cast<void **>(reinterpret_cast<uintptr_t>(k) + 0x198 + static_cast<uintptr_t>(slot) * 0x10) = hook; }
+    inline void *get_vtable_slot(void *k, uint32_t slot) { return *reinterpret_cast<void **>(reinterpret_cast<uintptr_t>(k) + 0x198 + static_cast<uintptr_t>(slot) * 0x10); }
+}
 
 struct Il2CppClass;
 class callback

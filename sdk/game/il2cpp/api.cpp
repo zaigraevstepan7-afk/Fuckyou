@@ -13,11 +13,16 @@ void *img_to_asm(const char *assembly)
 
 MethodInfo *GetMethodFromClass(Il2CppClass *clz, const char *name, uint8_t parameters_count)
 {
-    for (unsigned short i = 0; i < clz->method_count; i++)
+    // 0.39.1: обфусцированный layout — читаем methods/method_count/name/param_count по фикс. оффсетам
+    uint16_t count = il2cpp39::class_method_count(clz);
+    void **methods = il2cpp39::class_methods(clz);
+    if (!methods)
+        return nullptr;
+    for (unsigned short i = 0; i < count; i++)
     {
-        auto method = ((MethodInfo **)clz->methods)[i];
-        if (method && (strcmp(method->name, name) == 0 && method->parameters_count == parameters_count))
-            return method;
+        void *method = methods[i];
+        if (method && strcmp(il2cpp39::method_name(method), name) == 0 && il2cpp39::method_param_count(method) == parameters_count)
+            return reinterpret_cast<MethodInfo *>(method);
     }
     return nullptr;
 }

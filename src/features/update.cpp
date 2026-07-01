@@ -376,19 +376,29 @@ int vmt(Il2CppClass *clazz, const char *methodName, void *hookMethod, void **old
 {
     if (clazz != nullptr && methodName != nullptr && hookMethod != nullptr && oldMethod != nullptr)
     {
-        for (int i{}; i < clazz->method_count; i++)
+        // 0.39.1: обфусцированный layout — обход и хук через фикс. оффсеты (см. il2cpp39)
+        uint16_t count = il2cpp39::class_method_count(clazz);
+        void **methods = il2cpp39::class_methods(clazz);
+        if (!methods)
+            return oxorany(-1);
+        for (int i{}; i < count; i++)
         {
-            auto method = const_cast<MethodInfo *>(clazz->methods[i]);
-            if (strcmp(method->name, methodName) == oxorany(0))
+            void *method = methods[i];
+            if (!method)
+                continue;
+            if (strcmp(il2cpp39::method_name(method), methodName) == oxorany(0))
             {
-                if (method->genericMethod != nullptr)
+                if (il2cpp39::method_is_generic(method))
                 {
                     return oxorany(-2);
                 }
 
-                *oldMethod = (void *)method->methodPointer;
-                method->methodPointer = (decltype(method->methodPointer))hookMethod;
-                method->virtualMethodPointer = (decltype(method->virtualMethodPointer))hookMethod;
+                *oldMethod = il2cpp39::get_method_ptr(method);
+                il2cpp39::set_method_ptr(method, hookMethod);
+                // virtualMethodPointer нет как поля — правим слот в vtable класса
+                uint16_t slot = il2cpp39::method_slot(method);
+                if (slot != 0xFFFF)
+                    il2cpp39::set_vtable_slot(clazz, slot, hookMethod);
                 return oxorany(0);
             }
         }
@@ -479,23 +489,16 @@ void update::init()
     if (hit_controller) {
         LOGD("hit_controller -> %p", hit_controller);
         vmt(hit_controller, oxorany("ACHHGEDAEGBBHFB"), (void *)strict_hit, (void **)&old_strict_hit);
-        LOGD("hit_controller->vtable -> %p", hit_controller->vtable);
-        if (hit_controller->vtable)
-        {
-            LOGD("hit_controller->vtable[84].methodPtr -> %p", hit_controller->vtable[84].methodPtr);
-
-            hit_controller->vtable[84].methodPtr = (Il2CppMethodPointer)strict_hit;
-        }
+        // 0.39.1: vtable @ +0x198, слот 84
+        il2cpp39::set_vtable_slot(hit_controller, 84, (void *)strict_hit);
     }
 
     Il2CppClass *gun_controller = (Il2CppClass *)il2cpp_class_from_name(dll::charp, oxorany("Axlebolt.Standoff.Inventory.Gun"), oxorany("GunController"));
     if (gun_controller)
     {
         vmt(gun_controller, oxorany("FEEBGAGHGGCGACA"), (void *)hook_executecommands, (void **)&old_executecommands);
-        if (gun_controller->vtable)
-        {
-            gun_controller->vtable[20].methodPtr = (Il2CppMethodPointer)hook_executecommands;
-        }
+        // 0.39.1: vtable @ +0x198, слот 20
+        il2cpp39::set_vtable_slot(gun_controller, 20, (void *)hook_executecommands);
     }
 
     void *ray_delegate = (void *)(base + c_offsets->ray);
