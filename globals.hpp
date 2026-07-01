@@ -184,17 +184,19 @@ public:
     // other
     const uint32_t create_string = oxorany(0x57DACCC); // 0.36.1
 
-    // api // 0.39.1 (libunity_base + offset)
-    const uint32_t il2cpp_domain_get = oxorany(0x5B763D4);           // 0.39.1  // B -> 0x9B6BAEC
-    const uint32_t il2cpp_domain_assembly_open = oxorany(0x5B763D8); // 0.39.1
-    const uint32_t il2cpp_assembly_get_image = oxorany(0x5B7627C);   // 0.39.1  // B -> 0x5B7A54C
-    const uint32_t il2cpp_class_from_name = oxorany(0x9B3D990);      // 0.39.1  // B -> 0x9B79CC8
-    const uint32_t il2cpp_array_new = oxorany(0x5B76260);            // 0.39.1  // B -> 0x5B7A300
-    const uint32_t il2cpp_object_new = oxorany(0x5B76578);           // 0.39.1
+    // api // corrected il2cpp export dump (libunity_base + offset)
+    const uint32_t il2cpp_domain_get = oxorany(0x4FF4198);
+    const uint32_t il2cpp_domain_assembly_open = oxorany(0x4FF419C);
+    const uint32_t il2cpp_assembly_get_image = oxorany(0x4FF4060);
+    const uint32_t il2cpp_class_from_name = oxorany(0x877F3A4);
+    const uint32_t il2cpp_array_new = oxorany(0x4FF4044);
+    const uint32_t il2cpp_object_new = oxorany(0x4FF434C);
 
-    // present frame / gfx context // 0.39.1
-    const uint32_t present_frame = oxorany(0x53C0330); // 0.39.1  present_frame func
-    const uint32_t context = oxorany(0xAD63EE0);       // 0.39.1  gfx present-frame context slot (void**)
+    // present frame / gfx context
+    // NOTE: значения ниже — из СТАРОГО билда (globalMetadata 0xADF...), НЕ из текущего дампа (0x989...).
+    // Нужны present_frame/context для этого же билда, что и il2cpp-дамп.
+    const uint32_t present_frame = oxorany(0x53C0330); // present_frame func (проверить под текущий билд)
+    const uint32_t context = oxorany(0xAD63EE0);       // gfx present-frame context slot (void**) (проверить)
 };
 
 struct Il2CppClass;

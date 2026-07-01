@@ -1,0 +1,55 @@
+// Standoff 2 internal — corrected il2cpp dump
+// globalMetadata = 0x989E048  (ориентир версии билда)
+// использовать как libunity_base + offset
+
+// ==== il2cpp api (то, что реально дергается в коде) ====
+il2cpp_domain_get           = 0x4FF4198
+il2cpp_domain_assembly_open = 0x4FF419C
+il2cpp_assembly_get_image   = 0x4FF4060
+il2cpp_class_from_name      = 0x877F3A4
+il2cpp_array_new            = 0x4FF4044
+il2cpp_object_new           = 0x4FF434C
+il2cpp_resolve_icall        = 0x50157A8   // используется как icall (проверить в globals.hpp)
+
+// ==== прочие il2cpp api (для справки) ====
+il2cpp_alloc                = 0x879F9C0
+il2cpp_array_length         = 0x4FF4040
+il2cpp_class_get_field_from_name = 0x4FF40F0
+il2cpp_class_get_fields     = 0x4FF40E8
+il2cpp_class_get_methods    = 0x4FF40F4
+il2cpp_class_get_method_from_name = 0x877D55C
+il2cpp_class_get_name       = 0x4FF40F8
+il2cpp_class_get_parent     = 0x4FF4100
+il2cpp_field_get_offset     = 0x4FF4270
+il2cpp_field_static_get_value = 0x500F2C8
+il2cpp_method_get_name      = 0x4FF4324
+il2cpp_object_unbox         = 0x5015974
+il2cpp_runtime_invoke       = 0x4FF4380
+il2cpp_string_new           = 0x4FF4394
+il2cpp_value_box            = 0x5015970
+
+// ==== struct field offsets (ОБФУСЦИРОВАННЫЙ билд, порядок полей переставлен!) ====
+// Il2CppClass
+Il2CppClass::static_fields = 0x60
+Il2CppClass::namespace     = 0x88
+Il2CppClass::name          = 0xB8
+Il2CppClass::parent        = 0x138
+Il2CppClass::vtable        = 0x1A0
+// MethodInfo
+MethodInfo::methodPointer        = 0x0
+MethodInfo::invokerMethod        = 0x8
+MethodInfo::virtualMethodPointer = 0x18
+MethodInfo::name                 = 0x30
+MethodInfo::slot                 = 0x5A
+
+// ==== metadata globals / helpers (libunity_base + offset) ====
+globalMetadata                       = 0x989E048
+globalMetadataHeader                 = 0x989E050
+typeInfoDefinitionTable              = 0x989E070
+Assembly$$GetAllAssemblies           = 0x4FF4A3C
+MetadataCache$$GetAssemblyTypeHandle = 0x8780428
+MetadataCache$$GetTypeInfoFromHandle = 0x8781D40
+
+// ==== present frame / gfx (НЕ из этого дампа — из старого билда, требуют проверки) ====
+context            = 0xAD63EE0   // gfx present-frame context slot (void**)
+present_frame func = 0x53C0330   // GfxDeviceGLES::PresentFrame
