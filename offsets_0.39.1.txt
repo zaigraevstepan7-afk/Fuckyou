@@ -1,0 +1,41 @@
+// Standoff 2 internal — offsets 0.39.1
+// использовать как libunity_base + offset
+
+// ==== render / present frame ====
+context           = 0xAD63EE0   // gfx present-frame context slot (void**), swap target
+present_frame func = 0x53C0330  // GfxDeviceGLES::PresentFrame (то, на что указывает context)
+
+// ==== il2cpp api (libunity_base + offset) ====
+il2cpp_domain_get            = 0x5B763D4   // B -> 0x9B6BAEC
+il2cpp_domain_assembly_open  = 0x5B763D8
+il2cpp_assembly_get_image    = 0x5B7627C   // B -> 0x5B7A54C
+il2cpp_class_from_name       = 0x9B3D990   // B -> 0x9B79CC8
+il2cpp_array_new             = 0x5B76260   // B -> 0x5B7A300
+il2cpp_object_new            = 0x5B76578
+
+// ==== metadata globals / helpers (libunity_base + offset) ====
+globalMetadata                          = 0xADFBC78
+globalMetadataHeader                    = 0xADFBC80
+typeInfoDefinitionTable                 = 0xADFBCB0
+Assembly$$GetAllAssemblies              = 0x5B7A4E4
+MetadataCache$$GetAssemblyTypeHandle    = 0x9B3EA5C   // B -> 0x9B6C8C4
+MetadataCache$$GetTypeInfoFromHandle    = 0x9B4035C   // B -> 0x9B6CD48
+
+// ==== struct field offsets ====
+// Il2CppClass
+Il2CppClass::name          = 0x90
+Il2CppClass::namespace     = 0xF0
+Il2CppClass::parent        = 0x110
+Il2CppClass::static_fields = 0x148
+Il2CppClass::vtable        = 0x198
+Il2CppClass::vtable_alt    = 0x1A0
+// MethodInfo
+MethodInfo::methodPointer     = 0x30
+MethodInfo::invokerMethod     = 0x08
+MethodInfo::name              = 0x18
+MethodInfo::slot              = 0x52
+MethodInfo::flags             = 0x10
+MethodInfo::return_type       = 0x28
+MethodInfo::parameters        = 0x38
+MethodInfo::klass             = 0x60
+MethodInfo::parameters_count  = 0x00
