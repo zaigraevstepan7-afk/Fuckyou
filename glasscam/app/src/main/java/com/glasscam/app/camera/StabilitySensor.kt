@@ -15,28 +15,39 @@ import kotlin.math.abs
 import kotlin.math.sqrt
 
 /**
- * Live device yaw/pitch (radians) from the rotation-vector sensor. Used to move the AI aim ring
- * in real time between AI updates, so the user sees how much further to pan/tilt onto the target.
+ * Cumulative device rotation from the GYROSCOPE, integrated over time: [tilt, pan] in radians,
+ * about the device's own X (tilt up/down) and Y (pan left/right) axes. Gyro is used instead of
+ * the rotation-vector/azimuth because azimuth is magnetometer-noisy and degenerate (gimbal lock)
+ * when the phone is held vertical to shoot — which made the aim jump around on its own. Gyro is
+ * smooth, needs no compass, and reads ~0 when the phone is still (a deadzone removes tiny drift).
  */
 @Composable
-fun rememberYawPitch(): State<FloatArray> {
+fun rememberAimRotation(): State<FloatArray> {
     val context = LocalContext.current
     val state = remember { mutableStateOf(floatArrayOf(0f, 0f)) }
     DisposableEffect(Unit) {
         val sm = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
-        val sensor = sm?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-            ?: sm?.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
-        val rot = FloatArray(9)
-        val orient = FloatArray(3)
+        val gyro = sm?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        var lastT = 0L
+        var accTilt = 0f
+        var accPan = 0f
         val listener = object : SensorEventListener {
             override fun onSensorChanged(e: SensorEvent) {
-                SensorManager.getRotationMatrixFromVector(rot, e.values)
-                SensorManager.getOrientation(rot, orient) // [0]=yaw(azimuth), [1]=pitch, [2]=roll
-                state.value = floatArrayOf(orient[0], orient[1])
+                if (lastT != 0L) {
+                    val dt = (e.timestamp - lastT) / 1_000_000_000f
+                    if (dt > 0f && dt < 0.1f) {
+                        val wx = e.values[0] // about device X → tilt up/down
+                        val wy = e.values[1] // about device Y → pan left/right
+                        if (kotlin.math.abs(wx) > 0.012f) accTilt += wx * dt
+                        if (kotlin.math.abs(wy) > 0.012f) accPan += wy * dt
+                        state.value = floatArrayOf(accTilt, accPan)
+                    }
+                }
+                lastT = e.timestamp
             }
             override fun onAccuracyChanged(s: Sensor?, a: Int) {}
         }
-        if (sensor != null) sm?.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME)
+        if (gyro != null) sm?.registerListener(listener, gyro, SensorManager.SENSOR_DELAY_GAME)
         onDispose { sm?.unregisterListener(listener) }
     }
     return state

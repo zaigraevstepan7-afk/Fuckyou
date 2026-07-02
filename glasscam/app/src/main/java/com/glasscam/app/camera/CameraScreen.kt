@@ -187,23 +187,22 @@ fun CameraScreen() {
         }
     }
 
-    // Live aim: Gemini gives the target centre; between updates we move the ring by device rotation
-    // (gyro/rotation-vector) so it tracks in real time and the arc shows how much more to pan/tilt on.
-    val yawPitch by rememberYawPitch()
+    // Live aim: Gemini gives the target centre; between updates we move the ring by integrated
+    // gyroscope rotation so it tracks smoothly in real time (pan = device Y, tilt = device X).
+    val aimRot by rememberAimRotation()   // [tilt, pan] cumulative radians
     var baseTx by remember { mutableStateOf(0.5f) }
     var baseTy by remember { mutableStateOf(0.5f) }
-    var refYaw by remember { mutableStateOf(0f) }
-    var refPitch by remember { mutableStateOf(0f) }
+    var refTilt by remember { mutableStateOf(0f) }
+    var refPan by remember { mutableStateOf(0f) }
     LaunchedEffect(aiResult) {
         aiResult?.frame?.let {
             baseTx = it.x + it.w / 2f; baseTy = it.y + it.h / 2f
-            refYaw = yawPitch[0]; refPitch = yawPitch[1]
+            refTilt = aimRot[0]; refPan = aimRot[1]
         }
     }
-    // approx FOV factors (rad → normalized screen); signs chosen so the ring nears your centre
-    // as you pan/tilt toward it (can be flipped if a device moves it the wrong way).
-    val liveTx = (baseTx - (yawPitch[0] - refYaw) * 0.95f).coerceIn(0.04f, 0.96f)
-    val liveTy = (baseTy + (yawPitch[1] - refPitch) * 1.35f).coerceIn(0.04f, 0.96f)
+    // ~1/FOV factor (rad → normalized screen). As you pan toward the target it moves to your centre.
+    val liveTx = (baseTx - (aimRot[1] - refPan) * 0.9f).coerceIn(0.04f, 0.96f)
+    val liveTy = (baseTy + (aimRot[0] - refTilt) * 0.9f).coerceIn(0.04f, 0.96f)
     val closeness = if (aiOn && aiResult?.frame != null)
         (1f - kotlin.math.hypot(liveTx - 0.5f, liveTy - 0.5f) / 0.5f).coerceIn(0f, 1f) else 0f
     val closeState = rememberUpdatedState(closeness)
