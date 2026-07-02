@@ -120,9 +120,10 @@ fun AiAimOverlay(
     )
     Canvas(modifier.fillMaxSize()) {
         // world-anchored target: compensate for phone rotation so the ring stays on the real spot.
+        // Signs follow the phone: pan right → target/arrow move right, tilt up → move up.
         val r = aimRot.value
-        val tx = (baseTx - (r[1] - refPan) * 0.9f).coerceIn(0.04f, 0.96f)
-        val ty = (baseTy - (r[0] - refTilt) * 0.9f).coerceIn(0.04f, 0.96f)
+        val tx = (baseTx + (r[1] - refPan) * 0.9f).coerceIn(0.04f, 0.96f)
+        val ty = (baseTy + (r[0] - refTilt) * 0.9f).coerceIn(0.04f, 0.96f)
         val progress = (1f - kotlin.math.hypot(tx - 0.5f, ty - 0.5f) / 0.5f).coerceIn(0f, 1f)
         val screen = Offset(size.width / 2f, size.height / 2f)
         val target = Offset(tx * size.width, ty * size.height)
