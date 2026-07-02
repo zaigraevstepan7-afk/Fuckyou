@@ -1,0 +1,20 @@
+# Public free-config sources aggregated by generate_sub.py
+# One URL per line. Lines starting with '#' are ignored.
+# A source that returns 404/error is skipped silently (public URLs drift).
+# The country filter is done by GeoIP, so protocol-only lists are fine.
+
+# Epodonios/v2ray-configs — split by protocol (base64 blobs, large & fresh)
+https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vless.txt
+https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vmess.txt
+https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/trojan.txt
+https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/ss.txt
+
+# Epodonios/v2ray-configs — aggregated all-in-one lists
+https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt
+
+# mfuu/v2ray — mixed daily list
+https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray
+
+# barry-far / other community aggregators (skipped automatically if unavailable)
+https://raw.githubusercontent.com/barry-far/V2ray-Configs/main/All_Configs_Sub.txt
+https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/sub/sub_merge.txt

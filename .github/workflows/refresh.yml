@@ -1,0 +1,40 @@
+name: Refresh Canada VPN subscription
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours (UTC)
+  workflow_dispatch:         # manual "Run workflow" button
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-sub
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Rebuild subscription (fetch, TCP-check, GeoIP, filter Canada)
+        run: python3 generate_sub.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain canada.txt canada_base64.txt)" ]; then
+            git add canada.txt canada_base64.txt
+            git commit -m "chore: refresh Canada VPN subscription [skip ci]"
+            git push
+          else
+            echo "No changes — subscription still current."
+          fi
