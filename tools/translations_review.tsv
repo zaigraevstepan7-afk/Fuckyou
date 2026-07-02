@@ -1,0 +1,590 @@
+source	key_or_zh	russian
+resource	about_check_update	Проверить обновления
+resource	about_copyright	© Beijing Yingdong Guangnian Technology Co., Ltd. Все права защищены
+resource	about_icp_record	Номер ICP-лицензии: 京ICP备2025136685号-2A
+resource	about_sdk_list	Список сторонних SDK
+resource	about_title	О приложении Doka Камера
+resource	agreement_agree	Принять
+resource	agreement_dialog_content	Добро пожаловать в Doka Камера!
+Мы бережно относимся к вашей конфиденциальности. Подробности — в «Пользовательском соглашении» и «Политике конфиденциальности». Для работы основных функций мы можем запрашивать или использовать следующие разрешения и данные:
+1. Разрешения основных функций:
+- Камера: для съёмки фото и предпросмотра кадра.
+- Микрофон: для записи звука коротких видео живых фото.
+- Геолокация: для сохранения места съёмки.
+2. Данные об устройстве и статистика:
+- Идентификаторы устройства: OAID, модель устройства, версия системы — для безопасности, аналитики и адаптации.
+- Список приложений: для оценки совместимости и статистики сторонних SDK.
+- Данные датчиков: акселерометр и датчик ориентации — для уровня и коррекции ориентации фото.
+Нажимая «Принять», вы подтверждаете, что прочитали и принимаете указанные соглашения.
+resource	agreement_disagree	Отклонить
+resource	agreement_read_and_agree	Я прочитал(а) и принимаю указанные соглашения
+resource	agreement_title	Пользовательское соглашение и Политика конфиденциальности
+resource	ai_compose_analyzing	ИИ анализирует кадр...
+resource	ai_compose_continue_zoom_in	Продолжайте приближать
+resource	ai_compose_entry	ИИ-компоновка
+resource	ai_compose_exit	Выйти из компоновки
+resource	ai_compose_next_tip_countdown	Далее (5 с)
+resource	ai_filter_usage_tip_highlight	Использовать ИИ-фильтр отдельно
+resource	ai_filter_usage_tip_message	• Эта кнопка включает ИИ-фильтр отдельно и подбирает фильтр по текущему кадру.
+resource	ai_filter_usage_tip_title	Подсказка по ИИ-фильтру
+resource	ai_usage_tip_next	Далее
+resource	ai_usage_tip_title_format	Подсказка по ИИ-компоновке (%1$d/3)
+resource	ai_usage_tip_understood	Понятно
+resource	app_brand_name	Doka Камера
+resource	app_name	Doka Камера
+resource	bind_phone_action	Привязать номер телефона
+resource	bind_phone_failed	Не удалось привязать номер: %1$s
+resource	bind_phone_loading	Привязка...
+resource	bind_phone_success	Номер телефона привязан
+resource	bind_phone_title	Привязка номера телефона
+resource	brvah_load_complete	Нажмите, чтобы загрузить ещё
+resource	brvah_load_end	Больше нет данных
+resource	brvah_load_failed	Ошибка загрузки, нажмите для повтора
+resource	brvah_loading	Загрузка...
+resource	camera_ai_align_color_ring	Наведитесь на цветное кольцо
+resource	camera_ai_analyzing_stable	ИИ анализирует кадр
+Держите телефон неподвижно
+resource	camera_ai_filter_analyzing	Анализ ИИ-фильтра...
+resource	camera_ai_filter_off	Отключить ИИ-фильтр при компоновке
+resource	camera_ai_filter_on	Включить ИИ-фильтр при компоновке
+resource	camera_ai_filter_recommend_prefix	ИИ рекомендует фильтр:
+resource	camera_ai_filter_unavailable_message	Это устройство пока не поддерживает ИИ-фильтр.
+Мы продолжаем улучшать совместимость с большим числом устройств.
+resource	camera_ai_filter_unavailable_title	ИИ-фильтр недоступен
+resource	camera_ai_scene_failed_2	Не удалось распознать сцену (2)
+resource	camera_ai_scene_failed_empty_template	Не удалось распознать сцену (4)
+Пустой шаблон или фокусное расстояние
+resource	camera_ai_scene_failed_network	Не удалось распознать сцену (1)
+Проверьте подключение к сети
+resource	camera_ai_scene_failed_service	Не удалось распознать сцену
+Сервис временно недоступен, попробуйте позже
+resource	camera_ai_scene_failed_template	Не удалось распознать сцену (5)
+Не удалось загрузить изображение шаблона
+resource	camera_ai_unavailable_message	Это устройство пока не поддерживает ИИ-компоновку.
+Мы продолжаем улучшать совместимость с большим числом устройств.
+resource	camera_ai_unavailable_title	ИИ-компоновка недоступна
+resource	camera_capture_failed	Не удалось создать фото
+resource	camera_front_unavailable	Фронтальная камера недоступна
+resource	camera_initializing	Инициализация камеры...
+resource	camera_keep_stable	Держите телефон неподвижно
+resource	camera_live_photo_failed	Не удалось создать живое фото
+resource	camera_live_photo_microphone_required	Для живого фото нужен доступ к микрофону
+resource	camera_live_photo_saved_static	Не удалось создать живое фото, сохранено обычное фото
+resource	camera_live_photo_unsupported	Это устройство не поддерживает живое фото
+resource	camera_not_ready	Камера не готова
+resource	camera_option_ai_filter	ИИ-фильтр при компоновке
+resource	camera_option_flash	Вспышка
+resource	camera_option_gradient	Уровень
+resource	camera_option_multi_compose	Мультиплановая компоновка
+resource	camera_option_nine_grid	Сетка
+resource	camera_option_save_raw	Сохранять негатив
+resource	camera_option_subject_selection	Выбор объекта съёмки
+resource	camera_option_touch_shot	Съёмка касанием
+resource	camera_subject_marker_action_tip	Удерживайте другую точку, чтобы выбрать другой объект; коснитесь пустого места, чтобы отменить выбор
+resource	camera_subject_marker_label	Объект съёмки
+resource	camera_subject_selection_guide_tip	Удерживайте видоискатель, чтобы отметить нужный объект
+resource	camera_subject_selection_info_message	• Когда в кадре несколько объектов или явного объекта нет, удерживайте видоискатель, чтобы отметить нужный объект.
+• Удерживайте другую точку, чтобы выбрать другой объект.
+• Коснитесь пустого места в видоискателе, чтобы отменить выбор.
+resource	camera_subject_selection_title	Выбор объекта съёмки
+resource	common_cancel	Отмена
+resource	common_confirm	Подтвердить
+resource	common_confirm_message	Выполнить это действие?
+resource	common_delete	Удалить
+resource	common_disallow	Запретить
+resource	common_got_it	Понятно
+resource	common_later	Позже
+resource	common_network_error_message	Ошибка сети: %1$s
+resource	common_network_retry	Ошибка сети, повторите попытку
+resource	common_off	Выкл.
+resource	common_on	Вкл.
+resource	common_privacy_policy	Политика конфиденциальности
+resource	common_save	Сохранить
+resource	common_tip	Подсказка
+resource	common_user_agreement	Пользовательское соглашение
+resource	crop_ratio	Пропорции
+resource	crop_ratio_original	По умолчанию
+resource	crop_reset	Сбросить
+resource	crop_rotate	Повернуть
+resource	delete_account_agreement	Я прочитал(а) и осознаю последствия удаления аккаунта
+resource	delete_account_agreement_required	Сначала подтвердите, что осознаёте последствия удаления
+resource	delete_account_confirm_message	После отправки аккаунт перейдёт в период обработки удаления — 7 рабочих дней. Повторный вход в этот период отменяет удаление; после завершения восстановить аккаунт будет невозможно.
+resource	delete_account_loading	Отправка...
+resource	delete_account_notice	Перед удалением обратите внимание:
+1. После подачи заявки на удаление мы обработаем её в течение 7 рабочих дней.
+2. После завершения удаления вы не сможете войти под этим аккаунтом; данные профиля, сведения для входа, права подписки и история будут удалены или обезличены.
+3. Данные, которые требуется хранить по закону, будут храниться в установленный срок только для защиты и не будут использоваться в текущей деятельности.
+4. Если по аккаунту есть незакрытые платежи или споры, сначала завершите их.
+5. Если в течение 7 рабочих дней вы войдёте под тем же номером телефона, это будет считаться отзывом заявки, и удаление автоматически отменится.
+resource	delete_account_page_subtitle	После отправки начнётся период обработки удаления — 7 рабочих дней.
+resource	delete_account_page_title	Подтвердите удаление аккаунта Doka
+resource	delete_account_phone_confirm_hint	Введите полный номер телефона для подтверждения
+resource	delete_account_phone_confirm_label	Проверка номера телефона
+resource	delete_account_phone_confirm_mismatch	Введите номер телефона, привязанный к текущему аккаунту
+resource	delete_account_phone_confirm_required	Введите полный номер телефона
+resource	delete_account_phone_missing	Проблема с номером телефона аккаунта, войдите снова и повторите
+resource	delete_account_submit	Подать заявку на удаление аккаунта
+resource	delete_account_success	Заявка на удаление отправлена. Повторный вход в течение 7 рабочих дней отменит удаление.
+resource	delete_account_title	Удаление аккаунта
+resource	delete_multiple_message	Эти фото будут удалены из системной галереи. Они останутся в «Недавно удалённых» 30 дней.
+resource	delete_multiple_message_plural	Эти фото будут удалены из системной галереи. Они останутся в «Недавно удалённых» 30 дней.
+resource	delete_multiple_title_format	Разрешить приложению «Doka Камера» удалить эти %1$d фото?
+resource	delete_single_message	Это фото будет удалено из системной галереи. Оно останется в «Недавно удалённых» 30 дней.
+resource	delete_single_title	Разрешить приложению «Doka Камера» удалить это фото?
+resource	delete_single_title_format	Разрешить приложению «Doka Камера» удалить это фото?
+resource	doka_watermark_brand_image	Фирменный водяной знак Doka
+resource	doka_watermark_brand_image_short	Фирменный знак
+resource	doka_watermark_classic_border	Классическая рамка Doka
+resource	doka_watermark_classic_border_short	Классическая рамка
+resource	doka_watermark_time_and_device	Водяной знак Doka: время и модель
+resource	doka_watermark_time_and_device_short	Время и модель
+resource	filter_category_bw	Ч/Б
+resource	filter_category_doka_portrait	Свежий портрет
+resource	filter_category_f_series	Серия F
+resource	filter_category_fuji	Fujifilm
+resource	filter_category_k_series	Серия K
+resource	filter_category_kodak	Kodak
+resource	filter_detail_milestone_subtitle	Снято с другими фильтрами Doka: %1$d/%2$d. Сделайте ещё %3$d фото, чтобы разблокировать %4$s
+resource	filter_detail_milestone_title	Прогресс разблокировки съёмкой
+resource	filter_detail_open_pro_save	Оформите Doka Pro, чтобы сохранить фото
+resource	filter_detail_preview_desc	Низкая насыщенность, высокий контраст, сдержанность — создан для повествования
+resource	filter_detail_pro_benefits	Все фильтры + множество ИИ-сканирований + больше функций!
+resource	filter_detail_trial	Попробовать
+resource	filter_milestone_locked	Разблокировка съёмкой
+resource	filter_milestone_locked_save_tip	Снято %1$d/%2$d. Сделайте ещё %3$d фото, чтобы разблокировать %4$s
+resource	filter_milestone_unlocked	%1$s разблокирован
+resource	filter_original	Оригинал
+resource	gallery_date_full	dd.MM.yyyy
+resource	gallery_date_month	MM.yyyy
+resource	gallery_date_range	%1$s – %2$s
+resource	gallery_date_short	dd.MM
+resource	gallery_delete_partial_failed	Некоторые файлы не удалось удалить (ограничены права)
+resource	gallery_delete_success	Удалено
+resource	gallery_empty_title	Нет фотографий
+resource	gallery_go_camera	К съёмке
+resource	gallery_image_process_failed	Не удалось обработать изображение
+resource	gallery_import	Импорт
+resource	gallery_import_failed	Не удалось импортировать
+resource	gallery_import_partial_success_count	Импортировано: %1$d, ошибок: %2$d
+resource	gallery_import_success_count	Импортировано фото: %1$d
+resource	gallery_importing	Импорт...
+resource	gallery_importing_count	Импорт %1$d/%2$d
+resource	gallery_selected_count	Выбрано: %1$d
+resource	gallery_selected_zero	Выбрано: 0
+resource	gallery_share_image_title	Поделиться изображением
+resource	gallery_wechat_not_installed	Сначала установите WeChat
+resource	gallery_wechat_not_supported	Текущая версия WeChat не поддерживает отправку
+resource	gallery_wechat_send_failed	Не удалось начать отправку через WeChat
+resource	guide_next	Далее
+resource	guide_previous	Назад
+resource	guide_start_camera	Начать съёмку
+resource	guide_step1_highlight	ИИ-компоновка
+resource	guide_step1_text	Наведите на нужное направление
+и нажмите «ИИ-компоновка»
+resource	guide_step2_highlight	Не двигайтесь
+resource	guide_step2_text	Держите телефон ровно и неподвижно
+дождитесь анализа кадра ИИ
+resource	guide_step3_highlight	Наведите на рамку
+resource	guide_step3_text	Следуйте направляющим и наведите телефон на рекомендованную рамку
+ИИ сам выстроит кадр
+resource	guide_step4_highlight	Цветное кольцо
+resource	guide_step4_text	После наведения на цветное кольцо
+ИИ сам настроит параметры объектива
+resource	guide_step5_text	После фиксации компоновки
+нажмите спуск, чтобы запечатлеть момент!
+resource	guide_telephoto_highlight_ai_compose	ИИ-компоновка
+resource	guide_telephoto_highlight_better_result	Более удачная компоновка
+resource	guide_telephoto_highlight_zoom	2×
+resource	guide_telephoto_tip_compose	• Затем нажмите «ИИ-компоновка» для анализа — так проще получить более удачный кадр
+resource	guide_telephoto_tip_lens	• Для съёмки удалённых объектов сначала переключитесь на 2× вручную
+resource	guide_telephoto_tips_title	Советы по съёмке дальних планов
+resource	guide_title	Советы по использованию
+resource	guide_usage_highlight_click_ai_compose	затем нажмите «ИИ-компоновка»
+resource	guide_usage_highlight_first	Сначала
+resource	guide_usage_highlight_keep_stable	держите телефон неподвижно
+resource	guide_usage_highlight_moving_subject	не подходит для движущихся объектов или съёмки в движении
+resource	guide_usage_highlight_no_subject	не подходит для белых стен, пола, потолка и других однотонных сцен без объекта
+resource	guide_usage_tip_clear_subject	• По возможности снимайте сцены с чётким объектом: пейзаж, еду, людей. Не подходит для белых стен, пола, потолка и других однотонных сцен без объекта.
+resource	guide_usage_tip_keep_stable	• Сначала наведите камеру на сцену, затем нажмите «ИИ-компоновка». Во время анализа держите телефон неподвижно, не двигайтесь и не меняйте зум.
+resource	guide_usage_tip_static_scene	• Подходит для статичных сцен. Не подходит для движущихся объектов или съёмки в движении.
+resource	guide_usage_tips_title	Подсказка по ИИ-компоновке
+resource	http_error	Ошибка
+resource	http_network_error	Ошибка сети
+resource	http_request_failed	Запрос не выполнен
+resource	login_action	Войти
+resource	login_agreement_full	Я прочитал(а) и принимаю «Пользовательское соглашение» и «Политику конфиденциальности»
+resource	login_agreement_required	Сначала прочитайте и отметьте «Пользовательское соглашение» и «Политику конфиденциальности»
+resource	login_code_hint	Введите код подтверждения
+resource	login_code_required	Введите код подтверждения
+resource	login_code_sent	Код подтверждения отправлен
+resource	login_expired_dialog_message	Сессия истекла. Войдите снова.
+resource	login_expired_dialog_title	Сессия истекла
+resource	login_expired_go_login	Войти
+resource	login_expired_tip	Сессия истекла, войдите снова
+resource	login_failed_invalid_data	Ошибка входа: некорректный ответ сервера
+resource	login_failed_message	Ошибка входа: %1$s
+resource	login_get_code	Получить код
+resource	login_invalid_phone	Введите корректный номер телефона
+resource	login_loading	Вход...
+resource	login_password_hint	Введите пароль
+resource	login_password_mode	Вход по паролю
+resource	login_phone_hint	Введите номер телефона
+resource	login_privacy_policy_mark	«Политика конфиденциальности»
+resource	login_register	Регистрация
+resource	login_required_tip	Сначала войдите в аккаунт
+resource	login_send_code_failed	Не удалось отправить код: %1$s
+resource	login_subtitle	Войдите или зарегистрируйтесь по номеру телефона
+resource	login_success	Вход выполнен
+resource	login_title	Добро пожаловать в Doka
+resource	login_unregistered_tip	Незарегистрированный номер будет зарегистрирован автоматически после подтверждения
+resource	login_user_agreement_mark	«Пользовательское соглашение»
+resource	login_wechat_action	Вход через WeChat
+resource	login_wechat_cancelled	Вход через WeChat отменён
+resource	login_wechat_failed	Ошибка входа через WeChat: %1$s
+resource	login_wechat_not_installed	Сначала установите WeChat
+resource	login_wechat_not_supported	Текущая версия WeChat не поддерживает вход
+resource	login_wechat_send_failed	Не удалось начать вход через WeChat
+resource	login_wechat_state_invalid	Ошибка проверки входа через WeChat, повторите
+resource	mine_about_doka	О Doka
+resource	mine_about_doka_camera	О приложении Doka Камера
+resource	mine_album	Готовые снимки
+resource	mine_alignment_confirm_info_message	• После наведения на цветное кольцо нужна короткая пауза для подтверждения.
+• Это снижает ложные срабатывания из-за инерции движения телефона.
+• Так наведение становится стабильнее.
+resource	mine_alignment_confirm_info_title	Подтверждение фиксации ИИ-компоновки
+resource	mine_browser_not_found	Браузер не найден, установите его и повторите
+resource	mine_douyin	Douyin
+resource	mine_enable_filter_first	Сначала включите фильтр
+resource	mine_feedback	Обратная связь
+resource	mine_free_ai_counts	Бесплатные ИИ-операции сегодня: компоновка %1$d | фильтр %2$d
+resource	mine_free_compose_count	Осталось бесплатных компоновок: %1$d
+resource	mine_guide	Инструкция 👉
+resource	mine_help_feedback	Помощь и обратная связь
+resource	mine_mail_not_found	Почтовое приложение не найдено, напишите на ydgn2025@163.com
+resource	mine_market_not_found	Магазин приложений не найден
+resource	mine_multi_compose_info_message	• Кроме первой ИИ-компоновки, автоматически пробуются средний и дальний планы.
+• Это помогает при съёмке удалённых объектов.
+• Даёт больше вариантов компоновки для одной сцены.
+resource	mine_multi_compose_info_title	Мультиплановая компоновка (бета)
+resource	mine_not_logged_in	Вы не вошли
+resource	mine_open_pro	Подключить Pro
+resource	mine_pro_active	Doka Pro активен
+resource	mine_pro_active_until	Подписка действует до: %1$s
+resource	mine_rate	Оценить приложение
+resource	mine_redeem_hidden	Вход для промокодов скрыт
+resource	mine_redeem_pro	Активировать Doka Pro по коду
+resource	mine_redeem_unlocked	Вход для промокодов открыт
+resource	mine_renew_pro	Продлить Pro
+resource	mine_renew_pro_ios	Продлить
+resource	mine_setting_ai_alignment_confirm	Подтверждение фиксации ИИ-компоновки
+resource	mine_setting_ai_filter	ИИ-фильтр при компоновке
+resource	mine_setting_flash	Вспышка
+resource	mine_setting_gradient	Уровень
+resource	mine_setting_multi_compose	Мультиплановая ИИ-компоновка
+resource	mine_setting_nine_grid	Сетка
+resource	mine_setting_photo_border	Водяные знаки и рамки
+resource	mine_setting_save_raw	Сохранять негатив
+resource	mine_setting_selfie_mirror	Зеркальное селфи
+resource	mine_setting_touch_shot	Съёмка касанием
+resource	mine_setting_watermark	Водяной знак времени
+resource	mine_share_chooser_title	Поделиться Doka
+resource	mine_share_doka	Поделиться Doka 🥹
+resource	mine_share_text	Я снимаю на Doka Камера — фото, ИИ-компоновка и плёночные фильтры отлично работают, попробуй и ты!
+https://m.malink.cn/s/zqueaq
+resource	mine_shooting	Съёмка
+resource	mine_support_doka	Поддержать Doka
+resource	mine_tap_login	Нажмите, чтобы войти
+resource	mine_today_free_compose_count	Бесплатных компоновок сегодня: 5
+resource	mine_xiaohongshu	Xiaohongshu
+resource	multi_compose_disabled	Мультиплановая компоновка отключена
+resource	multi_compose_enabled	Мультиплановая компоновка включена
+resource	multi_compose_plan2	Вариант компоновки 2
+resource	multi_compose_plan2_analyzing	Анализ варианта 2...
+resource	multi_compose_switch_plan1	Вернуться к варианту 1
+resource	multi_compose_switch_plan2	Вернуться к варианту 2
+resource	permission_audio_content	Чтобы вы могли снимать живые фото со звуком, нам нужен доступ к микрофону. Он используется только для записи звука живых фото и создания их видеофрагментов.
+resource	permission_audio_denied_message	Без доступа к микрофону живые фото будут без звука. Вы можете снимать обычные фото, а при необходимости включить доступ в настройках.
+resource	permission_audio_denied_title	Доступ к микрофону не предоставлен
+resource	permission_audio_title	О доступе к микрофону
+resource	permission_camera_content	Чтобы вы могли снимать фото и видео, нам нужен доступ к камере. Он используется только для съёмки фото и видео и предпросмотра кадра.
+resource	permission_camera_denied_message	Без доступа к камере съёмка и предпросмотр невозможны, но вы можете пользоваться галереей и профилем. Для съёмки предоставьте доступ снова.
+resource	permission_camera_denied_title	Доступ к камере не предоставлен
+resource	permission_camera_title	О доступе к камере
+resource	permission_explanation_content	Описание разрешений
+resource	permission_explanation_title	О разрешениях
+resource	permission_go_authorize	Предоставить доступ
+resource	permission_go_settings	Открыть настройки
+resource	permission_location_content	Чтобы вы могли сохранять место съёмки, нам нужен доступ к геолокации. Он используется только для записи места съёмки.
+resource	permission_location_denied_message	Без доступа к геолокации место съёмки не сохраняется. Вы можете продолжать снимать, а при необходимости включить доступ в настройках.
+resource	permission_location_denied_title	Доступ к геолокации не предоставлен
+resource	permission_location_title	О доступе к геолокации
+resource	photo_border_camera	Водяной знак камеры
+resource	photo_border_choose_border	Изображение не изменено, выберите рамку
+resource	photo_border_classic	Классика
+resource	photo_edit_crop_failed	Не удалось обрезать
+resource	photo_edit_crop_free	Свободно
+resource	photo_edit_crop_movie	Кино
+resource	photo_edit_save_failed	Не удалось сохранить
+resource	photo_edit_save_success	Сохранено
+resource	photo_filter_badge_detail	Подробнее
+resource	photo_filter_choose_filter	Изображение не изменено, выберите фильтр
+resource	redeem_action	Активировать
+resource	redeem_code_hint	Введите промокод
+resource	redeem_failed_retry	Не удалось активировать, повторите
+resource	redeem_internal_tip	Только для внутреннего тестирования, не продаётся ни по каким каналам.
+resource	redeem_loading	Активация...
+resource	redeem_success	Промокод активирован, Doka Pro подключён
+resource	redeem_title	Введите промокод Doka Pro
+resource	security_block_countdown	Автоматическое закрытие через %1$d с
+resource	security_block_message	Среда текущего устройства не прошла проверку безопасности.
+
+Для защиты аккаунта и стабильности сервиса Doka Камера не может продолжать работу в этой среде.
+
+Восстановите официальную «чистую» среду и переустановите приложение из официального источника, затем повторите.
+
+Если вы считаете, что проверка сработала ошибочно, обратитесь в официальную поддержку.
+
+Код ошибки: %1$s
+resource	security_block_title	Работа Doka Камера остановлена
+resource	settings_extension_capability	Расширенные возможности
+resource	settings_title	Настройки
+resource	share_other	Другое
+resource	share_wechat_friend	Друзья в WeChat
+resource	share_wechat_moments	Moments
+resource	tab_camera	Камера
+resource	tab_gallery	Галерея
+resource	tab_mine	Профиль
+resource	title	Doka Камера
+resource	ucrop_crop	Пропорции
+resource	ucrop_label_original	По умолчанию
+resource	ucrop_menu_crop	Сохранить
+resource	ucrop_rotate	Повернуть
+resource	ucrop_scale	Масштаб
+resource	update_address_failed	Не удалось получить адрес обновления
+resource	update_already_latest	Установлена последняя версия
+resource	update_check_failed	Не удалось проверить обновления
+resource	update_check_failed_message	Не удалось проверить обновления: %1$s
+resource	update_content_placeholder	Что нового...
+resource	update_default_desc	Доступна новая версия — обновитесь!
+resource	update_download_title	Загрузка обновления
+resource	update_downloading_progress	Загрузка (%1$d%%)
+resource	update_install_failed	Не удалось запустить установку, установите вручную из папки загрузок
+resource	update_install_permission_tip	Разрешите установку приложений в открывшихся настройках
+resource	update_later	Позже
+resource	update_now	Обновить
+resource	update_title	Доступна новая версия!
+resource	user_default_nickname	Пользователь Doka
+resource	user_info_avatar	Аватар
+resource	user_info_bind_phone	Привязать номер телефона
+resource	user_info_change_password	Изменить пароль
+resource	user_info_change_phone	Изменить номер телефона
+resource	user_info_delete_account	Удалить аккаунт
+resource	user_info_logged_out	Вы вышли из аккаунта
+resource	user_info_logout	Выйти
+resource	user_info_logout_confirm_message	После выхода функции ИИ-компоновки и ИИ-фильтра станут недоступны; бесплатные фильтры продолжат работать.
+resource	user_info_nickname	Псевдоним
+resource	user_info_phone	Номер телефона
+resource	user_info_placeholder_name	Имя
+resource	user_info_title	Данные аккаунта
+resource	user_info_unbound	Не привязан
+resource	vip_ai_compose_limit_message	Оформите Doka Pro и получите безлимитную ИИ-компоновку
+resource	vip_ai_compose_limit_title	Бесплатные компоновки на сегодня закончились
+resource	vip_ai_filter_limit_message	Оформите Doka Pro и получите безлимитный ИИ-фильтр
+resource	vip_ai_filter_limit_title	Бесплатные ИИ-фильтры на сегодня закончились
+resource	vip_banner_ai_create_desc_short	Мы регулярно добавляем новые функции компоновки
+resource	vip_banner_ai_filter_desc	Анализирует сцену и подбирает лучший фильтр
+resource	vip_banner_pro_filter_desc	Откройте все плёночные фильтры — мы часто добавляем новые
+resource	vip_benefit_ai_create	Безлимитная
+ИИ-компоновка
+resource	vip_benefit_ai_create_line	Безлимитная ИИ-компоновка
+resource	vip_benefit_ai_filter	Умный подбор
+фильтров ИИ
+resource	vip_benefit_ai_filter_line	Умный подбор фильтров ИИ
+resource	vip_benefit_more	Другие
+привилегии скоро
+resource	vip_benefit_pro_filter	Плёночные фильтры
+только для Pro
+resource	vip_benefit_pro_filter_line	Плёночные фильтры только для Pro
+resource	vip_bind_phone_confirm	Привязать
+resource	vip_bind_phone_message	Вы вошли через WeChat. Рекомендуем сначала привязать номер телефона: после оформления подписки права будут навсегда закреплены за этим номером и не потеряются.
+resource	vip_bind_phone_title	Привязка номера телефона
+resource	vip_lifetime_limited_badge	Ограниченная серия · пока в наличии
+resource	vip_open_member	Оформить подписку
+resource	vip_pay_cancelled	Оплата отменена
+resource	vip_pay_checking_order	Проверка оплаты...
+resource	vip_pay_creating_order	Создание заказа...
+resource	vip_pay_failed	Оплата не прошла, повторите
+resource	vip_pay_invalid_order	Ошибка данных заказа, повторите
+resource	vip_pay_login_required	Сначала войдите, чтобы оформить подписку
+resource	vip_pay_select_product	Выберите тариф подписки
+resource	vip_pay_success	Оплата прошла, Doka Pro подключён
+resource	vip_pay_waiting	Подтверждение оплаты, обновите позже
+resource	vip_pay_wechat_not_installed	Сначала установите WeChat для оплаты
+resource	vip_pro_exclusive_title	Только для Doka Pro
+resource	vip_pro_filter_message	С Doka Pro этот фильтр можно применять и сохранять
+resource	vip_product_daily_price	≈ %1$s/день
+resource	vip_product_daily_price_with_unit	≈ %1$s
+resource	vip_purchase_title	Оформить Doka Pro
+resource	vip_value_dialog_message	• Съёмка у живого фотографа обычно стоит ¥200+/час.
+• Doka — ИИ-фотограф за %1$s/мес, который рядом 24 часа в сутки. Это около %2$s в день.
+• Лучшая компоновка — это момент, который вы хотите запечатлеть. Такие кадры не измерить ценой.
+resource	vip_value_dialog_title	Почему Doka Pro выгоден?
+resource	vip_value_tip	Почему Doka Pro выгоден?
+resource	watermark_camera_interface	Водяной знак интерфейса камеры
+resource	watermark_simple_white	Минималистичный белый
+resource	watermark_vintage_orange	Винтажный оранжевый
+resource	wechat_pay_callback_result	Результат оплаты WeChat: %1$d
+code	城市建筑	Городская архитектура
+code	街头纪实	Уличная документалистика
+code	旅行随笔	Путевые заметки
+code	情绪人像	Эмоциональный портрет
+code	高饱和度场景	Насыщенные сцены
+code	鲜艳美食	Яркая еда
+code	春日花草	Весенние цветы
+code	独特的低饱和冷色调，削弱色彩干扰并强化光影轮廓，为画面赋予冷静的叙事感。	Особый холодный приглушённый тон убирает лишние цвета и подчёркивает контуры света и тени, придавая кадру спокойное повествование.
+code	日常记录	Повседневные моменты
+code	旅行随拍	Съёмка в путешествии
+code	自然风景	Природные пейзажи
+code	清新人像	Свежий портрет
+code	高反差夜景	Контрастная ночь
+code	强烈情绪片	Сильные эмоции
+code	暗调纪实	Тёмная документалистика
+code	自然鲜亮、通透均衡，还原真实观感的同时保留记忆中的色彩，是适合日常记录的通用选择。	Естественный, яркий и сбалансированный: передаёт реальные ощущения, сохраняя запомнившиеся цвета — универсальный выбор для повседневной съёмки.
+code	旅行风景	Пейзажи путешествий
+code	蓝天海岸	Голубое небо и берег
+code	自然风光	Природа
+code	秋日树林	Осенний лес
+code	城市夜景	Ночной город
+code	清淡人像	Лёгкий портрет
+code	低饱和纪实	Приглушённая документалистика
+code	柔和室内	Мягкий интерьер
+code	极简静物	Минималистичный натюрморт
+code	高饱和、强对比、色彩浓郁，为风景与情绪而生。	Высокая насыщенность, сильный контраст, густые цвета — создан для пейзажей и эмоций.
+code	人文纪实与街拍	Репортаж и уличная съёмка
+code	旅行记录	Хроника путешествий
+code	阴郁情绪人像	Мрачный эмоциональный портрет
+code	美食摄影	Съёмка еды
+code	鲜花与春日风光	Цветы и весенние пейзажи
+code	低饱和、强对比、沉稳，为了叙事而生	Низкая насыщенность, сильный контраст, сдержанность — создан для повествования
+code	居家碎片	Домашние зарисовки
+code	旧城角落	Уголки старого города
+code	胶片写真	Плёночный портрет
+code	复古穿搭	Винтажный образ
+code	糖水色调	Сладкие пастельные тона
+code	宏大自然风光	Величественные пейзажи
+code	商业产品拍摄	Предметная съёмка
+code	浓郁的彩色负片质感，通过独特的阴影色偏赋予画面呼吸感，让日常瞬间充满怀旧张力。	Насыщенная фактура цветного негатива: особый оттенок теней придаёт кадру дыхание и наполняет повседневность ностальгией.
+code	赛博朋克/夜景	Киберпанк / ночь
+code	硬核街拍	Жёсткая уличная съёмка
+code	阴天与傍晚	Пасмурно и сумерки
+code	逆光小清新	Нежность в контровом свете
+code	高动态范围场景	Сцены с высоким динамическим диапазоном
+code	硬派、怀旧、高对比，适合纪实、叙事和质感	Жёсткий, ностальгический, контрастный — для репортажа, повествования и фактуры
+code	静物与美食	Натюрморт и еда
+code	日常扫街	Повседневная уличная съёмка
+code	闪光灯人像	Портрет со вспышкой
+code	一款万金油滤镜，特别适合记录日常生活，“日常、真实、胶片感强烈”的风格	Универсальный фильтр, особенно для повседневной жизни — стиль «повседневный, реалистичный, с сильным плёночным характером»
+code	商业静物	Коммерческий натюрморт
+code	强光下的时尚人像	Модный портрет при ярком свете
+code	大风景和建筑	Большие пейзажи и архитектура
+code	光线不足的环境	Условия слабого освещения
+code	追求“柔和梦幻”效果	Для мягкого мечтательного эффекта
+code	高对比度、高饱和度、画面干净、颜色正、轮廓硬朗，适合光线非常充足时拍摄色彩鲜艳的照片	Высокий контраст и насыщенность, чистый кадр, точные цвета, чёткие контуры — для ярких снимков при очень хорошем освещении
+code	柔和日常光	Мягкий дневной свет
+code	室内写真	Портрет в помещении
+code	专业人像	Профессиональный портрет
+code	高动态对比场景	Сцены с высоким динамическим контрастом
+code	冲击力强的抓拍	Эффектный репортаж
+code	绚烂夜景	Яркая ночь
+code	追求平滑的影调过渡与自然肤色，色彩素雅克制，是打造高级通透感的理想底色。	Плавные переходы тонов и естественный тон кожи, сдержанные цвета — идеальная основа для благородной прозрачности.
+code	日系/清新写真	Японский стиль / свежий портрет
+code	婚礼与情侣照	Свадьбы и парные фото
+code	雪景	Снежный пейзаж
+code	室内黄光	Тёплый свет в помещении
+code	颓废暗黑风格	Мрачный декадентский стиль
+code	夜景霓虹灯	Ночные неоновые огни
+code	适合高调、明亮、干净的场景，“清新、青蓝、空气感”的风格	Для светлых, ярких и чистых сцен — стиль «свежий, сине-голубой, воздушный»
+code	低光夜景	Ночь при слабом свете
+code	城市街拍	Городская уличная съёмка
+code	花卉静物	Цветочный натюрморт
+code	冷光灯环境	Холодное искусственное освещение
+code	深夜无光环境	Глубокая ночь без света
+code	自然肤色表现	Естественная передача тона кожи
+code	暖调氛围	Тёплая атмосфера
+code	适合光线充足的场景，色彩鲜艳、清晰度高、颜色偏冷（不发黄），适合晴天拍摄风景和静物	Для хорошо освещённых сцен: яркие цвета, высокая чёткость, холодноватый тон без желтизны — для пейзажей и натюрмортов в ясную погоду
+code	日常生活抓拍	Съёмка повседневной жизни
+code	阴天或多云	Пасмурно или облачно
+code	室内靠窗位置	У окна в помещении
+code	肤色要求极高的人像	Портрет с высокими требованиями к тону кожи
+code	适合日常随手拍， 适应性强（阴天能用）、色彩偏冷（阴影发绿），有生活气息和“故事感”	Для повседневной съёмки: универсален и в пасмурную погоду, холодноватые цвета с зеленцой в тенях, с атмосферой жизни и сюжетностью
+code	静物摄影	Съёмка натюрморта
+code	专业人像写真	Профессиональный студийный портрет
+code	明亮的旅行风光	Яркие пейзажи путешествий
+code	阴天或傍晚	Пасмурно или сумерки
+code	非常适合光线充足、追求画质细腻的场景，“极度细腻、真实还原、高级暖调”的风格	Отлично для хорошо освещённых сцен с тонкой детализацией — стиль «предельная детализация, точная передача, благородный тёплый тон»
+code	闪光灯摄影	Съёмка со вспышкой
+code	日落与黄金时刻	Закат и золотой час
+code	美式复古	Американский винтаж
+code	阴雨天	Дождливая погода
+code	追求白皙肤色	Для светлого тона кожи
+code	这款滤镜是为阳光而生，暖黄、怀旧、颗粒感、阳光的味道	Этот фильтр создан для солнца: тёплый жёлтый, ностальгия, зерно и солнечное настроение
+code	旅行生活记录	Хроника путешествий и жизни
+code	逆光人像	Портрет в контровом свете
+code	室内自然光	Естественный свет в помещении
+code	追求极致冷淡风	Для предельно холодного минимализма
+code	全能且精致，有极高的宽容度、温暖的高光，几乎适用于任何场景	Универсальный и утончённый: очень высокий динамический диапазон, тёплые света — почти для любой сцены
+code	复古风格	Винтажный стиль
+code	夜景和街头霓虹灯	Ночь и уличный неон
+code	室内弱光环境	Слабое освещение в помещении
+code	阳光强烈的正午	Яркий солнечный полдень
+code	追求皮肤白皙	Для светлой кожи
+code	德系冷调、高反差、独特红调，非常适合、明亮、干净的场景	Немецкий холодный тон, высокий контраст, особые красные оттенки — отлично для ярких и чистых сцен
+code	日常人像	Повседневный портрет
+code	不过度修饰、真实、日系肤色、日常万能	Без излишней ретуши, реалистичный, японский тон кожи — универсален на каждый день
+code	高曝光	Высокая экспозиция
+code	情书风	Стиль любовного письма
+code	冷白皮人像	Портрет с холодной светлой кожей
+code	高曝光人像、冷白皮、适合拯救废片	Портрет с высокой экспозицией и холодной светлой кожей — спасает неудачные кадры
+code	朦胧感	Дымка
+code	瑕疵遮挡	Маскировка недостатков
+code	低对比度、自带柔光效果、适合弱化面部瑕疵	Низкий контраст и мягкое свечение — сглаживает недостатки кожи
+code	清冷感	Прохладное настроение
+code	秋冬海边	Осенне-зимнее побережье
+code	明显的冷色调、适合营造青春的忧郁和疏离感	Выраженный холодный тон — создаёт юношескую меланхолию и отстранённость
+code	夏日胶片感	Летняя плёнка
+code	阳光下人像	Портрет на солнце
+code	健康活力	Здоровье и энергия
+code	明显的暖色调、适合阳光下凸显健康肤色	Выраженный тёплый тон — подчёркивает здоровый тон кожи на солнце
+code	光影质感	Фактура света и тени
+code	黑白写真	Чёрно-белый портрет
+code	高极简主义	Максимальный минимализм
+code	细腻灰阶过渡、丰富暗部细节、经典胶片颗粒、拥有呼吸感的黑白	Тонкие переходы серого, богатые детали в тенях, классическое плёночное зерно — дышащее чёрно-белое
+code	情绪特写	Эмоциональный крупный план
+code	复古黑白	Винтажное чёрно-белое
+code	树林/自然背景	Лес / природный фон
+code	故事感	Сюжетность
+code	强化肤色质感、深邃唇色、提亮背景绿植、适合展现面部情绪	Подчёркивает фактуру кожи и глубокий цвет губ, осветляет зелень фона — для передачи эмоций лица
+code	拍照主体	Объект съёмки
+code	（公测阶段）	 (бета)
+code	较远的主体	Удалённый объект
+code	更多构图思路	Больше идей компоновки
+code	AI 构图	ИИ-компоновка
+code	中远景别	Средний и дальний план
+code	长按标记	Удерживайте для отметки
+code	重新选择	Выбрать заново
+code	取消当前主体选择	Отменить выбор объекта
+code	无法恢复	Восстановить невозможно
+code	7 个工作日	7 рабочих дней
+code	重新登录可解除注销	Повторный вход отменяет удаление
+code	微信未安装	WeChat не установлен
+code	无限次	Безлимитно
+code	AI 滤镜	ИИ-фильтр
+code	✅ 删除成功：	✅ Удалено: 
+code	❌ 删除失败或用户拒绝：	❌ Ошибка удаления или отказ пользователя: 
+code	/月	/мес
+code	折算每天约 	≈ в день 
+code	24小时随时陪你拍照记录	рядом 24 часа в сутки для ваших снимков
+code	远非价格可衡量	не измерить ценой
+code	¥200+/小时	¥200+/час
+code	微信分享失败	Не удалось поделиться через WeChat
+code	微信分享成功	Отправлено через WeChat

@@ -1,0 +1,10 @@
+# Build artifacts / large binaries — не коммитим
+.build/
+*.apk
+*.keystore
+*.7z
+*.7z.*
+apktool*.jar
+decoded*/
+verify_final/
+*.idsig
