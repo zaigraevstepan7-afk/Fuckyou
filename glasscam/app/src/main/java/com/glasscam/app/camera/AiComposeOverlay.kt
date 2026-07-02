@@ -158,6 +158,17 @@ fun AiTargetOverlay(rect: NormRect, progress: Float, modifier: Modifier = Modifi
         val ringR = 30f
         drawCircle(sweep, radius = ringR + (1f - progress) * (8f + 8f * pulse), center = target, style = Stroke(3f))
         drawCircle(Color.White, radius = 3f + 2f * progress, center = target)
+
+        // real-time "how much longer" progress arc around the target
+        val arcR = ringR + 13f
+        val track = Color.White.copy(alpha = 0.18f)
+        drawCircle(track, radius = arcR, center = target, style = Stroke(5f))
+        val arcColor = androidx.compose.ui.graphics.lerp(Color(0xFF7CE0FF), Color(0xFF6BFF9E), progress)
+        drawArc(
+            arcColor, -90f, 360f * progress.coerceIn(0f, 1f), false,
+            topLeft = Offset(target.x - arcR, target.y - arcR), size = Size(arcR * 2f, arcR * 2f),
+            style = Stroke(width = 5f, cap = androidx.compose.ui.graphics.StrokeCap.Round),
+        )
         val arm = 14f
         val gap = ringR + 8f - progress * 6f
         cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x - gap, target.y - gap), arm, +1f, +1f)

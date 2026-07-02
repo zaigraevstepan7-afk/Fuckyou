@@ -44,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -186,21 +187,26 @@ fun CameraScreen() {
         }
     }
 
-    // "Aim & lock": arrow shows where to point; when your centre reaches the target and the
-    // phone is steady, corners converge → auto-shoot.
+    // "Aim & lock": the arrow shows where to point. A real-time progress arc fills while you keep
+    // the target centred and the phone steady; when it fills → auto-shoot.
     val centered = aiResult?.frame?.let {
         val cx = it.x + it.w / 2f - 0.5f
         val cy = it.y + it.h / 2f - 0.5f
         (1f - kotlin.math.hypot(cx, cy) / 0.5f).coerceIn(0f, 1f)
     } ?: 0f
-    val aligning = aiOn && aiResult?.frame != null && centered > 0.82f && isSteady && !capturing
-    val alignProgress by animateFloatAsState(
-        if (aligning) 1f else centered * 0.75f, animationSpec = tween(500), label = "align",
-    )
-    LaunchedEffect(alignProgress) {
-        if (aiOn && alignProgress > 0.98f && !capturing && System.currentTimeMillis() - autoCoolDown > 4000) {
-            autoCoolDown = System.currentTimeMillis()
-            shoot(false)
+    var holdProgress by remember { mutableStateOf(0f) }
+    val alignedNow = rememberUpdatedState(aiOn && aiResult?.frame != null && centered > 0.8f && isSteady && !capturing && !videoMode)
+    val canShootNow = rememberUpdatedState(!capturing)
+    LaunchedEffect(aiOn) {
+        if (!aiOn) { holdProgress = 0f; return@LaunchedEffect }
+        while (isActive && aiOn) {
+            holdProgress = (holdProgress + if (alignedNow.value) 0.045f else -0.10f).coerceIn(0f, 1f)
+            if (holdProgress >= 1f && canShootNow.value && System.currentTimeMillis() - autoCoolDown > 2500) {
+                autoCoolDown = System.currentTimeMillis()
+                shoot(false)
+                holdProgress = 0f
+            }
+            delay(60)
         }
     }
 
@@ -225,7 +231,7 @@ fun CameraScreen() {
         // Optional rule-of-thirds grid (only when the user enables it).
         if (showGrid) ThirdsGrid()
         // AI aim & framing overlay.
-        if (aiOn) aiResult?.frame?.let { AiTargetOverlay(it, alignProgress) }
+        if (aiOn) aiResult?.frame?.let { AiTargetOverlay(it, holdProgress) }
 
         // Top status
         Row(
