@@ -39,6 +39,7 @@ PY
 DECODED_DIR="$WORK/decoded" python3 "$ROOT/tools/apply_res.py"
 DECODED_DIR="$WORK/decoded" python3 "$ROOT/tools/apply_code.py"
 DECODED_DIR="$WORK/decoded" python3 "$ROOT/tools/patch_auth.py"
+DECODED_DIR="$WORK/decoded" python3 "$ROOT/tools/patch_security.py"
 
 # 4. Rebuild
 java -jar "$APKTOOL" b "$WORK/decoded" -o "$WORK/unsigned.apk"
