@@ -81,7 +81,11 @@ fun CameraScreen() {
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
 
-    val glView = remember { runCatching { GlCameraView(context) }.getOrNull() }
+    // GL Liquid-Glass refraction is disabled by default: on some devices the GL pipeline
+    // produced a black preview, and GLSurfaceView doesn't throw on creation so the fallback
+    // never triggered. Use the reliable PreviewView; GL can be re-enabled once verified.
+    val enableGl = false
+    val glView = remember { if (enableGl) runCatching { GlCameraView(context) }.getOrNull() else null }
     val previewView = remember {
         PreviewView(context).apply {
             scaleType = PreviewView.ScaleType.FILL_CENTER
