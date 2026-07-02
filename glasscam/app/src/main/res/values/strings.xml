@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GlassCam</string>
+
+    <!-- Разрешения -->
+    <string name="perm_camera_title">Нужен доступ к камере</string>
+    <string name="perm_camera_message">Чтобы снимать фото и использовать ИИ-анализ кадра, разрешите доступ к камере.</string>
+    <string name="perm_grant">Разрешить</string>
+
+    <!-- Камера -->
+    <string name="cd_shutter">Спуск</string>
+    <string name="cd_flip">Сменить камеру</string>
+    <string name="cd_flash">Вспышка</string>
+    <string name="cd_gallery">Галерея</string>
+    <string name="ai_analyze">ИИ-анализ</string>
+    <string name="ai_analyzing">ИИ анализирует кадр…</string>
+    <string name="ai_error">Не удалось получить ответ ИИ</string>
+    <string name="ai_no_key">Не задан ключ Gemini (local.properties → GEMINI_API_KEY)</string>
+    <string name="ai_composition">Компоновка</string>
+    <string name="ai_mood">Настроение</string>
+    <string name="ai_filter">Рекомендованный фильтр</string>
+    <string name="ai_apply_filter">Применить фильтр</string>
+    <string name="close">Закрыть</string>
+
+    <!-- Фильтры -->
+    <string name="filters">Фильтры</string>
+
+    <!-- Галерея -->
+    <string name="gallery_title">Снимки</string>
+    <string name="gallery_empty">Пока нет снимков</string>
+    <string name="back">Назад</string>
+    <string name="saved">Снимок сохранён</string>
+</resources>
