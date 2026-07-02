@@ -17,16 +17,18 @@ data class EnhanceParams(
     val sharpen: Float = 0f,     // 0..1 (unsharp mask amount)
     val grain: Float = 0f,       // 0..1 (film grain amount)
 ) {
+    /**
+     * Linear part of the grade: exposure, saturation and warm/cool tint. Contrast/shadows/highlight
+     * shaping is done separately by [toneLut] as a real curve (a ColorMatrix can only do linear
+     * contrast, which clips). Applied first, before the tone curve.
+     */
     fun toMatrix(): FloatArray {
-        val c = contrast.coerceIn(0.7f, 1.45f)
-        // Exposure + shadow lift, plus a midpoint pivot so contrast pivots around mid-grey (128).
-        // Multipliers are deliberately modest so a bright scene doesn't blow out to white.
-        val lift = exposure * 26f + shadows * 14f + 127.5f * (1f - c)
         val cm = ColorMatrix().apply { setSaturation(saturation.coerceIn(0f, 1.7f)) }
+        val lift = exposure * 22f
         cm.postConcat(ColorMatrix(floatArrayOf(
-            c, 0f, 0f, 0f, lift,
-            0f, c, 0f, 0f, lift,
-            0f, 0f, c, 0f, lift,
+            1f, 0f, 0f, 0f, lift,
+            0f, 1f, 0f, 0f, lift,
+            0f, 0f, 1f, 0f, lift,
             0f, 0f, 0f, 1f, 0f,
         )))
         if (warmth != 0f) {
@@ -39,6 +41,30 @@ data class EnhanceParams(
             )))
         }
         return cm.array
+    }
+
+    /**
+     * 256-entry per-channel tone curve: soft shadow lift, an S-curve for rich contrast, and a
+     * highlight roll-off so bright areas compress toward white instead of clipping to a flat blob.
+     * This is what gives the photo a graded, film-like tonality rather than a flat linear stretch.
+     */
+    fun toneLut(): IntArray {
+        val c = contrast.coerceIn(0.85f, 1.4f)
+        val sh = shadows.coerceIn(-0.3f, 0.5f)
+        val roll = 0.6f              // highlight roll-off strength
+        val knee = 0.78f             // where highlights start compressing
+        val lut = IntArray(256)
+        for (i in 0..255) {
+            var y = i / 255f
+            y += sh * 0.14f * (1f - y) * (1f - y)     // lift shadows, taper toward the mid-tones
+            y = 0.5f + (y - 0.5f) * c                 // contrast pivoted on mid-grey
+            if (y > knee) {                           // soft highlight roll-off (asymptotic to 1.0)
+                val t = (y - knee) / (1f - knee)
+                y = knee + (1f - knee) * (t / (1f + t * roll))
+            }
+            lut[i] = (y.coerceIn(0f, 1f) * 255f + 0.5f).toInt()
+        }
+        return lut
     }
 
     /**

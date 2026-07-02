@@ -175,6 +175,7 @@ class CameraController(private val appContext: Context) {
                 colorFilter = ColorMatrixColorFilter(ColorMatrix(grade.toMatrix()))
             })
             bmp.recycle(); bmp = graded
+            applyCurve(bmp, grade.toneLut())                 // S-curve + highlight roll-off
             if (grade.sharpen > 0.02f) bmp = unsharp(bmp, grade.sharpen)
         }
         if (effects != null && !effects.isNoop()) {
@@ -183,6 +184,25 @@ class CameraController(private val appContext: Context) {
         }
         val bos = ByteArrayOutputStream(); bmp.compress(Bitmap.CompressFormat.JPEG, 95, bos); bmp.recycle()
         return bos.toByteArray()
+    }
+
+    /** Apply a 256-entry per-channel tone curve in place, strip-processed to stay memory-light. */
+    private fun applyCurve(bmp: Bitmap, lut: IntArray) {
+        val w = bmp.width; val h = bmp.height
+        val rows = 128
+        val buf = IntArray(w * rows)
+        var y = 0
+        while (y < h) {
+            val hh = minOf(rows, h - y); val n = w * hh
+            bmp.getPixels(buf, 0, w, 0, y, w, hh)
+            for (i in 0 until n) {
+                val p = buf[i]
+                val r = lut[p shr 16 and 0xFF]; val g = lut[p shr 8 and 0xFF]; val b = lut[p and 0xFF]
+                buf[i] = (p and 0xFF000000.toInt()) or (r shl 16) or (g shl 8) or b
+            }
+            bmp.setPixels(buf, 0, w, 0, y, w, hh)
+            y += hh
+        }
     }
 
     /**
