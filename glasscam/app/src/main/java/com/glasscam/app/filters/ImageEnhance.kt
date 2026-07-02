@@ -18,9 +18,11 @@ data class EnhanceParams(
     val grain: Float = 0f,       // 0..1 (film grain amount)
 ) {
     fun toMatrix(): FloatArray {
-        val lift = exposure * 34f + shadows * 16f
-        val cm = ColorMatrix().apply { setSaturation(saturation.coerceIn(0f, 2f)) }
-        val c = contrast.coerceIn(0.6f, 1.6f)
+        val c = contrast.coerceIn(0.6f, 1.9f)
+        // Exposure + shadow lift, plus a midpoint pivot so contrast brightens/darkens around
+        // mid-grey (128) instead of around black — that's what makes the grade actually read.
+        val lift = exposure * 42f + shadows * 22f + 127.5f * (1f - c)
+        val cm = ColorMatrix().apply { setSaturation(saturation.coerceIn(0f, 2.4f)) }
         cm.postConcat(ColorMatrix(floatArrayOf(
             c, 0f, 0f, 0f, lift,
             0f, c, 0f, 0f, lift,
@@ -29,13 +31,37 @@ data class EnhanceParams(
         )))
         if (warmth != 0f) {
             cm.postConcat(ColorMatrix(floatArrayOf(
-                1f + warmth * 0.12f, 0f, 0f, 0f, warmth * 8f,
+                1f + warmth * 0.18f, 0f, 0f, 0f, warmth * 10f,
                 0f, 1f, 0f, 0f, 0f,
-                0f, 0f, 1f - warmth * 0.12f, 0f, -warmth * 8f,
+                0f, 0f, 1f - warmth * 0.18f, 0f, -warmth * 10f,
                 0f, 0f, 0f, 1f, 0f,
             )))
         }
         return cm.array
+    }
+
+    /**
+     * Guarantee a visible grade. AI often returns near-neutral values (exposure≈0, contrast≈1,
+     * saturation≈1) which produce an identity matrix and no visible change — so we floor every
+     * parameter to a punchy minimum. The processed photo is then always clearly better than stock.
+     */
+    fun boosted(): EnhanceParams = EnhanceParams(
+        exposure = exposure.coerceIn(0.04f, 1f),
+        contrast = contrast.coerceAtLeast(1.16f),
+        saturation = saturation.coerceAtLeast(1.24f),
+        warmth = if (kotlin.math.abs(warmth) < 0.05f) 0.07f else warmth,
+        shadows = shadows.coerceAtLeast(0.12f),
+        highlights = highlights,
+        sharpen = sharpen.coerceAtLeast(0.4f),
+        grain = grain,
+    )
+
+    companion object {
+        /** Default "auto-enhance" look used when the AI isn't driving the grade. */
+        fun auto(): EnhanceParams = EnhanceParams(
+            exposure = 0.06f, contrast = 1.2f, saturation = 1.3f,
+            warmth = 0.08f, shadows = 0.16f, sharpen = 0.5f,
+        )
     }
 }
 

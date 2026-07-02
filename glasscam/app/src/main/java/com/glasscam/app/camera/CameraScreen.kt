@@ -137,26 +137,17 @@ fun CameraScreen() {
     fun shoot(withDelay: Boolean) = scope.launch {
         if (capturing || recording) return@launch
         capturing = true
-        val aiGrade = if (aiOn) aiResult?.grade else null
+        // Every shot is enhanced so the saved photo is always visibly better than the raw frame:
+        // in AI mode use Gemini's grade (boosted to a punchy floor), otherwise a strong auto look.
+        val grade = (if (aiOn) aiResult?.grade else null)?.boosted() ?: EnhanceParams.auto()
         try {
             val jpeg = controller.captureJpeg()
-            val uri = withContext(Dispatchers.Default) { controller.processAndSave(jpeg, aiGrade) }
+            val uri = withContext(Dispatchers.Default) { controller.processAndSave(jpeg, grade) }
             lastShot = uri
-            toast = "Снимок сохранён"
-            capturing = false
-            // Background AI auto-enhance for shots not already AI-graded — keeps the shutter instant.
-            if (aiGrade == null && GeminiService.hasKey()) {
-                scope.launch {
-                    runCatching {
-                        val small = controller.latestFrame() ?: jpeg
-                        val params = GeminiService.suggestEnhancement(small).getOrNull() ?: return@runCatching
-                        withContext(Dispatchers.IO) { controller.enhanceSavedInPlace(uri, params) }
-                        toast = "ИИ улучшил фото"
-                    }
-                }
-            }
+            toast = if (aiOn) "ИИ обработал фото" else "Фото улучшено"
         } catch (e: Exception) {
             toast = e.message ?: "Ошибка съёмки"
+        } finally {
             capturing = false
         }
     }
@@ -187,35 +178,36 @@ fun CameraScreen() {
         }
     }
 
-    // Live aim: Gemini gives the target centre; the aim ring is world-anchored via integrated
-    // gyroscope rotation (kept as a State so only the overlay Canvas redraws — no screen churn).
-    val aimRot = rememberAimRotation()   // [tilt, pan] cumulative radians
+    // Gyro-anchored aim ring (crooked but working, kept per user request): anchor the target to
+    // the AI's suggested frame centre, capture the current phone rotation as reference, then the
+    // ring stays world-fixed as you pan/tilt so it shows where to aim.
+    val aimRot = rememberAimRotation()
     var baseTx by remember { mutableStateOf(0.5f) }
     var baseTy by remember { mutableStateOf(0.5f) }
     var refTilt by remember { mutableStateOf(0f) }
     var refPan by remember { mutableStateOf(0f) }
-    LaunchedEffect(aiResult) {
-        aiResult?.frame?.let {
-            baseTx = it.x + it.w / 2f; baseTy = it.y + it.h / 2f
-            refTilt = aimRot.value[0]; refPan = aimRot.value[1]
+    LaunchedEffect(aiResult?.frame) {
+        aiResult?.frame?.let { f ->
+            baseTx = (f.x + f.w / 2f).coerceIn(0.06f, 0.94f)
+            baseTy = (f.y + f.h / 2f).coerceIn(0.06f, 0.94f)
+            val r = aimRot.value
+            refTilt = r[0]; refPan = r[1]
         }
     }
+
+    // Reliable auto-capture: when the AI marks the frame ready and the phone is steady, shoot.
     val steadyState = rememberUpdatedState(isSteady)
     val capturingState = rememberUpdatedState(capturing)
-    val aiActive = rememberUpdatedState(aiOn && aiResult?.frame != null && !videoMode)
+    val readyState = rememberUpdatedState(aiOn && aiResult?.ready == true && aiResult?.frame != null && !videoMode)
     LaunchedEffect(aiOn) {
         while (isActive && aiOn) {
-            if (aiActive.value && steadyState.value && !capturingState.value) {
-                val r = aimRot.value
-                val tx = baseTx - (r[1] - refPan) * 0.9f
-                val ty = baseTy - (r[0] - refTilt) * 0.9f
-                val close = 1f - kotlin.math.hypot(tx - 0.5f, ty - 0.5f) / 0.5f
-                if (close > 0.9f && System.currentTimeMillis() - autoCoolDown > 3000) {
-                    autoCoolDown = System.currentTimeMillis()
-                    shoot(false)
-                }
+            if (readyState.value && steadyState.value && !capturingState.value &&
+                System.currentTimeMillis() - autoCoolDown > 3500
+            ) {
+                autoCoolDown = System.currentTimeMillis()
+                shoot(false)
             }
-            delay(150)
+            delay(200)
         }
     }
 
