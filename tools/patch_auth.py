@@ -22,6 +22,22 @@ assert n == 1, "h()Z method not found in W/j.smali"
 open(wj, "w", encoding="utf-8").write(new)
 print("patched LW/j->h()Z -> always true")
 
+# --- 1b. d0/d->a()Z (isVip) => always true (Doka Pro / безлимит) --------------
+# Skips all AI-compose/AI-filter count gates, unlocks Pro film filters (their LUTs
+# are local assets, so saving Pro-filtered photos works offline). Server-side AI
+# compute still needs a real account.
+dd = os.path.join(DECODED, "smali_classes2/d0/d.smali")
+s2 = open(dd, encoding="utf-8").read()
+stub_vip = (".method public static a()Z\n"
+            "    .locals 1\n\n"
+            "    const/4 v0, 0x1\n\n"
+            "    return v0\n"
+            ".end method")
+s2n, n2 = re.subn(r"\.method public static a\(\)Z\n.*?\.end method", stub_vip, s2, count=1, flags=re.S)
+assert n2 == 1, "a()Z (isVip) not found in d0/d.smali"
+open(dd, "w", encoding="utf-8").write(s2n)
+print("patched Ld0/d->a()Z (isVip) -> always true (Doka Pro / unlimited)")
+
 # --- 2. Hide WeChat login button ----------------------------------------------
 lay = os.path.join(DECODED, "res/layout/activity_login.xml")
 t = open(lay, encoding="utf-8").read()
@@ -33,8 +49,11 @@ if 'android:id="@id/ivWechatLogin"' in t and "ivWechatLogin" in t:
             return re.sub(r'android:visibility="[^"]*"', 'android:visibility="gone"', tag)
         return tag.replace('<ImageView ', '<ImageView android:visibility="gone" ', 1)
     t2 = re.sub(r'<ImageView [^>]*android:id="@id/ivWechatLogin"[^>]*/>', add_gone, t)
-    assert t2 != t, "could not patch ivWechatLogin visibility"
-    open(lay, "w", encoding="utf-8").write(t2)
-    print("hid WeChat login button (ivWechatLogin -> gone)")
+    if 'android:visibility="gone" android:id="@id/ivWechatLogin"' in t2 or \
+       re.search(r'ivWechatLogin"[^>]*android:visibility="gone"', t2):
+        open(lay, "w", encoding="utf-8").write(t2)
+        print("hid WeChat login button (ivWechatLogin -> gone)")
+    else:
+        print("ERROR: could not patch ivWechatLogin visibility"); raise SystemExit(1)
 else:
     print("WARN: ivWechatLogin not found in activity_login.xml")
