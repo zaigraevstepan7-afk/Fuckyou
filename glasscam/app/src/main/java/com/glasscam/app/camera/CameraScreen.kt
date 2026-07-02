@@ -1,18 +1,24 @@
 package com.glasscam.app.camera
 
+import android.content.ContentUris
+import android.net.Uri
+import android.provider.MediaStore
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -36,14 +42,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.glasscam.app.ai.AiState
+import coil.compose.AsyncImage
 import com.glasscam.app.ai.ComposeResult
 import com.glasscam.app.ai.GeminiService
 import com.glasscam.app.filters.FilterPreset
@@ -55,6 +64,7 @@ import com.glasscam.app.glass.liquidGlass
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 private val zoomStops = listOf(0.5f, 1f, 2f, 4f, 8f)
 
@@ -75,26 +85,24 @@ fun CameraScreen() {
     var selectedFilter by remember { mutableStateOf(FilterPresets.none) }
     var flashOn by remember { mutableStateOf(false) }
     var showGrid by remember { mutableStateOf(false) }
+    var aiEnhance by remember { mutableStateOf(false) }
     var zoom by remember { mutableStateOf(1f) }
     var aiOn by remember { mutableStateOf(false) }
     var aiResult by remember { mutableStateOf<ComposeResult?>(null) }
     var aiError by remember { mutableStateOf<String?>(null) }
     var analyzing by remember { mutableStateOf(false) }
     var toast by remember { mutableStateOf<String?>(null) }
+    var lastShot by remember { mutableStateOf<Uri?>(null) }
 
-    LaunchedEffect(Unit) { controller.bind(lifecycleOwner, previewView) }
+    LaunchedEffect(Unit) { controller.bind(lifecycleOwner, previewView); lastShot = queryLatest(context) }
     LaunchedEffect(toast) { if (toast != null) { delay(1800); toast = null } }
 
-    // Continuous AI-compose loop: grab the latest preview frame and ask Gemini.
+    // Continuous AI-compose loop.
     LaunchedEffect(aiOn) {
         if (!aiOn) { aiResult = null; aiError = null; analyzing = false; return@LaunchedEffect }
-        if (!GeminiService.hasKey()) {
-            aiError = "Не задан ключ Gemini (local.properties → GEMINI_API_KEY)"
-            return@LaunchedEffect
-        }
+        if (!GeminiService.hasKey()) { aiError = "Не задан ключ Gemini (local.properties)"; return@LaunchedEffect }
         while (isActive && aiOn) {
-            val frame = controller.latestFrame()
-            if (frame != null) {
+            controller.latestFrame()?.let { frame ->
                 analyzing = true
                 GeminiService.analyzeCompose(frame).fold(
                     onSuccess = {
@@ -109,8 +117,29 @@ fun CameraScreen() {
         }
     }
 
-    Column(Modifier.fillMaxSize().background(Color.Black).padding(bottom = 84.dp)) {
-        // Status bar row
+    fun animateZoomTo(target: Float) = scope.launch {
+        animate(zoom, target, animationSpec = tween(300)) { v, _ -> zoom = v; controller.setZoomAbsolute(v) }
+    }
+
+    fun shoot() = scope.launch {
+        try {
+            val jpeg = controller.captureJpeg()
+            var matrix: FloatArray? = null
+            if (aiEnhance && GeminiService.hasKey()) {
+                toast = "ИИ улучшает снимок…"
+                val small = controller.latestFrame() ?: jpeg
+                matrix = GeminiService.suggestEnhancement(small).getOrNull()?.toMatrix()
+            }
+            controller.processAndSave(jpeg, selectedFilter, matrix)
+            lastShot = queryLatest(context)
+            toast = "Снимок сохранён"
+        } catch (e: Exception) {
+            toast = e.message ?: "Ошибка съёмки"
+        }
+    }
+
+    Column(Modifier.fillMaxSize().background(Color(0xFF06080D)).padding(bottom = 84.dp)) {
+        // Status row
         Row(
             Modifier.fillMaxWidth().padding(top = 44.dp, start = 16.dp, end = 16.dp, bottom = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -121,33 +150,43 @@ fun CameraScreen() {
                 contentDescription = "Вспышка", size = 44.dp,
                 onClick = { controller.cycleFlash(lifecycleOwner, previewView); flashOn = controller.flashOn },
             )
-            if (aiOn) {
-                Box(Modifier.weight(1f).padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
-                    AiHintPill(aiResult?.hint ?: if (analyzing) "ИИ анализирует кадр…" else "Наведите камеру")
-                }
-            } else {
-                Box(Modifier.weight(1f))
+            Box(Modifier.weight(1f).padding(horizontal = 10.dp), contentAlignment = Alignment.Center) {
+                if (aiOn) AiHintPill(aiResult?.hint ?: if (analyzing) "ИИ анализирует кадр…" else "Наведите камеру")
             }
             GlassIconButton(Icons.Rounded.Grid3x3, "Сетка", size = 44.dp, onClick = { showGrid = !showGrid })
         }
 
-        // Preview card with overlays
+        // Preview card
         Box(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 8.dp), contentAlignment = Alignment.Center) {
             Box(
                 Modifier
                     .fillMaxWidth()
                     .aspectRatio(3f / 4f)
-                    .clip(RoundedCornerShape(26.dp)),
+                    .clip(RoundedCornerShape(28.dp))
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, _, zoomChange, _ ->
+                            val nz = (zoom * zoomChange).coerceIn(controller.minZoom, controller.maxZoom)
+                            zoom = nz; controller.setZoomAbsolute(nz)
+                        }
+                    },
             ) {
                 AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
 
-                if (aiOn || showGrid) ThirdsGrid()
-                if (aiOn) aiResult?.frame?.let { RecommendedFrame(it) }
+                // subtle top/bottom vignette for depth
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(
+                            0f to Color.Black.copy(alpha = 0.28f),
+                            0.22f to Color.Transparent,
+                            0.78f to Color.Transparent,
+                            1f to Color.Black.copy(alpha = 0.30f),
+                        ),
+                    ),
+                )
 
-                // Top AI card
-                if (aiOn && aiResult != null) {
-                    AiComposeCard(aiResult!!, Modifier.align(Alignment.TopCenter).padding(12.dp))
-                }
+                if (aiOn || showGrid) ThirdsGrid()
+                if (aiOn) aiResult?.frame?.let { RecommendedFrame(it); AimReticle(it) }
+                if (aiOn && aiResult != null) AiComposeCard(aiResult!!, Modifier.align(Alignment.TopCenter).padding(12.dp))
                 aiError?.let {
                     Box(
                         Modifier.align(Alignment.TopCenter).padding(12.dp)
@@ -155,12 +194,7 @@ fun CameraScreen() {
                     ) { Text(it, color = Glass.tint, fontSize = 13.sp) }
                 }
 
-                // Zoom selector
-                ZoomBar(
-                    zoom = zoom,
-                    onSelect = { z -> zoom = z; controller.setZoom(z) },
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp),
-                )
+                ZoomBar(zoom = zoom, onSelect = { animateZoomTo(it) }, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp))
 
                 toast?.let {
                     Box(
@@ -171,33 +205,23 @@ fun CameraScreen() {
             }
         }
 
-        // Filter carousel
-        FilterRow(
-            selected = selectedFilter,
-            onSelect = { selectedFilter = it },
-            modifier = Modifier.padding(vertical = 10.dp),
-        )
+        // AI-enhance toggle + filter carousel
+        Row(
+            Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ToggleChip("ИИ-фото", aiEnhance) { aiEnhance = !aiEnhance }
+        }
+        FilterRow(selected = selectedFilter, onSelect = { selectedFilter = it }, modifier = Modifier.padding(vertical = 10.dp))
 
         // Bottom controls
         Row(
-            Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 8.dp),
+            Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            GlassIconButton(Icons.Rounded.Cameraswitch, "Сменить камеру", size = 50.dp,
-                onClick = { controller.toggleLens(lifecycleOwner, previewView) })
-
-            GlassShutter(onClick = {
-                scope.launch {
-                    toast = try {
-                        controller.capturePhoto(selectedFilter); "Снимок сохранён"
-                    } catch (e: Exception) {
-                        e.message ?: "Ошибка съёмки"
-                    }
-                }
-            })
-
-            // Enter / exit AI compose
+            Thumbnail(lastShot)
+            GlassShutter(onClick = { shoot() })
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 GlassIconButton(
                     icon = if (aiOn) Icons.Rounded.Close else Icons.Rounded.AutoAwesome,
@@ -205,40 +229,56 @@ fun CameraScreen() {
                     tint = if (aiOn) Glass.tint else Color(0xFF9CD8FF),
                     onClick = { aiOn = !aiOn },
                 )
-                Text(
-                    if (aiOn) "Выйти" else "ИИ-режим",
-                    color = Glass.tint.copy(alpha = 0.85f), fontSize = 11.sp,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
+                Text(if (aiOn) "Выйти" else "ИИ-режим", color = Glass.tint.copy(alpha = 0.85f), fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp))
             }
         }
     }
 }
 
 @Composable
-private fun ZoomBar(zoom: Float, onSelect: (Float) -> Unit, modifier: Modifier = Modifier) {
+private fun Thumbnail(uri: Uri?) {
+    Box(Modifier.size(50.dp).clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha = 0.06f))) {
+        if (uri != null) {
+            AsyncImage(uri, null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        }
+    }
+}
+
+@Composable
+private fun ToggleChip(label: String, on: Boolean, onToggle: () -> Unit) {
     Row(
-        modifier
-            .liquidGlass(Glass.shapeCapsule, alphaTop = 0.24f, alphaBottom = 0.10f)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
+        Modifier
+            .liquidGlass(Glass.shapeCapsule, alphaTop = if (on) 0.42f else 0.16f, alphaBottom = if (on) 0.20f else 0.05f)
+            .clickable(onClick = onToggle)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Rounded.AutoAwesome, null, tint = if (on) Color(0xFF9CD8FF) else Glass.tint.copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
+        Text("  $label", color = Glass.tint, fontSize = 13.sp, fontWeight = if (on) FontWeight.SemiBold else FontWeight.Normal)
+    }
+}
+
+@Composable
+private fun ZoomBar(zoom: Float, onSelect: (Float) -> Unit, modifier: Modifier = Modifier) {
+    val nearest = zoomStops.minByOrNull { abs(it - zoom) }
+    Row(
+        modifier.liquidGlass(Glass.shapeCapsule, alphaTop = 0.24f, alphaBottom = 0.10f).padding(horizontal = 8.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         zoomStops.forEach { z ->
-            val sel = z == zoom
-            val label = if (z < 1f) ".5x" else "${z.toInt()}x"
+            val sel = z == nearest && abs(z - zoom) < 0.25f
+            val label = if (z < 1f) ".5" else "${z.toInt()}"
             Box(
-                Modifier
-                    .clip(RoundedCornerShape(percent = 50))
-                    .background(if (sel) Color.White.copy(alpha = 0.9f) else Color.Transparent)
+                Modifier.clip(RoundedCornerShape(percent = 50))
+                    .background(if (sel) Color.White.copy(alpha = 0.92f) else Color.Transparent)
                     .clickable { onSelect(z) }
                     .padding(horizontal = 12.dp, vertical = 7.dp),
             ) {
                 Text(
-                    label,
+                    if (sel) "${label}×" else label,
                     color = if (sel) Color(0xFF06121F) else Glass.tint,
-                    fontSize = 13.sp,
-                    fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
+                    fontSize = 13.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
                 )
             }
         }
@@ -258,22 +298,28 @@ private fun FilterRow(selected: FilterPreset, onSelect: (FilterPreset) -> Unit, 
                 Modifier
                     .liquidGlass(
                         RoundedCornerShape(percent = 50),
-                        alphaTop = if (isSel) 0.42f else 0.18f,
-                        alphaBottom = if (isSel) 0.20f else 0.06f,
+                        alphaTop = if (isSel) 0.42f else 0.16f,
+                        alphaBottom = if (isSel) 0.20f else 0.05f,
                     )
-                    .border(
-                        width = if (isSel) 1.5.dp else 0.dp,
-                        brush = Glass.rim,
-                        shape = RoundedCornerShape(percent = 50),
-                    )
+                    .border(if (isSel) 1.5.dp else 0.dp, Glass.rim, RoundedCornerShape(percent = 50))
                     .clickable { onSelect(preset) }
                     .padding(horizontal = 16.dp, vertical = 9.dp),
             ) {
-                Text(
-                    preset.label, color = Glass.tint, fontSize = 13.sp,
-                    fontWeight = if (isSel) FontWeight.SemiBold else FontWeight.Normal,
-                )
+                Text(preset.label, color = Glass.tint, fontSize = 13.sp, fontWeight = if (isSel) FontWeight.SemiBold else FontWeight.Normal)
             }
         }
     }
+}
+
+private fun queryLatest(context: android.content.Context): Uri? {
+    val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    context.contentResolver.query(
+        collection, arrayOf(MediaStore.Images.Media._ID),
+        "${MediaStore.Images.Media.DISPLAY_NAME} LIKE ?", arrayOf("GlassCam_%"),
+        "${MediaStore.Images.Media.DATE_ADDED} DESC",
+    )?.use { c ->
+        val idCol = c.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+        if (c.moveToFirst()) return ContentUris.withAppendedId(collection, c.getLong(idCol))
+    }
+    return null
 }

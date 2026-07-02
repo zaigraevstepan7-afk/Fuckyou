@@ -73,6 +73,33 @@ fun RecommendedFrame(rect: NormRect, modifier: Modifier = Modifier) {
     }
 }
 
+/** Pulsing colored aiming ring at the recommended composition center ("наведитесь сюда"). */
+@Composable
+fun AimReticle(rect: NormRect, modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "aim")
+    val pulse by transition.animateFloat(
+        initialValue = 0f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing), RepeatMode.Restart),
+        label = "pulse",
+    )
+    Canvas(modifier.fillMaxSize()) {
+        val cx = (rect.x + rect.w / 2f) * size.width
+        val cy = (rect.y + rect.h / 2f) * size.height
+        val sweep = Brush.sweepGradient(iridescent, center = Offset(cx, cy))
+        val base = 26.dp.toPx()
+        // expanding pulse ring
+        drawCircle(sweep, radius = base + pulse * 22f, center = Offset(cx, cy),
+            alpha = (1f - pulse) * 0.7f, style = Stroke(3f))
+        // steady inner ring + center dot
+        drawCircle(sweep, radius = base, center = Offset(cx, cy), style = Stroke(3f))
+        drawCircle(Color.White, radius = 3.5f, center = Offset(cx, cy))
+        // small chevron above pointing down to the ring
+        val cyTop = cy - base - 16f
+        drawLine(Color.White, Offset(cx - 10f, cyTop - 8f), Offset(cx, cyTop), 3f)
+        drawLine(Color.White, Offset(cx + 10f, cyTop - 8f), Offset(cx, cyTop), 3f)
+    }
+}
+
 /** Top card with the AI scene description, composition advice and recommended filter. */
 @Composable
 fun AiComposeCard(result: ComposeResult, modifier: Modifier = Modifier) {

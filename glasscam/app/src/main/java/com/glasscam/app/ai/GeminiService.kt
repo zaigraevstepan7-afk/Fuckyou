@@ -2,6 +2,7 @@ package com.glasscam.app.ai
 
 import android.util.Base64
 import com.glasscam.app.BuildConfig
+import com.glasscam.app.filters.EnhanceParams
 import com.glasscam.app.filters.FilterPresets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -72,6 +73,51 @@ object GeminiService {
                     return@withContext Result.failure(RuntimeException(friendlyError(resp.code, text)))
                 }
                 Result.success(parse(text))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private val enhancePrompt = """
+        Ты — ИИ-ретушёр. Оцени фотографию и предложи мягкую естественную коррекцию,
+        как хорошая камера (без пересыщения). Ответь СТРОГО одним JSON-объектом:
+        {"exposure": <-1..1>, "contrast": <0.7..1.4>, "saturation": <0.6..1.6>,
+         "warmth": <-1..1>, "shadows": <-1..1>, "highlights": <-1..1>}
+        exposure/shadows поднимают яркость и тени, warmth>0 — теплее, contrast и saturation — множители.
+    """.trimIndent()
+
+    /** Ask Gemini (vision) for gentle correction params for a captured photo. */
+    suspend fun suggestEnhancement(jpeg: ByteArray): Result<EnhanceParams> = withContext(Dispatchers.IO) {
+        if (!hasKey()) return@withContext Result.failure(IllegalStateException("NO_KEY"))
+        try {
+            val b64 = Base64.encodeToString(jpeg, Base64.NO_WRAP)
+            val body = JSONObject().apply {
+                put("contents", org.json.JSONArray().put(JSONObject().apply {
+                    put("parts", org.json.JSONArray()
+                        .put(JSONObject().put("text", enhancePrompt))
+                        .put(JSONObject().put("inline_data", JSONObject()
+                            .put("mime_type", "image/jpeg").put("data", b64))))
+                }))
+                put("generationConfig", JSONObject()
+                    .put("responseMimeType", "application/json").put("temperature", 0.3))
+            }.toString()
+            val url = "$ENDPOINT/${BuildConfig.GEMINI_MODEL}:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
+            val request = Request.Builder().url(url).post(body.toRequestBody(JSON)).build()
+            client.newCall(request).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) return@withContext Result.failure(RuntimeException(friendlyError(resp.code, text)))
+                val partText = JSONObject(text).getJSONArray("candidates").getJSONObject(0)
+                    .getJSONObject("content").getJSONArray("parts").getJSONObject(0).getString("text")
+                val o = JSONObject(partText.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim())
+                Result.success(EnhanceParams(
+                    exposure = o.optDouble("exposure", 0.0).toFloat(),
+                    contrast = o.optDouble("contrast", 1.0).toFloat(),
+                    saturation = o.optDouble("saturation", 1.0).toFloat(),
+                    warmth = o.optDouble("warmth", 0.0).toFloat(),
+                    shadows = o.optDouble("shadows", 0.0).toFloat(),
+                    highlights = o.optDouble("highlights", 0.0).toFloat(),
+                ))
             }
         } catch (e: Exception) {
             Result.failure(e)

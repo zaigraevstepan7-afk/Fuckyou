@@ -21,6 +21,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.glasscam.app.filters.FilterPreset
+import com.glasscam.app.filters.composeMatrices
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executors
@@ -39,6 +40,8 @@ class CameraController(private val appContext: Context) {
     var flashOn: Boolean = false
         private set
     var maxZoom: Float = 8f
+        private set
+    var minZoom: Float = 1f
         private set
 
     private var imageCapture: ImageCapture? = null
@@ -74,7 +77,10 @@ class CameraController(private val appContext: Context) {
             try {
                 provider.unbindAll()
                 camera = provider.bindToLifecycle(owner, selector, preview, capture, analysis)
-                maxZoom = camera?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 8f
+                camera?.cameraInfo?.zoomState?.value?.let {
+                    maxZoom = it.maxZoomRatio
+                    minZoom = it.minZoomRatio
+                }
             } catch (_: Exception) {
             }
             onBound()
@@ -103,11 +109,12 @@ class CameraController(private val appContext: Context) {
 
     // --- zoom / lens / flash ---------------------------------------------------------------
 
-    /** ratio <= 0.5 uses the widest available (linear zoom 0); otherwise absolute zoom ratio. */
-    fun setZoom(ratio: Float) {
-        val ctrl = camera?.cameraControl ?: return
-        if (ratio <= 0.6f) ctrl.setLinearZoom(0f) else ctrl.setZoomRatio(ratio.coerceIn(1f, maxZoom))
+    /** Absolute zoom ratio, clamped to the device range. Used for smooth animated zoom & pinch. */
+    fun setZoomAbsolute(ratio: Float) {
+        camera?.cameraControl?.setZoomRatio(ratio.coerceIn(minZoom, maxZoom))
     }
+
+    fun currentZoom(): Float = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: 1f
 
     fun toggleLens(owner: LifecycleOwner, previewView: PreviewView) {
         lensBack = !lensBack
@@ -147,18 +154,30 @@ class CameraController(private val appContext: Context) {
         )
     }
 
-    suspend fun capturePhoto(filter: FilterPreset): String {
-        val jpeg = captureJpeg()
-        val processed = applyFilter(jpeg, filter)
+    /** Capture a still. Optionally compose an AI-enhance matrix under the chosen [filter]. */
+    suspend fun capturePhoto(filter: FilterPreset, enhanceMatrix: FloatArray? = null): String {
+        return processAndSave(captureJpeg(), filter, enhanceMatrix)
+    }
+
+    /** Apply [filter] (and optional AI-enhance matrix) to an already captured JPEG and save it. */
+    fun processAndSave(jpeg: ByteArray, filter: FilterPreset, enhanceMatrix: FloatArray?): String {
+        val matrix = combinedMatrix(filter, enhanceMatrix)
+        val processed = if (matrix == null) jpeg else applyMatrix(jpeg, matrix)
         return saveToGallery(processed)
     }
 
-    private fun applyFilter(jpeg: ByteArray, filter: FilterPreset): ByteArray {
-        if (filter.isIdentity) return jpeg
+    private fun combinedMatrix(filter: FilterPreset, enhance: FloatArray?): FloatArray? = when {
+        enhance == null && filter.isIdentity -> null
+        enhance == null -> filter.matrix.copyOf()
+        filter.isIdentity -> enhance.copyOf()
+        else -> composeMatrices(enhance, filter.matrix) // enhance first, then filter
+    }
+
+    private fun applyMatrix(jpeg: ByteArray, matrix: FloatArray): ByteArray {
         val src = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return jpeg
         val out = Bitmap.createBitmap(src.width, src.height, Bitmap.Config.ARGB_8888)
         Canvas(out).drawBitmap(src, 0f, 0f, Paint().apply {
-            colorFilter = ColorMatrixColorFilter(ColorMatrix(filter.matrix.copyOf()))
+            colorFilter = ColorMatrixColorFilter(ColorMatrix(matrix.copyOf()))
         })
         val bos = ByteArrayOutputStream()
         out.compress(Bitmap.CompressFormat.JPEG, 95, bos)
