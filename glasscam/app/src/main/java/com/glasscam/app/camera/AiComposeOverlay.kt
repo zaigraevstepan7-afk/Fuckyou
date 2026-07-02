@@ -121,9 +121,9 @@ fun AiComposeCard(result: ComposeResult, modifier: Modifier = Modifier) {
                     modifier = Modifier.padding(top = 4.dp),
                 )
             }
-            if (result.filterLabel.isNotBlank() && result.filterId != "none") {
+            if (result.gradeLabel.isNotBlank()) {
                 Text(
-                    "Плёнка: ${result.filterLabel}",
+                    "Стиль: ${result.gradeLabel}",
                     color = Color(0xFF9CD8FF),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,

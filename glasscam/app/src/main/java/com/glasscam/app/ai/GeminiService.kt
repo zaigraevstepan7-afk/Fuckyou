@@ -3,7 +3,6 @@ package com.glasscam.app.ai
 import android.util.Base64
 import com.glasscam.app.BuildConfig
 import com.glasscam.app.filters.EnhanceParams
-import com.glasscam.app.filters.FilterPresets
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -14,9 +13,9 @@ import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 /**
- * Gemini generateContent REST client. Sends a camera frame + a Russian prompt and expects
- * a compact JSON object describing the scene, a composition tip, a recommended film filter,
- * an aiming hint and a suggested framing rectangle. Key/model come from BuildConfig.
+ * Gemini generateContent REST client. The AI fully drives the camera: it inspects a frame and
+ * returns scene/advice/hint, its own custom color grade (+ sharpen/grain), a framing rectangle,
+ * a suggested zoom and a "ready to shoot" flag. Key/model come from BuildConfig.
  */
 object GeminiService {
 
@@ -30,117 +29,99 @@ object GeminiService {
 
     fun hasKey(): Boolean = BuildConfig.GEMINI_API_KEY.isNotBlank()
 
-    private val allowedFilters: String get() = FilterPresets.all.joinToString(", ") { it.id }
-
-    private fun prompt(): String = """
-        Ты — ИИ-ассистент фотографа в режиме умной компоновки (как в приложении-камере).
-        Проанализируй кадр с камеры телефона и помоги снять лучший кадр.
-        Ответь СТРОГО одним JSON-объектом на русском языке, без markdown и пояснений:
+    private val composePrompt = """
+        Ты — ИИ-оператор камеры (режим умной съёмки). Проанализируй кадр и полностью управляй съёмкой.
+        Сам подбери красивый естественный цветокор (не пресет). Ответь СТРОГО одним JSON на русском,
+        без markdown:
         {
-          "scene": "<что в кадре, свет и цвета, до 12 слов>",
+          "scene": "<что в кадре, свет, цвет — до 12 слов>",
           "advice": "<совет по компоновке, 1 короткое предложение>",
-          "hint": "<куда навести/какой зум, 2-4 слова, напр. 'Наведите выше' или 'Приблизьте 2x'>",
-          "filter": "<один id из: $allowedFilters>",
-          "filter_label": "<короткое имя плёнки/фильтра для показа, напр. 'F 160C' или 'Тёплый'>",
-          "frame": {"x": <0..1>, "y": <0..1>, "w": <0..1>, "h": <0..1>}
+          "hint": "<куда навести, 2-4 слова>",
+          "grade_label": "<короткое имя стиля, напр. 'Тёплый плёночный'>",
+          "grade": {"exposure": <-1..1>, "contrast": <0.7..1.4>, "saturation": <0.6..1.6>,
+                    "warmth": <-1..1>, "shadows": <-1..1>, "sharpen": <0..1>, "grain": <0..1>},
+          "frame": {"x": <0..1>, "y": <0..1>, "w": <0..1>, "h": <0..1>},
+          "zoom": <1..8>,
+          "ready": <true|false>
         }
-        frame — рекомендованная рамка кадрирования в долях ширины/высоты (левый верхний угол x,y и размер w,h).
+        frame — рекомендованная рамка кадрирования (доли). zoom — рекомендованный зум.
+        ready=true только если кадр уже хорошо скомпонован и стоит снимать сейчас.
     """.trimIndent()
 
-    /** Analyze one JPEG frame. Fast path used by the continuous AI-compose loop. */
     suspend fun analyzeCompose(jpeg: ByteArray): Result<ComposeResult> = withContext(Dispatchers.IO) {
         if (!hasKey()) return@withContext Result.failure(IllegalStateException("NO_KEY"))
         try {
-            val b64 = Base64.encodeToString(jpeg, Base64.NO_WRAP)
-            val body = JSONObject().apply {
-                put("contents", org.json.JSONArray().put(JSONObject().apply {
-                    put("parts", org.json.JSONArray()
-                        .put(JSONObject().put("text", prompt()))
-                        .put(JSONObject().put("inline_data", JSONObject()
-                            .put("mime_type", "image/jpeg")
-                            .put("data", b64))))
-                }))
-                put("generationConfig", JSONObject()
-                    .put("responseMimeType", "application/json")
-                    .put("temperature", 0.6))
-            }.toString()
-
-            val url = "$ENDPOINT/${BuildConfig.GEMINI_MODEL}:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
-            val request = Request.Builder().url(url).post(body.toRequestBody(JSON)).build()
-            client.newCall(request).execute().use { resp ->
-                val text = resp.body?.string().orEmpty()
-                if (!resp.isSuccessful) {
-                    return@withContext Result.failure(RuntimeException(friendlyError(resp.code, text)))
-                }
-                Result.success(parse(text))
-            }
+            val text = request(jpeg, composePrompt).getOrElse { return@withContext Result.failure(it) }
+            Result.success(parseCompose(text))
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    private val enhancePrompt = """
-        Ты — ИИ-ретушёр. Оцени фотографию и предложи мягкую естественную коррекцию,
-        как хорошая камера (без пересыщения). Ответь СТРОГО одним JSON-объектом:
-        {"exposure": <-1..1>, "contrast": <0.7..1.4>, "saturation": <0.6..1.6>,
-         "warmth": <-1..1>, "shadows": <-1..1>, "highlights": <-1..1>}
-        exposure/shadows поднимают яркость и тени, warmth>0 — теплее, contrast и saturation — множители.
-    """.trimIndent()
-
-    /** Ask Gemini (vision) for gentle correction params for a captured photo. */
+    /** Standalone gentle enhancement params (used when AI-compose is off). */
     suspend fun suggestEnhancement(jpeg: ByteArray): Result<EnhanceParams> = withContext(Dispatchers.IO) {
         if (!hasKey()) return@withContext Result.failure(IllegalStateException("NO_KEY"))
         try {
-            val b64 = Base64.encodeToString(jpeg, Base64.NO_WRAP)
-            val body = JSONObject().apply {
-                put("contents", org.json.JSONArray().put(JSONObject().apply {
-                    put("parts", org.json.JSONArray()
-                        .put(JSONObject().put("text", enhancePrompt))
-                        .put(JSONObject().put("inline_data", JSONObject()
-                            .put("mime_type", "image/jpeg").put("data", b64))))
-                }))
-                put("generationConfig", JSONObject()
-                    .put("responseMimeType", "application/json").put("temperature", 0.3))
-            }.toString()
-            val url = "$ENDPOINT/${BuildConfig.GEMINI_MODEL}:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
-            val request = Request.Builder().url(url).post(body.toRequestBody(JSON)).build()
-            client.newCall(request).execute().use { resp ->
+            val prompt = "Ты — ИИ-ретушёр. Предложи мягкую естественную коррекцию фото. Ответь СТРОГО JSON: " +
+                "{\"exposure\":<-1..1>,\"contrast\":<0.7..1.4>,\"saturation\":<0.6..1.6>,\"warmth\":<-1..1>," +
+                "\"shadows\":<-1..1>,\"sharpen\":<0..1>,\"grain\":<0..1>}"
+            val text = request(jpeg, prompt).getOrElse { return@withContext Result.failure(it) }
+            Result.success(parseGrade(extractJson(text)))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private fun request(jpeg: ByteArray, prompt: String): Result<String> {
+        val b64 = Base64.encodeToString(jpeg, Base64.NO_WRAP)
+        val body = JSONObject().apply {
+            put("contents", org.json.JSONArray().put(JSONObject().apply {
+                put("parts", org.json.JSONArray()
+                    .put(JSONObject().put("text", prompt))
+                    .put(JSONObject().put("inline_data", JSONObject()
+                        .put("mime_type", "image/jpeg").put("data", b64))))
+            }))
+            put("generationConfig", JSONObject().put("responseMimeType", "application/json").put("temperature", 0.5))
+        }.toString()
+        val url = "$ENDPOINT/${BuildConfig.GEMINI_MODEL}:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
+        val req = Request.Builder().url(url).post(body.toRequestBody(JSON)).build()
+        return try {
+            client.newCall(req).execute().use { resp ->
                 val text = resp.body?.string().orEmpty()
-                if (!resp.isSuccessful) return@withContext Result.failure(RuntimeException(friendlyError(resp.code, text)))
-                val partText = JSONObject(text).getJSONArray("candidates").getJSONObject(0)
-                    .getJSONObject("content").getJSONArray("parts").getJSONObject(0).getString("text")
-                val o = JSONObject(partText.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim())
-                Result.success(EnhanceParams(
-                    exposure = o.optDouble("exposure", 0.0).toFloat(),
-                    contrast = o.optDouble("contrast", 1.0).toFloat(),
-                    saturation = o.optDouble("saturation", 1.0).toFloat(),
-                    warmth = o.optDouble("warmth", 0.0).toFloat(),
-                    shadows = o.optDouble("shadows", 0.0).toFloat(),
-                    highlights = o.optDouble("highlights", 0.0).toFloat(),
-                ))
+                if (!resp.isSuccessful) Result.failure(RuntimeException(friendlyError(resp.code)))
+                else Result.success(text)
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    private fun friendlyError(code: Int, body: String): String = when (code) {
-        400 -> "Ошибка запроса к Gemini (проверьте ключ)"
+    private fun friendlyError(code: Int): String = when (code) {
+        400 -> "Ошибка запроса к Gemini"
         403 -> "Ключ Gemini отклонён (403)"
-        429 -> "Слишком много запросов к Gemini, подождите"
+        429 -> "Лимит Gemini исчерпан, подождите"
         else -> "Gemini: HTTP $code"
     }
 
-    private fun parse(responseJson: String): ComposeResult {
-        val root = JSONObject(responseJson)
-        val partText = root.getJSONArray("candidates")
-            .getJSONObject(0).getJSONObject("content")
-            .getJSONArray("parts").getJSONObject(0).getString("text")
-        val obj = JSONObject(
-            partText.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim(),
-        )
-        val filterId = obj.optString("filter", "none").ifBlank { "none" }
-        val preset = FilterPresets.byId(filterId)
+    private fun extractJson(responseJson: String): JSONObject {
+        val partText = JSONObject(responseJson).getJSONArray("candidates").getJSONObject(0)
+            .getJSONObject("content").getJSONArray("parts").getJSONObject(0).getString("text")
+        return JSONObject(partText.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim())
+    }
+
+    private fun parseGrade(o: JSONObject): EnhanceParams = EnhanceParams(
+        exposure = o.optDouble("exposure", 0.0).toFloat(),
+        contrast = o.optDouble("contrast", 1.0).toFloat(),
+        saturation = o.optDouble("saturation", 1.0).toFloat(),
+        warmth = o.optDouble("warmth", 0.0).toFloat(),
+        shadows = o.optDouble("shadows", 0.0).toFloat(),
+        sharpen = o.optDouble("sharpen", 0.0).toFloat(),
+        grain = o.optDouble("grain", 0.0).toFloat(),
+    )
+
+    private fun parseCompose(responseJson: String): ComposeResult {
+        val obj = extractJson(responseJson)
+        val gradeObj = obj.optJSONObject("grade") ?: JSONObject()
         val frame = obj.optJSONObject("frame")?.let {
             NormRect(
                 it.optDouble("x", 0.1).toFloat().coerceIn(0f, 1f),
@@ -149,13 +130,16 @@ object GeminiService {
                 it.optDouble("h", 0.8).toFloat().coerceIn(0.1f, 1f),
             )
         }
+        val zoom = if (obj.has("zoom")) obj.optDouble("zoom", 1.0).toFloat().coerceIn(1f, 10f) else null
         return ComposeResult(
             scene = obj.optString("scene", "").trim(),
             advice = obj.optString("advice", "").trim(),
-            filterId = preset.id,
-            filterLabel = obj.optString("filter_label", preset.label).ifBlank { preset.label },
             hint = obj.optString("hint", "").trim(),
+            grade = parseGrade(gradeObj),
+            gradeLabel = obj.optString("grade_label", "").trim(),
             frame = frame,
+            zoom = zoom,
+            ready = obj.optBoolean("ready", false),
         )
     }
 }

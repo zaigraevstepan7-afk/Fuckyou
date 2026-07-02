@@ -30,14 +30,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import com.glasscam.app.camera.CameraScreen
-import com.glasscam.app.gallery.GalleryScreen
 import com.glasscam.app.glass.Glass
 import com.glasscam.app.glass.GlassCard
 import com.glasscam.app.glass.liquidGlass
 import com.glasscam.app.ui.GlassCamTheme
-import com.glasscam.app.ui.GlassTabBar
-import com.glasscam.app.ui.MeScreen
-import com.glasscam.app.ui.Tab
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,31 +48,14 @@ private fun App() {
     val context = LocalContext.current
     var hasCamera by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED,
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED,
         )
     }
-    var tab by remember { mutableStateOf(Tab.Camera) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { hasCamera = it }
 
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted -> hasCamera = granted }
-
-    Box(Modifier.fillMaxSize().background(Color(0xFF0B0E14))) {
-        if (!hasCamera) {
-            PermissionGate(onGrant = { launcher.launch(Manifest.permission.CAMERA) })
-        } else {
-            when (tab) {
-                Tab.Camera -> CameraScreen()
-                Tab.Album -> GalleryScreen()
-                Tab.Me -> MeScreen()
-            }
-            GlassTabBar(
-                selected = tab,
-                onSelect = { tab = it },
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 30.dp),
-            )
-        }
+    Box(Modifier.fillMaxSize().background(Color(0xFF06080D))) {
+        if (hasCamera) CameraScreen()
+        else PermissionGate(onGrant = { launcher.launch(Manifest.permission.CAMERA) })
     }
 }
 
@@ -87,20 +66,14 @@ private fun PermissionGate(onGrant: () -> Unit) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("Нужен доступ к камере", color = Glass.tint, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                 Text(
-                    "Чтобы снимать фото и использовать ИИ-анализ кадра, разрешите доступ к камере.",
-                    color = Glass.tint.copy(alpha = 0.8f),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 10.dp),
+                    "Чтобы снимать и использовать ИИ-съёмку, разрешите доступ к камере.",
+                    color = Glass.tint.copy(alpha = 0.8f), textAlign = TextAlign.Center, modifier = Modifier.padding(top = 10.dp),
                 )
                 Box(
-                    Modifier
-                        .padding(top = 18.dp)
+                    Modifier.padding(top = 18.dp)
                         .liquidGlass(Glass.shapeCapsule, alphaTop = 0.4f, alphaBottom = 0.18f)
-                        .clickable(onClick = onGrant)
-                        .padding(horizontal = 26.dp, vertical = 12.dp),
-                ) {
-                    Text("Разрешить", color = Glass.tint, fontWeight = FontWeight.SemiBold)
-                }
+                        .clickable(onClick = onGrant).padding(horizontal = 26.dp, vertical = 12.dp),
+                ) { Text("Разрешить", color = Glass.tint, fontWeight = FontWeight.SemiBold) }
             }
         }
     }

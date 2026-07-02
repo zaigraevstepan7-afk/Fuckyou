@@ -1,17 +1,22 @@
 package com.glasscam.app.ai
 
+import com.glasscam.app.filters.EnhanceParams
+
 /**
- * Rich result of a Gemini "smart compose" analysis — mirrors what Doka Cam shows in
- * AI Compose: a scene description, a composition tip, a recommended film filter, an
- * on-screen aiming hint and a suggested framing rectangle (normalized 0..1 coords).
+ * Rich result of a Gemini "smart compose" analysis. The AI drives everything: it describes
+ * the scene, gives a composition tip, chooses its own custom color grade (not limited to
+ * fixed presets), a short grade label, an aiming hint, a suggested framing rectangle, a
+ * suggested zoom, and whether this is a good moment to auto-shoot.
  */
 data class ComposeResult(
-    val scene: String,        // "Парк, зелёные деревья, ясное небо…"
-    val advice: String,       // "Правило третей, сбалансируйте крону и людей"
-    val filterId: String,     // matches FilterPreset.id
-    val filterLabel: String,  // human label, e.g. "F 160C"
-    val hint: String,         // "Наведите чуть выше" / "Приблизьте 2×"
-    val frame: NormRect?,     // recommended crop, drawn as an iridescent rectangle
+    val scene: String,
+    val advice: String,
+    val hint: String,
+    val grade: EnhanceParams,   // AI-chosen custom look (exposure/contrast/sat/warmth/sharpen/grain…)
+    val gradeLabel: String,     // e.g. "Тёплый плёночный"
+    val frame: NormRect?,       // recommended crop → drawn as the iridescent frame + auto-zoom target
+    val zoom: Float?,           // suggested zoom ratio
+    val ready: Boolean,         // good moment to auto-capture
 )
 
 /** Normalized rectangle in preview space (0..1). */

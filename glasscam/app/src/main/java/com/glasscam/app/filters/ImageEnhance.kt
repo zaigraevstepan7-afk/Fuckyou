@@ -14,6 +14,8 @@ data class EnhanceParams(
     val warmth: Float = 0f,      // -1..1
     val shadows: Float = 0f,     // -1..1 (lift shadows)
     val highlights: Float = 0f,  // -1..1 (unused in matrix, kept for future)
+    val sharpen: Float = 0f,     // 0..1 (unsharp mask amount)
+    val grain: Float = 0f,       // 0..1 (film grain amount)
 ) {
     fun toMatrix(): FloatArray {
         val lift = exposure * 34f + shadows * 16f
