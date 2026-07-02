@@ -207,7 +207,7 @@ fun CameraScreen() {
                     aiError = res.exceptionOrNull()?.message
                 }
             }
-            delay(6000)
+            delay(3500)
         }
     }
 
@@ -228,19 +228,30 @@ fun CameraScreen() {
         }
     }
 
-    // Reliable auto-capture: when the AI marks the frame ready and the phone is steady, shoot.
+    // Auto-capture with a hard deadline: shoot as soon as the AI says the frame is ready and the
+    // phone is steady, but NEVER wait longer than ~9s after turning AI on (or after the last shot)
+    // — so from tapping ИИ to a photo is at most ~10s even if the AI never flags "ready".
     val steadyState = rememberUpdatedState(isSteady)
     val capturingState = rememberUpdatedState(capturing)
+    val busyState = rememberUpdatedState(capturing || enhancing || videoMode)
     val readyState = rememberUpdatedState(aiOn && aiResult?.ready == true && aiResult?.frame != null && !videoMode)
     LaunchedEffect(aiOn) {
+        if (!aiOn) return@LaunchedEffect
+        var deadline = System.currentTimeMillis() + 9000L
         while (isActive && aiOn) {
-            if (readyState.value && steadyState.value && !capturingState.value &&
-                System.currentTimeMillis() - autoCoolDown > 3500
-            ) {
-                autoCoolDown = System.currentTimeMillis()
-                shoot(false)
+            val now = System.currentTimeMillis()
+            if (!busyState.value) {
+                val readyNow = readyState.value && steadyState.value && now - autoCoolDown > 2500L
+                if (readyNow || now >= deadline) {
+                    autoCoolDown = now
+                    deadline = now + 9000L
+                    shoot(false)
+                }
+            } else if (now >= deadline) {
+                // stay armed but push the deadline while we're busy processing the previous shot
+                deadline = now + 3000L
             }
-            delay(200)
+            delay(150)
         }
     }
 

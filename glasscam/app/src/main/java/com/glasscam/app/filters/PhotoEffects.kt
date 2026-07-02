@@ -31,16 +31,26 @@ data class PhotoEffects(
     fun isNoop(): Boolean =
         bloom < 0.02f && vignette < 0.02f && grain < 0.02f && chroma < 0.02f && clarity < 0.02f
 
+    /** Clamp to a safe, non-blowout range (bloom on a bright scene is the main risk). */
+    fun safe() = copy(
+        bloom = bloom.coerceIn(0f, 0.4f),
+        vignette = vignette.coerceIn(0f, 0.4f),
+        grain = grain.coerceIn(0f, 0.5f),
+        chroma = chroma.coerceIn(0f, 0.4f),
+        clarity = clarity.coerceIn(0f, 0.6f),
+    )
+
     companion object {
-        /** Sensible default look when the AI isn't driving effects. */
-        fun auto() = PhotoEffects(bloom = 0.18f, vignette = 0.22f, grain = 0.06f, chroma = 0.05f, clarity = 0.2f)
+        /** Default look when the AI isn't driving effects — subtle, never blows highlights. */
+        fun auto() = PhotoEffects(bloom = 0.08f, vignette = 0.14f, grain = 0.05f, chroma = 0.04f, clarity = 0.15f)
     }
 }
 
 object PhotoEffectsRenderer {
 
     /** Apply the AI effect stack to [src], returning a new bitmap ([src] is left untouched). */
-    fun render(src: Bitmap, fx: PhotoEffects): Bitmap {
+    fun render(src: Bitmap, raw: PhotoEffects): Bitmap {
+        val fx = raw.safe()
         if (fx.isNoop()) return src
         val w = src.width; val h = src.height
         val out = src.copy(Bitmap.Config.ARGB_8888, true)
@@ -54,7 +64,7 @@ object PhotoEffectsRenderer {
             val blur = Bitmap.createScaledBitmap(down, w, h, true); down.recycle()
             canvas.drawBitmap(blur, 0f, 0f, Paint().apply {
                 xfermode = PorterDuffXfermode(PorterDuff.Mode.SCREEN)
-                alpha = (fx.bloom * 200f).toInt().coerceIn(0, 255)
+                alpha = (fx.bloom * 140f).toInt().coerceIn(0, 255)
             })
             blur.recycle()
         }

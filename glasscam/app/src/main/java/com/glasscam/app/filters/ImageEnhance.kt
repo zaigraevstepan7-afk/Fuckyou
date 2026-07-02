@@ -18,11 +18,11 @@ data class EnhanceParams(
     val grain: Float = 0f,       // 0..1 (film grain amount)
 ) {
     fun toMatrix(): FloatArray {
-        val c = contrast.coerceIn(0.6f, 1.9f)
-        // Exposure + shadow lift, plus a midpoint pivot so contrast brightens/darkens around
-        // mid-grey (128) instead of around black — that's what makes the grade actually read.
-        val lift = exposure * 42f + shadows * 22f + 127.5f * (1f - c)
-        val cm = ColorMatrix().apply { setSaturation(saturation.coerceIn(0f, 2.4f)) }
+        val c = contrast.coerceIn(0.7f, 1.45f)
+        // Exposure + shadow lift, plus a midpoint pivot so contrast pivots around mid-grey (128).
+        // Multipliers are deliberately modest so a bright scene doesn't blow out to white.
+        val lift = exposure * 26f + shadows * 14f + 127.5f * (1f - c)
+        val cm = ColorMatrix().apply { setSaturation(saturation.coerceIn(0f, 1.7f)) }
         cm.postConcat(ColorMatrix(floatArrayOf(
             c, 0f, 0f, 0f, lift,
             0f, c, 0f, 0f, lift,
@@ -30,10 +30,11 @@ data class EnhanceParams(
             0f, 0f, 0f, 1f, 0f,
         )))
         if (warmth != 0f) {
+            // Gentle warm/cool tint. Kept small so already-warm (tungsten) rooms don't go orange.
             cm.postConcat(ColorMatrix(floatArrayOf(
-                1f + warmth * 0.18f, 0f, 0f, 0f, warmth * 10f,
+                1f + warmth * 0.10f, 0f, 0f, 0f, warmth * 5f,
                 0f, 1f, 0f, 0f, 0f,
-                0f, 0f, 1f - warmth * 0.18f, 0f, -warmth * 10f,
+                0f, 0f, 1f - warmth * 0.10f, 0f, -warmth * 5f,
                 0f, 0f, 0f, 1f, 0f,
             )))
         }
@@ -41,26 +42,26 @@ data class EnhanceParams(
     }
 
     /**
-     * Guarantee a visible grade. AI often returns near-neutral values (exposure≈0, contrast≈1,
-     * saturation≈1) which produce an identity matrix and no visible change — so we floor every
-     * parameter to a punchy minimum. The processed photo is then always clearly better than stock.
+     * Keep the grade visible but SAFE. AI values are clamped to a natural window: exposure can't
+     * blow highlights, warmth isn't forced (so a warm room stays true, not orange), saturation and
+     * contrast get a mild floor so the photo still reads punchier than stock.
      */
     fun boosted(): EnhanceParams = EnhanceParams(
-        exposure = exposure.coerceIn(0.04f, 1f),
-        contrast = contrast.coerceAtLeast(1.16f),
-        saturation = saturation.coerceAtLeast(1.24f),
-        warmth = if (kotlin.math.abs(warmth) < 0.05f) 0.07f else warmth,
-        shadows = shadows.coerceAtLeast(0.12f),
+        exposure = exposure.coerceIn(-0.35f, 0.22f),
+        contrast = contrast.coerceIn(1.06f, 1.32f),
+        saturation = saturation.coerceIn(1.05f, 1.35f),
+        warmth = warmth.coerceIn(-0.45f, 0.45f),   // no forced warmth — respect the scene
+        shadows = shadows.coerceIn(0f, 0.35f),
         highlights = highlights,
-        sharpen = sharpen.coerceAtLeast(0.6f),
+        sharpen = sharpen.coerceAtLeast(0.5f),
         grain = grain,
     )
 
     companion object {
-        /** Default "auto-enhance" look used when the AI isn't driving the grade. */
+        /** Default "auto-enhance" look used when the AI isn't driving the grade — neutral & gentle. */
         fun auto(): EnhanceParams = EnhanceParams(
-            exposure = 0.06f, contrast = 1.22f, saturation = 1.32f,
-            warmth = 0.08f, shadows = 0.16f, sharpen = 0.7f,
+            exposure = 0f, contrast = 1.12f, saturation = 1.14f,
+            warmth = 0f, shadows = 0.08f, sharpen = 0.55f,
         )
     }
 }
