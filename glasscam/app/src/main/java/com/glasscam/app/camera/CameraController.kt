@@ -7,8 +7,10 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.BitmapRegionDecoder
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.Rect
 import android.provider.MediaStore
 import android.util.Range
 import androidx.camera.core.CameraSelector
@@ -30,6 +32,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.glasscam.app.filters.EnhanceParams
 import com.glasscam.app.filters.PhotoEffects
 import com.glasscam.app.filters.PhotoEffectsRenderer
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executors
@@ -38,6 +41,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 enum class CaptureMode { PHOTO, VIDEO }
+
+/** Photo sub-modes: normal, low-light frame stacking, exposure-bracket HDR, and portrait bokeh. */
+enum class PhotoMode { AUTO, NIGHT, HDR, PORTRAIT }
 
 data class VideoConfig(val quality: Quality = Quality.FHD, val fps: Int = 30, val stabilize: Boolean = true)
 
@@ -160,6 +166,144 @@ class CameraController(private val appContext: Context) {
             }
             override fun onError(exc: ImageCaptureException) = cont.resumeWithException(exc)
         })
+    }
+
+    /** Night mode: capture a burst and average the frames to cut sensor noise in the shadows. */
+    suspend fun captureNight(frames: Int = 5): ByteArray {
+        val shots = ArrayList<ByteArray>()
+        repeat(frames) { runCatching { shots.add(captureJpeg()) } }
+        return if (shots.size < 2) shots.firstOrNull() ?: captureJpeg() else stackAverage(shots)
+    }
+
+    /** HDR: exposure-bracket (−/0/+ EV) and fuse by per-pixel well-exposedness (Mertens-style). */
+    suspend fun captureHdr(): ByteArray {
+        val es = camera?.cameraInfo?.exposureState
+        if (es == null || !es.isExposureCompensationSupported) return captureJpeg()
+        val step = es.exposureCompensationStep.toFloat()
+        val range = es.exposureCompensationRange
+        val idx = if (step > 0f) (1.3f / step).toInt() else 0
+        val lo = (-idx).coerceAtLeast(range.lower); val hi = idx.coerceAtMost(range.upper)
+        val evs = listOf(lo, 0, hi).distinct()
+        val shots = ArrayList<ByteArray>()
+        for (e in evs) { setExposureAndSettle(e); runCatching { shots.add(captureJpeg()) } }
+        setExposureAndSettle(0)
+        return if (shots.size < 2) shots.firstOrNull() ?: captureJpeg() else exposureFusion(shots)
+    }
+
+    private suspend fun setExposureAndSettle(index: Int) {
+        runCatching { camera?.cameraControl?.setExposureCompensationIndex(index) }
+        delay(340)
+    }
+
+    /** Average N JPEGs region-by-region (memory-light) → cleaner low-light result. */
+    private fun stackAverage(shots: List<ByteArray>): ByteArray {
+        val decs = shots.mapNotNull { runCatching { BitmapRegionDecoder.newInstance(it, 0, it.size, false) }.getOrNull() }
+        if (decs.size < 2) return shots[0]
+        val w = decs[0].width; val h = decs[0].height
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val opts = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 }
+        val rows = 96; val region = Rect(); val n = decs.size
+        val frame = IntArray(w * rows); val outStrip = IntArray(w * rows)
+        val sr = IntArray(w * rows); val sg = IntArray(w * rows); val sb = IntArray(w * rows)
+        var y = 0
+        while (y < h) {
+            val hh = minOf(rows, h - y); val cnt = w * hh
+            java.util.Arrays.fill(sr, 0, cnt, 0); java.util.Arrays.fill(sg, 0, cnt, 0); java.util.Arrays.fill(sb, 0, cnt, 0)
+            region.set(0, y, w, y + hh)
+            for (d in decs) {
+                val b = runCatching { d.decodeRegion(region, opts) }.getOrNull() ?: continue
+                b.getPixels(frame, 0, w, 0, 0, w, hh); b.recycle()
+                for (i in 0 until cnt) { val p = frame[i]; sr[i] += p shr 16 and 0xFF; sg[i] += p shr 8 and 0xFF; sb[i] += p and 0xFF }
+            }
+            for (i in 0 until cnt) {
+                outStrip[i] = (0xFF shl 24) or ((sr[i] / n) shl 16) or ((sg[i] / n) shl 8) or (sb[i] / n)
+            }
+            out.setPixels(outStrip, 0, w, 0, y, w, hh); y += hh
+        }
+        decs.forEach { it.recycle() }
+        val bos = ByteArrayOutputStream(); out.compress(Bitmap.CompressFormat.JPEG, 95, bos); out.recycle()
+        return bos.toByteArray()
+    }
+
+    /** Fuse bracketed exposures weighting each pixel by how well-exposed it is (peak at mid-grey). */
+    private fun exposureFusion(shots: List<ByteArray>): ByteArray {
+        val decs = shots.mapNotNull { runCatching { BitmapRegionDecoder.newInstance(it, 0, it.size, false) }.getOrNull() }
+        if (decs.size < 2) return shots[0]
+        val w = decs[0].width; val h = decs[0].height
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val opts = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 }
+        val rows = 96; val region = Rect()
+        val frames = Array(decs.size) { IntArray(w * rows) }
+        val outStrip = IntArray(w * rows)
+        var y = 0
+        while (y < h) {
+            val hh = minOf(rows, h - y); val cnt = w * hh
+            region.set(0, y, w, y + hh)
+            for (k in decs.indices) {
+                val b = runCatching { decs[k].decodeRegion(region, opts) }.getOrNull()
+                if (b != null) { b.getPixels(frames[k], 0, w, 0, 0, w, hh); b.recycle() }
+            }
+            for (i in 0 until cnt) {
+                var wsum = 1e-3f; var rr = 0f; var gg = 0f; var bb = 0f
+                for (k in decs.indices) {
+                    val p = frames[k][i]
+                    val r = p shr 16 and 0xFF; val g = p shr 8 and 0xFF; val b = p and 0xFF
+                    val lum = (r * 0.299f + g * 0.587f + b * 0.114f) / 255f
+                    val d = lum - 0.5f
+                    val we = kotlin.math.exp(-(d * d) / (2f * 0.2f * 0.2f)) + 1e-3f
+                    wsum += we; rr += we * r; gg += we * g; bb += we * b
+                }
+                val r = (rr / wsum).toInt().coerceIn(0, 255)
+                val g = (gg / wsum).toInt().coerceIn(0, 255)
+                val b = (bb / wsum).toInt().coerceIn(0, 255)
+                outStrip[i] = (0xFF shl 24) or (r shl 16) or (g shl 8) or b
+            }
+            out.setPixels(outStrip, 0, w, 0, y, w, hh); y += hh
+        }
+        decs.forEach { it.recycle() }
+        val bos = ByteArrayOutputStream(); out.compress(Bitmap.CompressFormat.JPEG, 95, bos); out.recycle()
+        return bos.toByteArray()
+    }
+
+    /** Portrait bokeh: keep a central subject zone sharp, progressively blur the surround. */
+    fun applyPortraitBlur(jpeg: ByteArray): ByteArray {
+        val src = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return jpeg
+        val w = src.width; val h = src.height
+        // Cheap large-radius blur via down/up-scale.
+        val down = Bitmap.createScaledBitmap(src, (w / 10).coerceAtLeast(1), (h / 10).coerceAtLeast(1), true)
+        val blur = Bitmap.createScaledBitmap(down, w, h, true); down.recycle()
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        // Subject ellipse: centred horizontally, a bit above middle (typical portrait head/torso).
+        val cx = w * 0.5f; val cy = h * 0.44f
+        val rx = w * 0.34f; val ry = h * 0.40f
+        val feather = 0.35f
+        val rows = 128
+        val so = IntArray(w * rows); val bo = IntArray(w * rows); val res = IntArray(w * rows)
+        var y = 0
+        while (y < h) {
+            val hh = minOf(rows, h - y); val cnt = w * hh
+            src.getPixels(so, 0, w, 0, y, w, hh)
+            blur.getPixels(bo, 0, w, 0, y, w, hh)
+            for (i in 0 until cnt) {
+                val px = i % w; val py = y + i / w
+                val nx = (px - cx) / rx; val ny = (py - cy) / ry
+                val d = kotlin.math.sqrt(nx * nx + ny * ny)          // 0 centre, 1 ellipse edge
+                val t = ((d - (1f - feather)) / feather).coerceIn(0f, 1f) // 0 sharp → 1 blurred
+                res[i] = if (t <= 0f) so[i] else if (t >= 1f) bo[i] else mixArgb(so[i], bo[i], t)
+            }
+            out.setPixels(res, 0, w, 0, y, w, hh); y += hh
+        }
+        blur.recycle(); src.recycle()
+        val bos = ByteArrayOutputStream(); out.compress(Bitmap.CompressFormat.JPEG, 95, bos); out.recycle()
+        return bos.toByteArray()
+    }
+
+    private fun mixArgb(a: Int, b: Int, t: Float): Int {
+        val ia = 1f - t
+        val r = ((a shr 16 and 0xFF) * ia + (b shr 16 and 0xFF) * t).toInt()
+        val g = ((a shr 8 and 0xFF) * ia + (b shr 8 and 0xFF) * t).toInt()
+        val bb = ((a and 0xFF) * ia + (b and 0xFF) * t).toInt()
+        return (0xFF shl 24) or (r shl 16) or (g shl 8) or bb
     }
 
     /** Full save pipeline: grade + curve + sharpen + effects, then auto-straighten and watermark. */

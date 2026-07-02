@@ -137,6 +137,7 @@ fun CameraScreen() {
     var recording by remember { mutableStateOf(false) }
 
     var flashOn by remember { mutableStateOf(false) }
+    var photoMode by remember { mutableStateOf(PhotoMode.AUTO) }
     var showGrid by remember { mutableStateOf(false) }
     var zoom by remember { mutableStateOf(1f) }
     var aiOn by remember { mutableStateOf(false) }
@@ -174,12 +175,20 @@ fun CameraScreen() {
         // background so the UI never lags and you can shoot again immediately.
         capturing = true
         // Snapshot the look now: AI grade + AI-composed effect stack (or a strong auto look).
-        val grade = (if (aiOn) aiResult?.grade else null)?.boosted() ?: EnhanceParams.auto()
+        val baseGrade = (if (aiOn) aiResult?.grade else null)?.boosted() ?: EnhanceParams.auto()
+        // Night mode lifts shadows/exposure a touch since we've already denoised via stacking.
+        val grade = if (photoMode == PhotoMode.NIGHT)
+            baseGrade.copy(exposure = baseGrade.exposure + 0.08f, shadows = baseGrade.shadows + 0.22f) else baseGrade
         val effects = (if (aiOn) aiResult?.effects else null) ?: PhotoEffects.auto()
         val straightenDeg = roll   // auto-horizon: snapshot the tilt at capture
         val wm = watermark
+        val mode = photoMode
         val jpeg = try {
-            controller.captureJpeg()
+            when (mode) {
+                PhotoMode.NIGHT -> controller.captureNight()
+                PhotoMode.HDR -> controller.captureHdr()
+                else -> controller.captureJpeg()
+            }
         } catch (e: Exception) {
             toast = e.message ?: "Ошибка съёмки"; capturing = false; return@launch
         }
@@ -188,8 +197,17 @@ fun CameraScreen() {
         enhancing = true
         scope.launch(Dispatchers.Default) {
             runCatching {
-                val uri = controller.processAndSave(jpeg, grade, effects, straightenDeg, wm)
-                withContext(Dispatchers.Main) { lastShot = uri; toast = if (aiOn) "ИИ обработал фото" else "Фото готово" }
+                val shot = if (mode == PhotoMode.PORTRAIT) controller.applyPortraitBlur(jpeg) else jpeg
+                val uri = controller.processAndSave(shot, grade, effects, straightenDeg, wm)
+                withContext(Dispatchers.Main) {
+                    lastShot = uri
+                    toast = when (mode) {
+                        PhotoMode.NIGHT -> "Ночь: кадр собран"
+                        PhotoMode.HDR -> "HDR готов"
+                        PhotoMode.PORTRAIT -> "Портрет готов"
+                        else -> if (aiOn) "ИИ обработал фото" else "Фото готово"
+                    }
+                }
             }
             withContext(Dispatchers.Main) { enhancing = false }
         }
@@ -355,6 +373,25 @@ fun CameraScreen() {
                         ) {
                             Text(if (sel) "$lbl×" else lbl, color = if (sel) Color(0xFF06121F) else Glass.tint,
                                 fontSize = 13.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal)
+                        }
+                    }
+                }
+            }
+            if (!videoMode) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    listOf(
+                        PhotoMode.AUTO to "Авто", PhotoMode.NIGHT to "Ночь",
+                        PhotoMode.HDR to "HDR", PhotoMode.PORTRAIT to "Портрет",
+                    ).forEach { (m, label) ->
+                        val sel = photoMode == m
+                        Box(
+                            Modifier.clip(RoundedCornerShape(percent = 50))
+                                .background(if (sel) Color(0xFF9CD8FF).copy(alpha = 0.92f) else Color.White.copy(alpha = 0.08f))
+                                .clickable { photoMode = m }
+                                .padding(horizontal = 14.dp, vertical = 6.dp),
+                        ) {
+                            Text(label, color = if (sel) Color(0xFF06121F) else Glass.tint,
+                                fontSize = 12.sp, fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal)
                         }
                     }
                 }
