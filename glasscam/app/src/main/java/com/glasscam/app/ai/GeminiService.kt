@@ -3,6 +3,7 @@ package com.glasscam.app.ai
 import android.util.Base64
 import com.glasscam.app.BuildConfig
 import com.glasscam.app.filters.EnhanceParams
+import com.glasscam.app.filters.PhotoEffects
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -40,10 +41,18 @@ object GeminiService {
           "grade_label": "<короткое имя стиля, напр. 'Тёплый плёночный'>",
           "grade": {"exposure": <-1..1>, "contrast": <0.7..1.4>, "saturation": <0.6..1.6>,
                     "warmth": <-1..1>, "shadows": <-1..1>, "sharpen": <0..1>, "grain": <0..1>},
+          "effects": {"bloom": <0..1>, "vignette": <0..1>, "glow_warmth": <-1..1>,
+                      "grain": <0..1>, "chroma": <0..1>, "clarity": <0..1>,
+                      "label": "<имя эффекта, напр. 'Золотой час'>"},
           "frame": {"x": <0..1>, "y": <0..1>, "w": <0..1>, "h": <0..1>},
           "zoom": <1..8>,
           "ready": <true|false>
         }
+        effects — творческий набор эффектов ПОД ЭТУ сцену (ты сам собираешь «шейдер» момента):
+        bloom — мягкое свечение бликов, vignette — затемнение краёв, glow_warmth — тепло свечения,
+        grain — плёночное зерно, chroma — лёгкая дисперсия по краям, clarity — локальный контраст.
+        Подбирай эффекты осмысленно: закат — тёплый bloom и vignette; ночь/неон — chroma и лёгкое зерно;
+        портрет — мягкий bloom и vignette; пейзаж — clarity. Не переусердствуй, фото должно быть красивым.
         frame — рекомендованная рамка кадрирования (доли). zoom — рекомендованный зум.
         ready=true только если кадр уже хорошо скомпонован и стоит снимать сейчас.
     """.trimIndent()
@@ -119,9 +128,20 @@ object GeminiService {
         grain = o.optDouble("grain", 0.0).toFloat(),
     )
 
+    private fun parseEffects(o: JSONObject): PhotoEffects = PhotoEffects(
+        bloom = o.optDouble("bloom", 0.0).toFloat().coerceIn(0f, 1f),
+        vignette = o.optDouble("vignette", 0.0).toFloat().coerceIn(0f, 1f),
+        glowWarmth = o.optDouble("glow_warmth", 0.0).toFloat().coerceIn(-1f, 1f),
+        grain = o.optDouble("grain", 0.0).toFloat().coerceIn(0f, 1f),
+        chroma = o.optDouble("chroma", 0.0).toFloat().coerceIn(0f, 1f),
+        clarity = o.optDouble("clarity", 0.0).toFloat().coerceIn(0f, 1f),
+        label = o.optString("label", "").trim(),
+    )
+
     private fun parseCompose(responseJson: String): ComposeResult {
         val obj = extractJson(responseJson)
         val gradeObj = obj.optJSONObject("grade") ?: JSONObject()
+        val effects = obj.optJSONObject("effects")?.let { parseEffects(it) } ?: PhotoEffects.auto()
         val frame = obj.optJSONObject("frame")?.let {
             // keep the frame a sensible sub-rect (never full-screen) and inside bounds
             val fw = it.optDouble("w", 0.62).toFloat().coerceIn(0.35f, 0.8f)
@@ -140,6 +160,7 @@ object GeminiService {
             frame = frame,
             zoom = zoom,
             ready = obj.optBoolean("ready", false),
+            effects = effects,
         )
     }
 }

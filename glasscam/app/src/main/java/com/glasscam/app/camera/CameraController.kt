@@ -28,6 +28,8 @@ import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.glasscam.app.filters.EnhanceParams
+import com.glasscam.app.filters.PhotoEffects
+import com.glasscam.app.filters.PhotoEffectsRenderer
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executors
@@ -152,27 +154,33 @@ class CameraController(private val appContext: Context) {
         })
     }
 
-    /** Apply an AI [grade] (color matrix + sharpen) to a captured JPEG and save it. Returns its Uri. */
-    fun processAndSave(jpeg: ByteArray, grade: EnhanceParams?): android.net.Uri {
-        val out = if (grade == null) jpeg else gradeJpeg(jpeg, grade)
+    /** Apply an AI [grade] (color matrix + sharpen) and [effects] to a captured JPEG and save it. */
+    fun processAndSave(jpeg: ByteArray, grade: EnhanceParams?, effects: PhotoEffects? = null): android.net.Uri {
+        val out = if (grade == null && effects == null) jpeg else gradeJpeg(jpeg, grade, effects)
         return saveJpeg(out)
     }
 
     /** Re-apply an AI [grade] to an already-saved image, overwriting it in place (background enhance). */
     fun enhanceSavedInPlace(uri: android.net.Uri, grade: EnhanceParams) {
         val input = appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-        val out = gradeJpeg(input, grade)
+        val out = gradeJpeg(input, grade, null)
         appContext.contentResolver.openOutputStream(uri, "wt")?.use { it.write(out) }
     }
 
-    private fun gradeJpeg(jpeg: ByteArray, grade: EnhanceParams): ByteArray {
+    private fun gradeJpeg(jpeg: ByteArray, grade: EnhanceParams?, effects: PhotoEffects?): ByteArray {
         var bmp = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return jpeg
-        val graded = Bitmap.createBitmap(bmp.width, bmp.height, Bitmap.Config.ARGB_8888)
-        Canvas(graded).drawBitmap(bmp, 0f, 0f, Paint().apply {
-            colorFilter = ColorMatrixColorFilter(ColorMatrix(grade.toMatrix()))
-        })
-        bmp.recycle(); bmp = graded
-        if (grade.sharpen > 0.02f) bmp = unsharp(bmp, grade.sharpen)
+        if (grade != null) {
+            val graded = Bitmap.createBitmap(bmp.width, bmp.height, Bitmap.Config.ARGB_8888)
+            Canvas(graded).drawBitmap(bmp, 0f, 0f, Paint().apply {
+                colorFilter = ColorMatrixColorFilter(ColorMatrix(grade.toMatrix()))
+            })
+            bmp.recycle(); bmp = graded
+            if (grade.sharpen > 0.02f) bmp = unsharp(bmp, grade.sharpen)
+        }
+        if (effects != null && !effects.isNoop()) {
+            val fx = PhotoEffectsRenderer.render(bmp, effects)
+            if (fx !== bmp) { bmp.recycle(); bmp = fx }
+        }
         val bos = ByteArrayOutputStream(); bmp.compress(Bitmap.CompressFormat.JPEG, 95, bos); bmp.recycle()
         return bos.toByteArray()
     }
@@ -188,22 +196,31 @@ class CameraController(private val appContext: Context) {
         val blurFine = Bitmap.createScaledBitmap(half, w, h, true); half.recycle()
         val quarter = Bitmap.createScaledBitmap(src, (w / 4).coerceAtLeast(1), (h / 4).coerceAtLeast(1), true)
         val blurCoarse = Bitmap.createScaledBitmap(quarter, w, h, true); quarter.recycle()
-        val orig = IntArray(w * h); val bf = IntArray(w * h); val bc = IntArray(w * h)
-        src.getPixels(orig, 0, w, 0, 0, w, h)
-        blurFine.getPixels(bf, 0, w, 0, 0, w, h); blurFine.recycle()
-        blurCoarse.getPixels(bc, 0, w, 0, 0, w, h); blurCoarse.recycle()
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val kf = amount * 1.15f  // fine edge detail
         val kc = amount * 0.45f  // clarity / local contrast
-        for (i in orig.indices) {
-            val o = orig[i]; val f = bf[i]; val c = bc[i]
-            val or = o shr 16 and 0xFF; val og = o shr 8 and 0xFF; val ob = o and 0xFF
-            val r = (or + kf * (or - (f shr 16 and 0xFF)) + kc * (or - (c shr 16 and 0xFF))).toInt().coerceIn(0, 255)
-            val g = (og + kf * (og - (f shr 8 and 0xFF)) + kc * (og - (c shr 8 and 0xFF))).toInt().coerceIn(0, 255)
-            val bb = (ob + kf * (ob - (f and 0xFF)) + kc * (ob - (c and 0xFF))).toInt().coerceIn(0, 255)
-            orig[i] = (0xFF shl 24) or (r shl 16) or (g shl 8) or bb
+        // Process in row strips so peak memory stays tiny (a few MB) instead of ~3×full-res int
+        // arrays — avoids the GC pauses that could jank the render thread while we work.
+        val rows = 128
+        val o = IntArray(w * rows); val f = IntArray(w * rows); val c = IntArray(w * rows)
+        var y = 0
+        while (y < h) {
+            val hh = minOf(rows, h - y); val n = w * hh
+            src.getPixels(o, 0, w, 0, y, w, hh)
+            blurFine.getPixels(f, 0, w, 0, y, w, hh)
+            blurCoarse.getPixels(c, 0, w, 0, y, w, hh)
+            for (i in 0 until n) {
+                val oo = o[i]; val ff = f[i]; val cc = c[i]
+                val or = oo shr 16 and 0xFF; val og = oo shr 8 and 0xFF; val ob = oo and 0xFF
+                val r = (or + kf * (or - (ff shr 16 and 0xFF)) + kc * (or - (cc shr 16 and 0xFF))).toInt().coerceIn(0, 255)
+                val g = (og + kf * (og - (ff shr 8 and 0xFF)) + kc * (og - (cc shr 8 and 0xFF))).toInt().coerceIn(0, 255)
+                val bb = (ob + kf * (ob - (ff and 0xFF)) + kc * (ob - (cc and 0xFF))).toInt().coerceIn(0, 255)
+                o[i] = (0xFF shl 24) or (r shl 16) or (g shl 8) or bb
+            }
+            out.setPixels(o, 0, w, 0, y, w, hh)
+            y += hh
         }
-        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        out.setPixels(orig, 0, w, 0, 0, w, h); src.recycle()
+        blurFine.recycle(); blurCoarse.recycle(); src.recycle()
         return out
     }
 

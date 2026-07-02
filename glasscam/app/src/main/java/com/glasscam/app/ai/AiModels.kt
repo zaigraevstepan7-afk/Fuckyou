@@ -1,6 +1,7 @@
 package com.glasscam.app.ai
 
 import com.glasscam.app.filters.EnhanceParams
+import com.glasscam.app.filters.PhotoEffects
 
 /**
  * Rich result of a Gemini "smart compose" analysis. The AI drives everything: it describes
@@ -17,6 +18,7 @@ data class ComposeResult(
     val frame: NormRect?,       // recommended crop → drawn as the iridescent frame + auto-zoom target
     val zoom: Float?,           // suggested zoom ratio
     val ready: Boolean,         // good moment to auto-capture
+    val effects: PhotoEffects,  // AI-composed creative effect stack (bloom/vignette/grain/chroma…)
 )
 
 /** Normalized rectangle in preview space (0..1). */

@@ -8,13 +8,27 @@ import androidx.camera.core.Preview
 import androidx.camera.video.Quality
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +49,7 @@ import androidx.compose.material.icons.rounded.FlashOff
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.Grid3x3
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,7 +64,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -64,6 +83,7 @@ import com.glasscam.app.ai.ComposeResult
 import com.glasscam.app.ai.GeminiService
 import com.glasscam.app.camera.gl.GlCameraView
 import com.glasscam.app.filters.EnhanceParams
+import com.glasscam.app.filters.PhotoEffects
 import com.glasscam.app.glass.Glass
 import com.glasscam.app.glass.GlassIconButton
 import com.glasscam.app.glass.GlassShutter
@@ -76,6 +96,10 @@ import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 private val zoomStops = listOf(0.5f, 1f, 2f, 4f, 8f)
+private val shutterColors = listOf(
+    Color(0xFF7CE0FF), Color(0xFFB69CFF), Color(0xFFFF9CE0),
+    Color(0xFFFFC98C), Color(0xFF9CFFC1), Color(0xFF7CE0FF),
+)
 
 @Composable
 fun CameraScreen() {
@@ -112,6 +136,8 @@ fun CameraScreen() {
     var aiError by remember { mutableStateOf<String?>(null) }
     var analyzing by remember { mutableStateOf(false) }
     var capturing by remember { mutableStateOf(false) }
+    var enhancing by remember { mutableStateOf(false) }
+    var flashKey by remember { mutableStateOf(0) }
     var toast by remember { mutableStateOf<String?>(null) }
     var lastShot by remember { mutableStateOf<Uri?>(null) }
     var autoCoolDown by remember { mutableStateOf(0L) }
@@ -136,19 +162,26 @@ fun CameraScreen() {
 
     fun shoot(withDelay: Boolean) = scope.launch {
         if (capturing || recording) return@launch
+        // Instant shutter: capture is quick, then the heavy grade + effects run fully in the
+        // background so the UI never lags and you can shoot again immediately.
         capturing = true
-        // Every shot is enhanced so the saved photo is always visibly better than the raw frame:
-        // in AI mode use Gemini's grade (boosted to a punchy floor), otherwise a strong auto look.
+        // Snapshot the look now: AI grade + AI-composed effect stack (or a strong auto look).
         val grade = (if (aiOn) aiResult?.grade else null)?.boosted() ?: EnhanceParams.auto()
-        try {
-            val jpeg = controller.captureJpeg()
-            val uri = withContext(Dispatchers.Default) { controller.processAndSave(jpeg, grade) }
-            lastShot = uri
-            toast = if (aiOn) "ИИ обработал фото" else "Фото улучшено"
+        val effects = (if (aiOn) aiResult?.effects else null) ?: PhotoEffects.auto()
+        val jpeg = try {
+            controller.captureJpeg()
         } catch (e: Exception) {
-            toast = e.message ?: "Ошибка съёмки"
-        } finally {
-            capturing = false
+            toast = e.message ?: "Ошибка съёмки"; capturing = false; return@launch
+        }
+        capturing = false
+        flashKey++            // fire the shutter flash animation
+        enhancing = true
+        scope.launch(Dispatchers.Default) {
+            runCatching {
+                val uri = controller.processAndSave(jpeg, grade, effects)
+                withContext(Dispatchers.Main) { lastShot = uri; toast = if (aiOn) "ИИ обработал фото" else "Фото готово" }
+            }
+            withContext(Dispatchers.Main) { enhancing = false }
         }
     }
 
@@ -303,18 +336,27 @@ fun CameraScreen() {
                         else controller.startRecording { rec -> recording = rec; if (!rec) { toast = "Видео сохранено"; lastShot = queryLatest(context) } }
                     }
                 } else {
-                    Box(contentAlignment = Alignment.Center) {
-                        GlassShutter(onClick = { shoot(withDelay = true) })
-                        if (capturing) androidx.compose.material3.CircularProgressIndicator(
-                            color = Color.White, strokeWidth = 3.dp, modifier = Modifier.size(88.dp))
-                    }
+                    AnimatedShutter(aiOn = aiOn, busy = capturing || enhancing, onClick = { shoot(false) })
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     if (videoMode) {
                         GlassIconButton(Icons.Rounded.Settings, "Настройки видео", size = 50.dp, onClick = { showVideoSettings = true })
                     } else {
-                        GlassIconButton(if (aiOn) Icons.Rounded.Close else Icons.Rounded.AutoAwesome, "ИИ-режим", size = 50.dp,
-                            tint = if (aiOn) Glass.tint else Color(0xFF9CD8FF), onClick = { aiOn = !aiOn })
+                        val aiPulse = rememberInfiniteTransition(label = "aiPulse")
+                        val glow by aiPulse.animateFloat(
+                            0.85f, 1.12f,
+                            infiniteRepeatable(tween(1100, easing = LinearEasing), RepeatMode.Reverse), label = "glow",
+                        )
+                        Box(contentAlignment = Alignment.Center) {
+                            if (aiOn) Canvas(Modifier.size(58.dp)) {
+                                drawCircle(
+                                    Brush.sweepGradient(shutterColors),
+                                    radius = size.minDimension / 2f * glow, style = Stroke(3f),
+                                )
+                            }
+                            GlassIconButton(if (aiOn) Icons.Rounded.Close else Icons.Rounded.AutoAwesome, "ИИ-режим", size = 50.dp,
+                                tint = if (aiOn) Glass.tint else Color(0xFF9CD8FF), onClick = { aiOn = !aiOn })
+                        }
                     }
                     Text(if (videoMode) "Видео" else if (aiOn) "Выйти" else "ИИ", color = Glass.tint.copy(alpha = 0.85f),
                         fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp))
@@ -322,10 +364,34 @@ fun CameraScreen() {
             }
         }
 
+        // "Обрабатываю…" pill while the AI grade + effects render in the background.
+        AnimatedVisibility(
+            enhancing, enter = fadeIn() + scaleIn(initialScale = 0.9f), exit = fadeOut() + scaleOut(targetScale = 0.9f),
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 150.dp),
+        ) {
+            Row(
+                Modifier.liquidGlass(Glass.shapeCapsule, alphaTop = 0.28f, alphaBottom = 0.10f)
+                    .padding(horizontal = 16.dp, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                CircularProgressIndicator(color = Color(0xFF9CD8FF), strokeWidth = 2.dp, modifier = Modifier.size(15.dp))
+                Text("Обрабатываю кадр…", color = Glass.tint, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            }
+        }
+
         toast?.let {
             Box(Modifier.align(Alignment.Center).liquidGlass(Glass.shapeCapsule).padding(horizontal = 18.dp, vertical = 10.dp)) {
                 Text(it, color = Glass.tint)
             }
+        }
+
+        // Shutter flash — a quick white wash on capture, like a real camera.
+        val flashAlpha = remember { Animatable(0f) }
+        LaunchedEffect(flashKey) {
+            if (flashKey > 0) { flashAlpha.snapTo(0.7f); flashAlpha.animateTo(0f, tween(340)) }
+        }
+        if (flashAlpha.value > 0.001f) {
+            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = flashAlpha.value)))
         }
 
         AnimatedVisibility(showVideoSettings, enter = fadeIn(), exit = fadeOut(), modifier = Modifier.align(Alignment.Center)) {
@@ -354,9 +420,45 @@ fun CameraScreen() {
     }
 }
 
+/** Big primary shutter with a press-scale bounce and a rotating iridescent ring in AI mode. */
+@Composable
+private fun AnimatedShutter(aiOn: Boolean, busy: Boolean, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (pressed) 0.86f else 1f, tween(130), label = "shScale")
+    val t = rememberInfiniteTransition(label = "shutterRing")
+    val spin by t.animateFloat(0f, 360f, infiniteRepeatable(tween(4200, easing = LinearEasing)), label = "spin")
+    Box(contentAlignment = Alignment.Center) {
+        if (aiOn) Canvas(Modifier.size(96.dp)) {
+            rotate(spin) {
+                drawCircle(Brush.sweepGradient(shutterColors), radius = size.minDimension / 2f - 3f, style = Stroke(4f))
+            }
+        }
+        Box(
+            Modifier.size(78.dp).graphicsLayer { scaleX = scale; scaleY = scale }
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = 0.14f), CircleShape)
+                .border(BorderStroke(2.dp, Glass.rim), CircleShape)
+                .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.92f), CircleShape))
+        }
+        if (busy) CircularProgressIndicator(color = Color.White, strokeWidth = 3.dp, modifier = Modifier.size(90.dp))
+    }
+}
+
 @Composable
 private fun Thumbnail(uri: Uri?, onClick: () -> Unit) {
-    Box(Modifier.size(50.dp).clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha = 0.06f)).clickable(onClick = onClick)) {
+    // Pop the thumbnail whenever a new shot lands.
+    val pop = remember { Animatable(1f) }
+    LaunchedEffect(uri) { if (uri != null) { pop.snapTo(0.7f); pop.animateTo(1f, tween(320)) } }
+    Box(
+        Modifier.size(50.dp).graphicsLayer { scaleX = pop.value; scaleY = pop.value }
+            .clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha = 0.06f))
+            .border(BorderStroke(1.dp, Glass.rim), RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick),
+    ) {
         if (uri != null) AsyncImage(uri, null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.fillMaxSize())
     }
 }
