@@ -29,6 +29,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +50,7 @@ import androidx.compose.material.icons.rounded.FlashOff
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.Grid3x3
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Title
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -64,8 +66,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
@@ -122,6 +126,10 @@ fun CameraScreen() {
 
     val controller = remember { CameraController(context.applicationContext) }
     val isSteady by rememberIsSteady()
+    val roll by rememberRollDegrees()
+    var watermark by remember { mutableStateOf(true) }
+    var focusAt by remember { mutableStateOf<Offset?>(null) }
+    var focusKey by remember { mutableStateOf(0) }
 
     var videoMode by remember { mutableStateOf(false) }
     var videoCfg by remember { mutableStateOf(VideoConfig(Quality.FHD, 30, true)) }
@@ -168,6 +176,8 @@ fun CameraScreen() {
         // Snapshot the look now: AI grade + AI-composed effect stack (or a strong auto look).
         val grade = (if (aiOn) aiResult?.grade else null)?.boosted() ?: EnhanceParams.auto()
         val effects = (if (aiOn) aiResult?.effects else null) ?: PhotoEffects.auto()
+        val straightenDeg = roll   // auto-horizon: snapshot the tilt at capture
+        val wm = watermark
         val jpeg = try {
             controller.captureJpeg()
         } catch (e: Exception) {
@@ -178,7 +188,7 @@ fun CameraScreen() {
         enhancing = true
         scope.launch(Dispatchers.Default) {
             runCatching {
-                val uri = controller.processAndSave(jpeg, grade, effects)
+                val uri = controller.processAndSave(jpeg, grade, effects, straightenDeg, wm)
                 withContext(Dispatchers.Main) { lastShot = uri; toast = if (aiOn) "ИИ обработал фото" else "Фото готово" }
             }
             withContext(Dispatchers.Main) { enhancing = false }
@@ -263,15 +273,30 @@ fun CameraScreen() {
             AndroidView(factory = { previewView }, modifier = Modifier.fillMaxSize())
         }
 
-        // pinch-zoom capture layer
+        // pinch-zoom + tap-to-focus capture layer
         Box(
-            Modifier.fillMaxSize().pointerInput(Unit) {
-                detectTransformGestures { _, _, zoomChange, _ ->
-                    val nz = (zoom * zoomChange).coerceIn(controller.minZoom, controller.maxZoom)
-                    zoom = nz; controller.setZoomAbsolute(nz)
+            Modifier.fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, _, zoomChange, _ ->
+                        val nz = (zoom * zoomChange).coerceIn(controller.minZoom, controller.maxZoom)
+                        zoom = nz; controller.setZoomAbsolute(nz)
+                    }
                 }
-            },
+                .pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        focusAt = offset; focusKey++
+                        runCatching {
+                            controller.focusAt(previewView.meteringPointFactory.createPoint(offset.x, offset.y))
+                        }
+                    }
+                },
         )
+
+        // Tap-to-focus ring animation.
+        focusAt?.let { pt -> FocusRing(pt, focusKey) }
+
+        // Auto-horizon level — a thin line that snaps green when the shot is level.
+        HorizonLevel(roll, Modifier.align(Alignment.Center))
 
         // Optional rule-of-thirds grid (only when the user enables it).
         if (showGrid) ThirdsGrid()
@@ -291,6 +316,8 @@ fun CameraScreen() {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 GlassIconButton(Icons.Rounded.Cameraswitch, "Сменить камеру", size = 44.dp, onClick = { controller.toggleLens() })
                 GlassIconButton(Icons.Rounded.Grid3x3, "Сетка", size = 44.dp, onClick = { showGrid = !showGrid })
+                GlassIconButton(Icons.Rounded.Title, "Водяной знак «GlassCam»", size = 44.dp,
+                    tint = if (watermark) Color(0xFF9CD8FF) else Glass.tint, onClick = { watermark = !watermark })
             }
         }
 
@@ -456,6 +483,40 @@ private fun AnimatedShutter(aiOn: Boolean, busy: Boolean, onClick: () -> Unit) {
             Box(Modifier.size(56.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.92f), CircleShape))
         }
         if (busy) CircularProgressIndicator(color = Color.White, strokeWidth = 3.dp, modifier = Modifier.size(90.dp))
+    }
+}
+
+/** Tap-to-focus reticle: a ring that snaps in and fades where you tapped. */
+@Composable
+private fun FocusRing(pt: Offset, key: Int) {
+    val anim = remember { Animatable(0f) }
+    LaunchedEffect(key) { anim.snapTo(0f); anim.animateTo(1f, tween(750)) }
+    if (anim.value >= 1f) return
+    val p = anim.value
+    val r = (52f - 20f * p)
+    val col = Color(0xFF9CD8FF).copy(alpha = (1f - p).coerceIn(0f, 1f))
+    Canvas(Modifier.fillMaxSize()) {
+        drawCircle(col, radius = r, center = pt, style = Stroke(2.5f))
+        drawLine(col, Offset(pt.x - r - 6, pt.y), Offset(pt.x - r + 5, pt.y), 2f)
+        drawLine(col, Offset(pt.x + r - 5, pt.y), Offset(pt.x + r + 6, pt.y), 2f)
+        drawLine(col, Offset(pt.x, pt.y - r - 6), Offset(pt.x, pt.y - r + 5), 2f)
+        drawLine(col, Offset(pt.x, pt.y + r - 5), Offset(pt.x, pt.y + r + 6), 2f)
+    }
+}
+
+/** Auto-horizon indicator: a split line that rotates with the phone and turns green when level. */
+@Composable
+private fun HorizonLevel(roll: Float, modifier: Modifier = Modifier) {
+    val level = kotlin.math.abs(roll) < 1.2f
+    val col = if (level) Color(0xFF6BFF9E) else Color.White.copy(alpha = 0.7f)
+    Canvas(modifier.size(170.dp)) {
+        val cx = size.width / 2f; val cy = size.height / 2f
+        val half = size.width * 0.42f
+        drawCircle(Color.White.copy(alpha = 0.55f), radius = 3f, center = Offset(cx, cy))
+        rotate(roll, pivot = Offset(cx, cy)) {
+            drawLine(col, Offset(cx - half, cy), Offset(cx - 26f, cy), 3f, cap = StrokeCap.Round)
+            drawLine(col, Offset(cx + 26f, cy), Offset(cx + half, cy), 3f, cap = StrokeCap.Round)
+        }
     }
 }
 

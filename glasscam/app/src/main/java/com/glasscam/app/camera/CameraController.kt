@@ -132,6 +132,14 @@ class CameraController(private val appContext: Context) {
         }
     }
 
+    /** Tap-to-focus at a [MeteringPoint] built from the PreviewView's factory. */
+    fun focusAt(point: androidx.camera.core.MeteringPoint) {
+        val control = camera?.cameraControl ?: return
+        val action = androidx.camera.core.FocusMeteringAction.Builder(point)
+            .setAutoCancelDuration(3, java.util.concurrent.TimeUnit.SECONDS).build()
+        runCatching { control.startFocusAndMetering(action) }
+    }
+
     fun setZoomAbsolute(ratio: Float) { camera?.cameraControl?.setZoomRatio(ratio.coerceIn(minZoom, maxZoom)) }
     fun currentZoom(): Float = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: 1f
     fun toggleLens() { lensBack = !lensBack; rebind() }
@@ -154,20 +162,26 @@ class CameraController(private val appContext: Context) {
         })
     }
 
-    /** Apply an AI [grade] (color matrix + sharpen) and [effects] to a captured JPEG and save it. */
-    fun processAndSave(jpeg: ByteArray, grade: EnhanceParams?, effects: PhotoEffects? = null): android.net.Uri {
-        val out = if (grade == null && effects == null) jpeg else gradeJpeg(jpeg, grade, effects)
+    /** Full save pipeline: grade + curve + sharpen + effects, then auto-straighten and watermark. */
+    fun processAndSave(
+        jpeg: ByteArray, grade: EnhanceParams?, effects: PhotoEffects? = null,
+        straightenDeg: Float = 0f, watermark: Boolean = false,
+    ): android.net.Uri {
+        val out = renderPhoto(jpeg, grade, effects, straightenDeg, watermark)
         return saveJpeg(out)
     }
 
     /** Re-apply an AI [grade] to an already-saved image, overwriting it in place (background enhance). */
     fun enhanceSavedInPlace(uri: android.net.Uri, grade: EnhanceParams) {
         val input = appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-        val out = gradeJpeg(input, grade, null)
+        val out = renderPhoto(input, grade, null, 0f, false)
         appContext.contentResolver.openOutputStream(uri, "wt")?.use { it.write(out) }
     }
 
-    private fun gradeJpeg(jpeg: ByteArray, grade: EnhanceParams?, effects: PhotoEffects?): ByteArray {
+    private fun renderPhoto(
+        jpeg: ByteArray, grade: EnhanceParams?, effects: PhotoEffects?,
+        straightenDeg: Float, watermark: Boolean,
+    ): ByteArray {
         var bmp = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return jpeg
         if (grade != null) {
             val graded = Bitmap.createBitmap(bmp.width, bmp.height, Bitmap.Config.ARGB_8888)
@@ -182,8 +196,48 @@ class CameraController(private val appContext: Context) {
             val fx = PhotoEffectsRenderer.render(bmp, effects)
             if (fx !== bmp) { bmp.recycle(); bmp = fx }
         }
+        if (kotlin.math.abs(straightenDeg) in 0.6f..9f) {
+            val st = straighten(bmp, straightenDeg)
+            if (st !== bmp) { bmp.recycle(); bmp = st }
+        }
+        if (watermark) drawWatermark(bmp)
         val bos = ByteArrayOutputStream(); bmp.compress(Bitmap.CompressFormat.JPEG, 95, bos); bmp.recycle()
         return bos.toByteArray()
+    }
+
+    /** Auto-level: rotate by -[deg] and center-crop the largest axis-aligned rect (no empty corners). */
+    private fun straighten(src: Bitmap, deg: Float): Bitmap {
+        val w = src.width; val h = src.height
+        val rotated = Bitmap.createBitmap(src, 0, 0, w, h, Matrix().apply { postRotate(-deg) }, true)
+        // Largest inscribed rectangle keeping the source aspect ratio after rotation.
+        val rad = Math.toRadians(kotlin.math.abs(deg).toDouble())
+        val cosA = kotlin.math.cos(rad); val sinA = kotlin.math.sin(rad)
+        val ar = w.toDouble() / h
+        val scale = 1.0 / (ar * sinA + cosA).coerceAtLeast(1e-3)
+        val cropW = (w * scale).toInt().coerceIn(1, rotated.width)
+        val cropH = (h * scale).toInt().coerceIn(1, rotated.height)
+        val x = ((rotated.width - cropW) / 2).coerceAtLeast(0)
+        val y = ((rotated.height - cropH) / 2).coerceAtLeast(0)
+        val out = Bitmap.createBitmap(rotated, x, y, cropW, cropH)
+        if (rotated !== out) rotated.recycle()
+        return out
+    }
+
+    /** Small tasteful "GlassCam" watermark, bottom-right, scaled to the image. */
+    private fun drawWatermark(bmp: Bitmap) {
+        val c = Canvas(bmp)
+        val pad = bmp.width * 0.028f
+        val size = (bmp.width * 0.032f).coerceIn(20f, 80f)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = android.graphics.Color.WHITE
+            textSize = size
+            typeface = android.graphics.Typeface.create(android.graphics.Typeface.SANS_SERIF, android.graphics.Typeface.BOLD)
+            setShadowLayer(size * 0.18f, 0f, 0f, android.graphics.Color.argb(140, 0, 0, 0))
+            alpha = 210
+        }
+        val text = "GlassCam"
+        val tw = paint.measureText(text)
+        c.drawText(text, bmp.width - tw - pad, bmp.height - pad, paint)
     }
 
     /** Apply a 256-entry per-channel tone curve in place, strip-processed to stay memory-light. */
@@ -206,19 +260,21 @@ class CameraController(private val appContext: Context) {
     }
 
     /**
-     * Two-radius unsharp mask for a genuinely crisper result: a fine (½-res) pass sharpens edges
-     * and detail, a coarse (¼-res) pass adds local contrast / "clarity" so the photo reads punchier
-     * without the halo of a single aggressive pass.
+     * Luminance unsharp mask — the pro pipeline. Sharpening is applied to the LUMA channel only
+     * (a fine ½-res pass for edge acuity + a large-radius ⅛-res, low-amount pass for local contrast
+     * / "pop"), and the resulting delta is added equally to R/G/B. Working on luminance instead of
+     * each colour channel avoids amplifying chroma noise and colour fringing — exactly what camera
+     * ISPs and tools like Deep Fusion do (sharpen after denoise, on detail not colour).
      */
     private fun unsharp(src: Bitmap, amount: Float): Bitmap {
         val w = src.width; val h = src.height
         val half = Bitmap.createScaledBitmap(src, (w / 2).coerceAtLeast(1), (h / 2).coerceAtLeast(1), true)
         val blurFine = Bitmap.createScaledBitmap(half, w, h, true); half.recycle()
-        val quarter = Bitmap.createScaledBitmap(src, (w / 4).coerceAtLeast(1), (h / 4).coerceAtLeast(1), true)
-        val blurCoarse = Bitmap.createScaledBitmap(quarter, w, h, true); quarter.recycle()
+        val eighth = Bitmap.createScaledBitmap(src, (w / 8).coerceAtLeast(1), (h / 8).coerceAtLeast(1), true)
+        val blurCoarse = Bitmap.createScaledBitmap(eighth, w, h, true); eighth.recycle()
         val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-        val kf = amount * 1.15f  // fine edge detail
-        val kc = amount * 0.45f  // clarity / local contrast
+        val kf = amount * 0.95f  // fine edge acuity
+        val kc = amount * 0.38f  // large-radius local contrast ("pop")
         // Process in row strips so peak memory stays tiny (a few MB) instead of ~3×full-res int
         // arrays — avoids the GC pauses that could jank the render thread while we work.
         val rows = 128
@@ -232,9 +288,15 @@ class CameraController(private val appContext: Context) {
             for (i in 0 until n) {
                 val oo = o[i]; val ff = f[i]; val cc = c[i]
                 val or = oo shr 16 and 0xFF; val og = oo shr 8 and 0xFF; val ob = oo and 0xFF
-                val r = (or + kf * (or - (ff shr 16 and 0xFF)) + kc * (or - (cc shr 16 and 0xFF))).toInt().coerceIn(0, 255)
-                val g = (og + kf * (og - (ff shr 8 and 0xFF)) + kc * (og - (cc shr 8 and 0xFF))).toInt().coerceIn(0, 255)
-                val bb = (ob + kf * (ob - (ff and 0xFF)) + kc * (ob - (cc and 0xFF))).toInt().coerceIn(0, 255)
+                // Luminance of original and of both blurs (Rec.601 weights).
+                val lo = (or * 77 + og * 150 + ob * 29) shr 8
+                val lf = ((ff shr 16 and 0xFF) * 77 + (ff shr 8 and 0xFF) * 150 + (ff and 0xFF) * 29) shr 8
+                val lc = ((cc shr 16 and 0xFF) * 77 + (cc shr 8 and 0xFF) * 150 + (cc and 0xFF) * 29) shr 8
+                // Sharpen delta lives entirely on luminance, then is added equally to each channel.
+                val delta = kf * (lo - lf) + kc * (lo - lc)
+                val r = (or + delta).toInt().coerceIn(0, 255)
+                val g = (og + delta).toInt().coerceIn(0, 255)
+                val bb = (ob + delta).toInt().coerceIn(0, 255)
                 o[i] = (0xFF shl 24) or (r shl 16) or (g shl 8) or bb
             }
             out.setPixels(o, 0, w, 0, y, w, hh)

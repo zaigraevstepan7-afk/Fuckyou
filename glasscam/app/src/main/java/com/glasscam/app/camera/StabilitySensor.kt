@@ -53,6 +53,34 @@ fun rememberAimRotation(): State<FloatArray> {
     return state
 }
 
+/**
+ * Device roll in degrees from the accelerometer (0 = level in portrait, negative = tilted left).
+ * Drives the on-screen horizon level and the auto-straighten of the saved photo. Lightly smoothed.
+ */
+@Composable
+fun rememberRollDegrees(): State<Float> {
+    val context = LocalContext.current
+    val roll = remember { mutableStateOf(0f) }
+    DisposableEffect(Unit) {
+        val sm = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        val accel = sm?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        var smoothed = 0f
+        var has = false
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(e: SensorEvent) {
+                val x = e.values[0]; val y = e.values[1]
+                val deg = Math.toDegrees(kotlin.math.atan2(x.toDouble(), y.toDouble())).toFloat()
+                smoothed = if (!has) { has = true; deg } else smoothed + (deg - smoothed) * 0.2f
+                roll.value = smoothed
+            }
+            override fun onAccuracyChanged(s: Sensor?, a: Int) {}
+        }
+        if (accel != null) sm.registerListener(listener, accel, SensorManager.SENSOR_DELAY_UI)
+        onDispose { sm?.unregisterListener(listener) }
+    }
+    return roll
+}
+
 /** True when the phone is being held reasonably still — used to time auto-capture. */
 @Composable
 fun rememberIsSteady(): State<Boolean> {
