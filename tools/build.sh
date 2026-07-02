@@ -35,9 +35,10 @@ for f in glob.glob(sys.argv[1]+'/res/values-v31/*.xml')+glob.glob(sys.argv[1]+'/
     if n!=t: open(f,'w',encoding='utf-8').write(n)
 PY
 
-# 3. Apply translations (DECODED dir is read from the scripts via env)
+# 3. Apply translations + auth removal (DECODED dir read from scripts via env)
 DECODED_DIR="$WORK/decoded" python3 "$ROOT/tools/apply_res.py"
 DECODED_DIR="$WORK/decoded" python3 "$ROOT/tools/apply_code.py"
+DECODED_DIR="$WORK/decoded" python3 "$ROOT/tools/patch_auth.py"
 
 # 4. Rebuild
 java -jar "$APKTOOL" b "$WORK/decoded" -o "$WORK/unsigned.apk"
