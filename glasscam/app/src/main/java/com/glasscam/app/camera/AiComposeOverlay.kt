@@ -106,28 +106,21 @@ fun AiComposeCard(result: ComposeResult, modifier: Modifier = Modifier) {
     Box(
         modifier
             .fillMaxWidth()
-            .liquidGlass(Glass.shapeCard, alphaTop = 0.24f, alphaBottom = 0.10f)
-            .padding(16.dp),
+            .liquidGlass(Glass.shapeCapsule, alphaTop = 0.22f, alphaBottom = 0.09f)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
         Column {
             if (result.advice.isNotBlank()) {
-                Text(result.advice, color = Glass.tint, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-            }
-            if (result.scene.isNotBlank()) {
                 Text(
-                    result.scene,
-                    color = Glass.tint.copy(alpha = 0.85f),
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 4.dp),
+                    result.advice, color = Glass.tint, fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                    maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )
             }
             if (result.gradeLabel.isNotBlank()) {
                 Text(
                     "Стиль: ${result.gradeLabel}",
-                    color = Color(0xFF9CD8FF),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(top = 4.dp),
+                    color = Color(0xFF9CD8FF), fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 3.dp),
                 )
             }
         }

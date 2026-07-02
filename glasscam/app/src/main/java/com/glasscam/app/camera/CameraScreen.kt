@@ -207,11 +207,8 @@ fun CameraScreen() {
             },
         )
 
-        // AI overlays
-        if (aiOn) {
-            if (showGrid || aiResult != null) ThirdsGrid()
-            aiResult?.frame?.let { RecommendedFrame(it); AimReticle(it) }
-        } else if (showGrid) ThirdsGrid()
+        // Optional rule-of-thirds grid (only when the user enables it).
+        if (showGrid) ThirdsGrid()
 
         // Top status
         Row(
@@ -221,7 +218,7 @@ fun CameraScreen() {
             GlassIconButton(if (flashOn) Icons.Rounded.FlashOn else Icons.Rounded.FlashOff, "Вспышка", size = 44.dp,
                 onClick = { controller.cycleFlash(); flashOn = controller.flashOn })
             Box(Modifier.padding(horizontal = 10.dp)) {
-                if (aiOn) AiHintPill(aiResult?.hint ?: if (analyzing) "ИИ анализирует…" else "Наведите камеру")
+                if (aiOn && analyzing) AiHintPill("ИИ анализирует…")
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 GlassIconButton(Icons.Rounded.Cameraswitch, "Сменить камеру", size = 44.dp, onClick = { controller.toggleLens() })
