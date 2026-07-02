@@ -130,7 +130,6 @@ fun CameraScreen() {
         if (capturing || recording) return@launch
         capturing = true
         try {
-            if (withDelay) delay(500)
             val jpeg = controller.captureJpeg()
             val grade = if (aiOn) aiResult?.grade else null
             controller.processAndSave(jpeg, grade)
