@@ -177,19 +177,29 @@ class CameraController(private val appContext: Context) {
         return bos.toByteArray()
     }
 
-    /** Light unsharp mask via a downscaled blur difference. */
+    /**
+     * Two-radius unsharp mask for a genuinely crisper result: a fine (½-res) pass sharpens edges
+     * and detail, a coarse (¼-res) pass adds local contrast / "clarity" so the photo reads punchier
+     * without the halo of a single aggressive pass.
+     */
     private fun unsharp(src: Bitmap, amount: Float): Bitmap {
         val w = src.width; val h = src.height
-        val small = Bitmap.createScaledBitmap(src, (w / 2).coerceAtLeast(1), (h / 2).coerceAtLeast(1), true)
-        val blur = Bitmap.createScaledBitmap(small, w, h, true); small.recycle()
-        val orig = IntArray(w * h); val bl = IntArray(w * h)
-        src.getPixels(orig, 0, w, 0, 0, w, h); blur.getPixels(bl, 0, w, 0, 0, w, h); blur.recycle()
-        val k = amount * 0.9f
+        val half = Bitmap.createScaledBitmap(src, (w / 2).coerceAtLeast(1), (h / 2).coerceAtLeast(1), true)
+        val blurFine = Bitmap.createScaledBitmap(half, w, h, true); half.recycle()
+        val quarter = Bitmap.createScaledBitmap(src, (w / 4).coerceAtLeast(1), (h / 4).coerceAtLeast(1), true)
+        val blurCoarse = Bitmap.createScaledBitmap(quarter, w, h, true); quarter.recycle()
+        val orig = IntArray(w * h); val bf = IntArray(w * h); val bc = IntArray(w * h)
+        src.getPixels(orig, 0, w, 0, 0, w, h)
+        blurFine.getPixels(bf, 0, w, 0, 0, w, h); blurFine.recycle()
+        blurCoarse.getPixels(bc, 0, w, 0, 0, w, h); blurCoarse.recycle()
+        val kf = amount * 1.15f  // fine edge detail
+        val kc = amount * 0.45f  // clarity / local contrast
         for (i in orig.indices) {
-            val o = orig[i]; val b = bl[i]
-            val r = ((o shr 16 and 0xFF) + k * ((o shr 16 and 0xFF) - (b shr 16 and 0xFF))).toInt().coerceIn(0, 255)
-            val g = ((o shr 8 and 0xFF) + k * ((o shr 8 and 0xFF) - (b shr 8 and 0xFF))).toInt().coerceIn(0, 255)
-            val bb = ((o and 0xFF) + k * ((o and 0xFF) - (b and 0xFF))).toInt().coerceIn(0, 255)
+            val o = orig[i]; val f = bf[i]; val c = bc[i]
+            val or = o shr 16 and 0xFF; val og = o shr 8 and 0xFF; val ob = o and 0xFF
+            val r = (or + kf * (or - (f shr 16 and 0xFF)) + kc * (or - (c shr 16 and 0xFF))).toInt().coerceIn(0, 255)
+            val g = (og + kf * (og - (f shr 8 and 0xFF)) + kc * (og - (c shr 8 and 0xFF))).toInt().coerceIn(0, 255)
+            val bb = (ob + kf * (ob - (f and 0xFF)) + kc * (ob - (c and 0xFF))).toInt().coerceIn(0, 255)
             orig[i] = (0xFF shl 24) or (r shl 16) or (g shl 8) or bb
         }
         val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)

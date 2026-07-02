@@ -52,15 +52,15 @@ data class EnhanceParams(
         warmth = if (kotlin.math.abs(warmth) < 0.05f) 0.07f else warmth,
         shadows = shadows.coerceAtLeast(0.12f),
         highlights = highlights,
-        sharpen = sharpen.coerceAtLeast(0.4f),
+        sharpen = sharpen.coerceAtLeast(0.6f),
         grain = grain,
     )
 
     companion object {
         /** Default "auto-enhance" look used when the AI isn't driving the grade. */
         fun auto(): EnhanceParams = EnhanceParams(
-            exposure = 0.06f, contrast = 1.2f, saturation = 1.3f,
-            warmth = 0.08f, shadows = 0.16f, sharpen = 0.5f,
+            exposure = 0.06f, contrast = 1.22f, saturation = 1.32f,
+            warmth = 0.08f, shadows = 0.16f, sharpen = 0.7f,
         )
     }
 }

@@ -332,15 +332,23 @@ fun CameraScreen() {
             VideoSettings(videoCfg, onChange = { videoCfg = it }, onClose = { showVideoSettings = false })
         }
 
-        // Feed the measured dock rect to GL as the refraction panel.
+        // Real Liquid-Glass refraction of the live camera (API 33+): refract behind the dock and
+        // along the screen edges, straight on the PreviewView. Feeds the measured dock rect (px).
         val rootW = constraints.maxWidth.toFloat()
         val rootH = constraints.maxHeight.toFloat()
-        LaunchedEffect(dockRect) {
-            val r = dockRect
-            if (glView != null && r != null && rootW > 0f && rootH > 0f) {
-                val x = r.left / rootW; val wN = r.width / rootW
-                val yTop = r.top / rootH; val hN = r.height / rootH
-                glView.setPanels(floatArrayOf(x, 1f - (yTop + hN), wN, hN), floatArrayOf(0.06f))
+        LaunchedEffect(dockRect, rootW, rootH) {
+            if (glView == null && rootW > 0f && rootH > 0f && LiquidGlassRefraction.supported) {
+                val d = dockRect
+                val dock = if (d != null) floatArrayOf(d.left, d.top, d.width, d.height)
+                    else floatArrayOf(0f, 0f, 0f, 0f)
+                LiquidGlassRefraction.apply(previewView, rootW, rootH, dock)
+            } else if (glView != null) {
+                val r = dockRect
+                if (r != null && rootW > 0f && rootH > 0f) {
+                    val x = r.left / rootW; val wN = r.width / rootW
+                    val yTop = r.top / rootH; val hN = r.height / rootH
+                    glView.setPanels(floatArrayOf(x, 1f - (yTop + hN), wN, hN), floatArrayOf(0.06f))
+                }
             }
         }
     }
