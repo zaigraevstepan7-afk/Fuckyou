@@ -100,6 +100,71 @@ fun AimReticle(rect: NormRect, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * "Aim & lock" overlay (our own implementation of the technique): a recommended framing
+ * rectangle with an animated iridescent border, a dimmed surround, and four corner brackets
+ * that converge toward the centre as [progress] (hold-steady alignment) rises to 1 = locked.
+ */
+@Composable
+fun AiTargetOverlay(rect: NormRect, progress: Float, modifier: Modifier = Modifier) {
+    val t = rememberInfiniteTransition(label = "aim")
+    val spin by t.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart), label = "spin",
+    )
+    val pulse by t.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(1200, easing = LinearEasing), RepeatMode.Reverse), label = "pulse",
+    )
+    Canvas(modifier.fillMaxSize()) {
+        val x = rect.x * size.width
+        val y = rect.y * size.height
+        val fw = rect.w * size.width
+        val fh = rect.h * size.height
+        val corner = 24.dp.toPx()
+        val scrim = Color.Black.copy(alpha = 0.26f * (0.5f + 0.5f * progress))
+
+        // dim everything outside the frame (four bands)
+        drawRect(scrim, Offset(0f, 0f), Size(size.width, y))
+        drawRect(scrim, Offset(0f, y + fh), Size(size.width, size.height - y - fh))
+        drawRect(scrim, Offset(0f, y), Size(x, fh))
+        drawRect(scrim, Offset(x + fw, y), Size(size.width - x - fw, fh))
+
+        // iridescent rounded border (rotating sweep gradient)
+        val center = Offset(x + fw / 2f, y + fh / 2f)
+        val sweep = Brush.sweepGradient(iridescent.rotated(spin), center)
+        drawRoundRect(sweep, Offset(x, y), Size(fw, fh), CornerRadius(corner, corner), style = Stroke(2.5f))
+
+        // four converging corner brackets
+        val arm = minOf(fw, fh) * 0.14f
+        val inset = (minOf(fw, fh) * 0.16f) * progress
+        val bright = 0.55f + 0.45f * progress
+        val col = Color.White.copy(alpha = bright)
+        val sw = 3f + 2f * progress
+        // top-left
+        corner(col, sw, Offset(x + inset, y + inset), arm, +1f, +1f)
+        corner(col, sw, Offset(x + fw - inset, y + inset), arm, -1f, +1f)
+        corner(col, sw, Offset(x + inset, y + fh - inset), arm, +1f, -1f)
+        corner(col, sw, Offset(x + fw - inset, y + fh - inset), arm, -1f, -1f)
+
+        // centre dot pulses; grows/locks with progress
+        drawCircle(sweep, radius = (10f + 10f * pulse) * (1f - progress) + 6f, center = center, style = Stroke(2f))
+        drawCircle(Color.White, radius = 3f + 2f * progress, center = center)
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.corner(
+    color: Color, stroke: Float, p: Offset, arm: Float, dx: Float, dy: Float,
+) {
+    drawLine(color, p, Offset(p.x + arm * dx, p.y), stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+    drawLine(color, p, Offset(p.x, p.y + arm * dy), stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+}
+
+private fun List<Color>.rotated(phase: Float): List<Color> {
+    if (isEmpty()) return this
+    val n = size
+    val shift = (phase * n).toInt() % n
+    return List(n) { this[(it + shift) % n] }
+}
+
 /** Top card with the AI scene description, composition advice and recommended filter. */
 @Composable
 fun AiComposeCard(result: ComposeResult, modifier: Modifier = Modifier) {

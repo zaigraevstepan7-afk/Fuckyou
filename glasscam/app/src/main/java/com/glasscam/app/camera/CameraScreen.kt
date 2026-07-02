@@ -9,6 +9,7 @@ import androidx.camera.video.Quality
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -177,15 +178,21 @@ fun CameraScreen() {
                         val target = z.coerceIn(controller.minZoom, controller.maxZoom)
                         animate(zoom, target, animationSpec = tween(500)) { v, _ -> zoom = v; controller.setZoomAbsolute(v) }
                     }
-                    if (r.ready && isSteady && !capturing && System.currentTimeMillis() - autoCoolDown > 4000) {
-                        autoCoolDown = System.currentTimeMillis()
-                        shoot(withDelay = false)
-                    }
                 } else {
                     aiError = res.exceptionOrNull()?.message
                 }
             }
             delay(6000)
+        }
+    }
+
+    // "Aim & lock": hold the phone steady on the recommended frame → corners converge → auto-shoot.
+    val aligning = aiOn && aiResult?.frame != null && isSteady && !capturing
+    val alignProgress by animateFloatAsState(if (aligning) 1f else 0f, animationSpec = tween(1500), label = "align")
+    LaunchedEffect(alignProgress) {
+        if (aiOn && alignProgress > 0.98f && !capturing && System.currentTimeMillis() - autoCoolDown > 4000) {
+            autoCoolDown = System.currentTimeMillis()
+            shoot(false)
         }
     }
 
@@ -209,6 +216,8 @@ fun CameraScreen() {
 
         // Optional rule-of-thirds grid (only when the user enables it).
         if (showGrid) ThirdsGrid()
+        // AI aim & framing overlay.
+        if (aiOn) aiResult?.frame?.let { AiTargetOverlay(it, alignProgress) }
 
         // Top status
         Row(

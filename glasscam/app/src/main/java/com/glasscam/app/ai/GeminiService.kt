@@ -123,12 +123,12 @@ object GeminiService {
         val obj = extractJson(responseJson)
         val gradeObj = obj.optJSONObject("grade") ?: JSONObject()
         val frame = obj.optJSONObject("frame")?.let {
-            NormRect(
-                it.optDouble("x", 0.1).toFloat().coerceIn(0f, 1f),
-                it.optDouble("y", 0.1).toFloat().coerceIn(0f, 1f),
-                it.optDouble("w", 0.8).toFloat().coerceIn(0.1f, 1f),
-                it.optDouble("h", 0.8).toFloat().coerceIn(0.1f, 1f),
-            )
+            // keep the frame a sensible sub-rect (never full-screen) and inside bounds
+            val fw = it.optDouble("w", 0.62).toFloat().coerceIn(0.35f, 0.8f)
+            val fh = it.optDouble("h", 0.62).toFloat().coerceIn(0.35f, 0.8f)
+            val fx = it.optDouble("x", 0.19).toFloat().coerceIn(0f, 1f - fw)
+            val fy = it.optDouble("y", 0.19).toFloat().coerceIn(0f, 1f - fh)
+            NormRect(fx, fy, fw, fh)
         }
         val zoom = if (obj.has("zoom")) obj.optDouble("zoom", 1.0).toFloat().coerceIn(1f, 10f) else null
         return ComposeResult(
