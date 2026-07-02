@@ -13,9 +13,9 @@ import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 /**
- * Talks to the Gemini generateContent REST endpoint. Sends the current camera frame
- * plus a Russian prompt and expects a small JSON object back (composition tip, mood,
- * recommended filter). Key and model come from BuildConfig (local.properties).
+ * Gemini generateContent REST client. Sends a camera frame + a Russian prompt and expects
+ * a compact JSON object describing the scene, a composition tip, a recommended film filter,
+ * an aiming hint and a suggested framing rectangle. Key/model come from BuildConfig.
  */
 object GeminiService {
 
@@ -23,8 +23,8 @@ object GeminiService {
     private val JSON = "application/json; charset=utf-8".toMediaType()
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(20, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(45, TimeUnit.SECONDS)
         .build()
 
     fun hasKey(): Boolean = BuildConfig.GEMINI_API_KEY.isNotBlank()
@@ -32,14 +32,22 @@ object GeminiService {
     private val allowedFilters: String get() = FilterPresets.all.joinToString(", ") { it.id }
 
     private fun prompt(): String = """
-        Ты — ассистент-фотограф. Проанализируй кадр с камеры телефона и дай короткий,
-        практичный совет на русском языке. Ответь СТРОГО в формате JSON без пояснений:
-        {"composition":"<совет по компоновке, 1-2 предложения>",
-         "mood":"<настроение/свет сцены, до 5 слов>",
-         "filter":"<один id из списка: $allowedFilters>"}
+        Ты — ИИ-ассистент фотографа в режиме умной компоновки (как в приложении-камере).
+        Проанализируй кадр с камеры телефона и помоги снять лучший кадр.
+        Ответь СТРОГО одним JSON-объектом на русском языке, без markdown и пояснений:
+        {
+          "scene": "<что в кадре, свет и цвета, до 12 слов>",
+          "advice": "<совет по компоновке, 1 короткое предложение>",
+          "hint": "<куда навести/какой зум, 2-4 слова, напр. 'Наведите выше' или 'Приблизьте 2x'>",
+          "filter": "<один id из: $allowedFilters>",
+          "filter_label": "<короткое имя плёнки/фильтра для показа, напр. 'F 160C' или 'Тёплый'>",
+          "frame": {"x": <0..1>, "y": <0..1>, "w": <0..1>, "h": <0..1>}
+        }
+        frame — рекомендованная рамка кадрирования в долях ширины/высоты (левый верхний угол x,y и размер w,h).
     """.trimIndent()
 
-    suspend fun analyze(jpeg: ByteArray): Result<AiResult> = withContext(Dispatchers.IO) {
+    /** Analyze one JPEG frame. Fast path used by the continuous AI-compose loop. */
+    suspend fun analyzeCompose(jpeg: ByteArray): Result<ComposeResult> = withContext(Dispatchers.IO) {
         if (!hasKey()) return@withContext Result.failure(IllegalStateException("NO_KEY"))
         try {
             val b64 = Base64.encodeToString(jpeg, Base64.NO_WRAP)
@@ -53,16 +61,15 @@ object GeminiService {
                 }))
                 put("generationConfig", JSONObject()
                     .put("responseMimeType", "application/json")
-                    .put("temperature", 0.7))
+                    .put("temperature", 0.6))
             }.toString()
 
             val url = "$ENDPOINT/${BuildConfig.GEMINI_MODEL}:generateContent?key=${BuildConfig.GEMINI_API_KEY}"
             val request = Request.Builder().url(url).post(body.toRequestBody(JSON)).build()
-
             client.newCall(request).execute().use { resp ->
                 val text = resp.body?.string().orEmpty()
                 if (!resp.isSuccessful) {
-                    return@withContext Result.failure(RuntimeException("HTTP ${resp.code}: $text"))
+                    return@withContext Result.failure(RuntimeException(friendlyError(resp.code, text)))
                 }
                 Result.success(parse(text))
             }
@@ -71,19 +78,38 @@ object GeminiService {
         }
     }
 
-    private fun parse(responseJson: String): AiResult {
+    private fun friendlyError(code: Int, body: String): String = when (code) {
+        400 -> "Ошибка запроса к Gemini (проверьте ключ)"
+        403 -> "Ключ Gemini отклонён (403)"
+        429 -> "Слишком много запросов к Gemini, подождите"
+        else -> "Gemini: HTTP $code"
+    }
+
+    private fun parse(responseJson: String): ComposeResult {
         val root = JSONObject(responseJson)
         val partText = root.getJSONArray("candidates")
             .getJSONObject(0).getJSONObject("content")
             .getJSONArray("parts").getJSONObject(0).getString("text")
-        val obj = JSONObject(partText.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim())
+        val obj = JSONObject(
+            partText.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim(),
+        )
         val filterId = obj.optString("filter", "none").ifBlank { "none" }
         val preset = FilterPresets.byId(filterId)
-        return AiResult(
-            composition = obj.optString("composition", "").trim(),
-            mood = obj.optString("mood", "").trim(),
+        val frame = obj.optJSONObject("frame")?.let {
+            NormRect(
+                it.optDouble("x", 0.1).toFloat().coerceIn(0f, 1f),
+                it.optDouble("y", 0.1).toFloat().coerceIn(0f, 1f),
+                it.optDouble("w", 0.8).toFloat().coerceIn(0.1f, 1f),
+                it.optDouble("h", 0.8).toFloat().coerceIn(0.1f, 1f),
+            )
+        }
+        return ComposeResult(
+            scene = obj.optString("scene", "").trim(),
+            advice = obj.optString("advice", "").trim(),
             filterId = preset.id,
-            filterLabel = preset.label,
+            filterLabel = obj.optString("filter_label", preset.label).ifBlank { preset.label },
+            hint = obj.optString("hint", "").trim(),
+            frame = frame,
         )
     }
 }

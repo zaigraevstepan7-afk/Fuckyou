@@ -7,19 +7,14 @@ import android.provider.MediaStore
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,11 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.glasscam.app.glass.Glass
-import com.glasscam.app.glass.GlassIconButton
 import com.glasscam.app.glass.liquidGlass
 
 @Composable
-fun GalleryScreen(onBack: () -> Unit) {
+fun GalleryScreen() {
     val context = LocalContext.current
     var images by remember { mutableStateOf<List<Uri>>(emptyList()) }
     LaunchedEffect(Unit) { images = queryGlassCamImages(context) }
@@ -50,10 +44,10 @@ fun GalleryScreen(onBack: () -> Unit) {
     Box(Modifier.fillMaxSize().background(Color(0xFF0B0E14))) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 12.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(top = 72.dp, bottom = 24.dp),
+            contentPadding = PaddingValues(top = 96.dp, bottom = 120.dp),
         ) {
             items(images) { uri ->
                 AsyncImage(
@@ -66,23 +60,14 @@ fun GalleryScreen(onBack: () -> Unit) {
         }
 
         if (images.isEmpty()) {
-            Text(
-                "Пока нет снимков",
-                color = Glass.tint.copy(alpha = 0.7f),
-                modifier = Modifier.align(Alignment.Center),
-            )
+            Text("Пока нет снимков", color = Glass.tint.copy(alpha = 0.7f), modifier = Modifier.align(Alignment.Center))
         }
 
-        // Top glass bar
-        Row(
-            Modifier.fillMaxWidth().safeDrawingPadding().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        Box(
+            Modifier.align(Alignment.TopCenter).padding(top = 48.dp)
+                .liquidGlass(Glass.shapeCapsule).padding(horizontal = 22.dp, vertical = 10.dp),
         ) {
-            GlassIconButton(Icons.AutoMirrored.Rounded.ArrowBack, "Назад", onBack, size = 46.dp)
-            Box(Modifier.liquidGlass(Glass.shapeCapsule).padding(horizontal = 18.dp, vertical = 10.dp)) {
-                Text("Снимки", color = Glass.tint, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            }
+            Text("Снимки", color = Glass.tint, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
         }
     }
 }

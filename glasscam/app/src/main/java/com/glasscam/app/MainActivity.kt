@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,8 +35,9 @@ import com.glasscam.app.glass.Glass
 import com.glasscam.app.glass.GlassCard
 import com.glasscam.app.glass.liquidGlass
 import com.glasscam.app.ui.GlassCamTheme
-
-private enum class Screen { Camera, Gallery }
+import com.glasscam.app.ui.GlassTabBar
+import com.glasscam.app.ui.MeScreen
+import com.glasscam.app.ui.Tab
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,17 +56,26 @@ private fun App() {
                 PackageManager.PERMISSION_GRANTED,
         )
     }
-    var screen by remember { mutableStateOf(Screen.Camera) }
+    var tab by remember { mutableStateOf(Tab.Camera) }
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted -> hasCamera = granted }
 
     Box(Modifier.fillMaxSize().background(Color(0xFF0B0E14))) {
-        when {
-            !hasCamera -> PermissionGate(onGrant = { launcher.launch(Manifest.permission.CAMERA) })
-            screen == Screen.Camera -> CameraScreen(onOpenGallery = { screen = Screen.Gallery })
-            else -> GalleryScreen(onBack = { screen = Screen.Camera })
+        if (!hasCamera) {
+            PermissionGate(onGrant = { launcher.launch(Manifest.permission.CAMERA) })
+        } else {
+            when (tab) {
+                Tab.Camera -> CameraScreen()
+                Tab.Album -> GalleryScreen()
+                Tab.Me -> MeScreen()
+            }
+            GlassTabBar(
+                selected = tab,
+                onSelect = { tab = it },
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 30.dp),
+            )
         }
     }
 }
@@ -76,12 +85,7 @@ private fun PermissionGate(onGrant: () -> Unit) {
     Box(Modifier.fillMaxSize().padding(28.dp), contentAlignment = Alignment.Center) {
         GlassCard {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    "Нужен доступ к камере",
-                    color = Glass.tint,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                Text("Нужен доступ к камере", color = Glass.tint, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
                 Text(
                     "Чтобы снимать фото и использовать ИИ-анализ кадра, разрешите доступ к камере.",
                     color = Glass.tint.copy(alpha = 0.8f),
@@ -92,20 +96,12 @@ private fun PermissionGate(onGrant: () -> Unit) {
                     Modifier
                         .padding(top = 18.dp)
                         .liquidGlass(Glass.shapeCapsule, alphaTop = 0.4f, alphaBottom = 0.18f)
-                        .padding(horizontal = 26.dp, vertical = 12.dp)
-                        .background(Color.Transparent),
+                        .clickable(onClick = onGrant)
+                        .padding(horizontal = 26.dp, vertical = 12.dp),
                 ) {
-                    Text(
-                        "Разрешить",
-                        color = Glass.tint,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.clickableText(onGrant),
-                    )
+                    Text("Разрешить", color = Glass.tint, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
     }
 }
-
-private fun Modifier.clickableText(onClick: () -> Unit): Modifier =
-    this.clickable(onClick = onClick)
