@@ -112,7 +112,7 @@ fun AiTargetOverlay(rect: NormRect, progress: Float, modifier: Modifier = Modifi
         0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart), label = "spin",
     )
     val pulse by t.animateFloat(
-        0f, 1f, infiniteRepeatable(tween(1200, easing = LinearEasing), RepeatMode.Reverse), label = "pulse",
+        0f, 1f, infiniteRepeatable(tween(1100, easing = LinearEasing), RepeatMode.Reverse), label = "pulse",
     )
     Canvas(modifier.fillMaxSize()) {
         val x = rect.x * size.width
@@ -120,35 +120,58 @@ fun AiTargetOverlay(rect: NormRect, progress: Float, modifier: Modifier = Modifi
         val fw = rect.w * size.width
         val fh = rect.h * size.height
         val corner = 24.dp.toPx()
-        val scrim = Color.Black.copy(alpha = 0.26f * (0.5f + 0.5f * progress))
+        val screen = Offset(size.width / 2f, size.height / 2f)      // where you point now
+        val target = Offset(x + fw / 2f, y + fh / 2f)               // where the AI says to aim
+        val sweep = Brush.sweepGradient(iridescent.rotated(spin), target)
 
-        // dim everything outside the frame (four bands)
+        // subtle dim + recommended frame
+        val scrim = Color.Black.copy(alpha = 0.18f + 0.10f * progress)
         drawRect(scrim, Offset(0f, 0f), Size(size.width, y))
         drawRect(scrim, Offset(0f, y + fh), Size(size.width, size.height - y - fh))
         drawRect(scrim, Offset(0f, y), Size(x, fh))
         drawRect(scrim, Offset(x + fw, y), Size(size.width - x - fw, fh))
+        drawRoundRect(sweep, Offset(x, y), Size(fw, fh), CornerRadius(corner, corner),
+            style = Stroke(2f), alpha = 0.5f + 0.5f * progress)
 
-        // iridescent rounded border (rotating sweep gradient)
-        val center = Offset(x + fw / 2f, y + fh / 2f)
-        val sweep = Brush.sweepGradient(iridescent.rotated(spin), center)
-        drawRoundRect(sweep, Offset(x, y), Size(fw, fh), CornerRadius(corner, corner), style = Stroke(2.5f))
+        // your current centre — crosshair
+        val cc = Color.White.copy(alpha = 0.85f)
+        drawLine(cc, Offset(screen.x - 16f, screen.y), Offset(screen.x + 16f, screen.y), 2f)
+        drawLine(cc, Offset(screen.x, screen.y - 16f), Offset(screen.x, screen.y + 16f), 2f)
 
-        // four converging corner brackets
-        val arm = minOf(fw, fh) * 0.14f
-        val inset = (minOf(fw, fh) * 0.16f) * progress
-        val bright = 0.55f + 0.45f * progress
-        val col = Color.White.copy(alpha = bright)
-        val sw = 3f + 2f * progress
-        // top-left
-        corner(col, sw, Offset(x + inset, y + inset), arm, +1f, +1f)
-        corner(col, sw, Offset(x + fw - inset, y + inset), arm, -1f, +1f)
-        corner(col, sw, Offset(x + inset, y + fh - inset), arm, +1f, -1f)
-        corner(col, sw, Offset(x + fw - inset, y + fh - inset), arm, -1f, -1f)
+        // direction arrow: from your centre toward the target — "aim here"
+        val dx = target.x - screen.x; val dy = target.y - screen.y
+        val dist = kotlin.math.hypot(dx, dy)
+        if (dist > 48f) {
+            val ux = dx / dist; val uy = dy / dist
+            val start = Offset(screen.x + ux * 26f, screen.y + uy * 26f)
+            val end = Offset(target.x - ux * 40f, target.y - uy * 40f)
+            drawLine(Color.White, start, end, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            // arrow head
+            val ah = 16f
+            val a1 = Offset(end.x - (ux * ah - uy * ah * 0.6f), end.y - (uy * ah + ux * ah * 0.6f))
+            val a2 = Offset(end.x - (ux * ah + uy * ah * 0.6f), end.y - (uy * ah - ux * ah * 0.6f))
+            drawLine(Color.White, end, a1, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            drawLine(Color.White, end, a2, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        }
 
-        // centre dot pulses; grows/locks with progress
-        drawCircle(sweep, radius = (10f + 10f * pulse) * (1f - progress) + 6f, center = center, style = Stroke(2f))
-        drawCircle(Color.White, radius = 3f + 2f * progress, center = center)
+        // the target ring you should aim at (pulsing, iridescent) + converging corners around it
+        val ringR = 30f
+        drawCircle(sweep, radius = ringR + (1f - progress) * (8f + 8f * pulse), center = target, style = Stroke(3f))
+        drawCircle(Color.White, radius = 3f + 2f * progress, center = target)
+        val arm = 14f
+        val gap = ringR + 8f - progress * 6f
+        cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x - gap, target.y - gap), arm, +1f, +1f)
+        cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x + gap, target.y - gap), arm, -1f, +1f)
+        cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x - gap, target.y + gap), arm, +1f, -1f)
+        cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x + gap, target.y + gap), arm, -1f, -1f)
     }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.cornerAt(
+    color: Color, stroke: Float, p: Offset, arm: Float, dx: Float, dy: Float,
+) {
+    drawLine(color, p, Offset(p.x + arm * dx, p.y), stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+    drawLine(color, p, Offset(p.x, p.y + arm * dy), stroke, cap = androidx.compose.ui.graphics.StrokeCap.Round)
 }
 
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.corner(

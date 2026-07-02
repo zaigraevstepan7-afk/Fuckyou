@@ -186,9 +186,17 @@ fun CameraScreen() {
         }
     }
 
-    // "Aim & lock": hold the phone steady on the recommended frame → corners converge → auto-shoot.
-    val aligning = aiOn && aiResult?.frame != null && isSteady && !capturing
-    val alignProgress by animateFloatAsState(if (aligning) 1f else 0f, animationSpec = tween(1500), label = "align")
+    // "Aim & lock": arrow shows where to point; when your centre reaches the target and the
+    // phone is steady, corners converge → auto-shoot.
+    val centered = aiResult?.frame?.let {
+        val cx = it.x + it.w / 2f - 0.5f
+        val cy = it.y + it.h / 2f - 0.5f
+        (1f - kotlin.math.hypot(cx, cy) / 0.5f).coerceIn(0f, 1f)
+    } ?: 0f
+    val aligning = aiOn && aiResult?.frame != null && centered > 0.82f && isSteady && !capturing
+    val alignProgress by animateFloatAsState(
+        if (aligning) 1f else centered * 0.75f, animationSpec = tween(500), label = "align",
+    )
     LaunchedEffect(alignProgress) {
         if (aiOn && alignProgress > 0.98f && !capturing && System.currentTimeMillis() - autoCoolDown > 4000) {
             autoCoolDown = System.currentTimeMillis()
