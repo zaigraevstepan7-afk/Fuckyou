@@ -1,4 +1,4 @@
-name: Refresh Canada VPN subscription
+name: Refresh working VPN subscription
 
 on:
   schedule:
@@ -15,16 +15,27 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 50
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
-      - name: Rebuild subscription (fetch, TCP-check, GeoIP, filter Canada)
+      - name: Install xray-knife (real proxy validator)
+        run: |
+          go install github.com/lilendian0x00/xray-knife/v3@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Rebuild subscription (fetch, TCP prefilter, real xray test)
         run: python3 generate_sub.py
 
       - name: Commit if changed
@@ -33,7 +44,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain canada.txt canada_base64.txt)" ]; then
             git add canada.txt canada_base64.txt
-            git commit -m "chore: refresh Canada VPN subscription [skip ci]"
+            git commit -m "chore: refresh working VPN subscription [skip ci]"
             git push
           else
             echo "No changes — subscription still current."

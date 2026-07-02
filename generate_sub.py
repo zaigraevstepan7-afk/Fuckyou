@@ -1,54 +1,91 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-generate_sub.py — Free Canada VPN subscription builder for the Happ app.
+generate_sub.py — self-updating "best working free servers" subscription for Happ.
+
+Every server in the output has been REALLY tested end-to-end with xray-core
+(via xray-knife): a full proxy connection is established and an HTTP request is
+routed through it. Dead servers, wrong SNI/UUID and broken TLS are dropped — so
+you don't get "TLS handshake" errors on import.
 
 Pipeline:
   1. Fetch public free-config lists from sources.txt (auto-detect base64/plaintext).
-  2. Parse vless:// / vmess:// / trojan:// / ss:// URIs -> (host, port).
-  3. Dedup by (host, port).
-  4. TCP-check every server concurrently (asyncio) and record latency (ms).
-  5. GeoIP the alive hosts via ip-api.com/batch -> countryCode.
-  6. Keep Canada, sort by latency, dedup by resolved IP, take up to TARGET.
-     If fewer than TARGET Canada servers are alive, top up with the fastest
-     US servers (then any other country) so the list always has TARGET entries.
-  7. Rewrite the "#" label: entry #1 = AUTO (fastest), rest numbered.
-  8. Write canada.txt (plaintext) and canada_base64.txt (base64).
+  2. Parse vless:// / vmess:// / trojan:// / ss:// URIs, dedup by (host, port).
+  3. Fast TCP prefilter (asyncio) to drop obviously-dead endpoints.
+  4. Real validation with xray-knife: keep only configs that actually proxy
+     traffic; record real delay (ms) and true exit country (via /cdn-cgi/trace).
+  5. Rank: Canada first, then US, then other known countries, then unknown —
+     each group fastest-first. Take TARGET servers. #1 is labelled AUTO.
+  6. Write canada.txt (plaintext) and canada_base64.txt (base64).
 
-Standard library only — runs in GitHub Actions with no `pip install`.
+NOTE: genuine *Canadian-exit* free servers are effectively nonexistent in public
+pools, so the list is "Canada-preferred, then nearest working". Labels always
+show each server's REAL exit country — no fake "Canada" tags.
+
+Needs: Python 3 (stdlib only) + the `xray-knife` binary on PATH (or $XRAY_KNIFE).
 """
 
 import asyncio
 import base64
+import csv
 import json
+import os
 import re
-import socket
+import shutil
+import subprocess
 import sys
-import time
+import tempfile
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone
 
-HERE = __file__.rsplit("/", 1)[0] if "/" in __file__ else "."
-SOURCES_FILE = HERE + "/sources.txt"
-OUT_PLAIN = HERE + "/canada.txt"
-OUT_B64 = HERE + "/canada_base64.txt"
+HERE = os.path.dirname(os.path.abspath(__file__))
+SOURCES_FILE = os.path.join(HERE, "sources.txt")
+OUT_PLAIN = os.path.join(HERE, "canada.txt")
+OUT_B64 = os.path.join(HERE, "canada_base64.txt")
 
-TARGET = 11            # 1 AUTO + 10 servers
-TCP_TIMEOUT = 3.0      # seconds per connect attempt
-CONCURRENCY = 300      # simultaneous TCP checks
-FETCH_TIMEOUT = 30     # seconds per source download
-GEO_BATCH = 100        # ip-api batch size (free tier max)
+TARGET = 11              # 1 AUTO + 10 servers
+TCP_TIMEOUT = 3.0        # seconds per TCP connect (prefilter)
+CONCURRENCY = 300        # simultaneous TCP checks
+FETCH_TIMEOUT = 30       # seconds per source download
+MAX_VALIDATE = 1800      # cap configs handed to xray-knife (bounds runtime)
+KNIFE_THREADS = "100"
+KNIFE_MDELAY = "4500"    # ms; a config slower than this is treated as dead
 
-UA = "Mozilla/5.0 (compatible; happ-canada-sub/1.0)"
+UA = "Mozilla/5.0 (compatible; happ-sub/2.0)"
 PROTO_PREFIXES = ("vless://", "vmess://", "trojan://", "ss://", "hysteria2://", "hy2://")
+
+COUNTRY_FLAG = {
+    "CA": "🇨🇦", "US": "🇺🇸", "FR": "🇫🇷", "DE": "🇩🇪", "NL": "🇳🇱", "GB": "🇬🇧",
+    "PL": "🇵🇱", "SG": "🇸🇬", "JP": "🇯🇵", "FI": "🇫🇮", "SE": "🇸🇪", "CH": "🇨🇭",
+    "RO": "🇷🇴", "IT": "🇮🇹", "ES": "🇪🇸", "IN": "🇮🇳", "PH": "🇵🇭", "AT": "🇦🇹",
+    "AU": "🇦🇺", "HK": "🇭🇰", "KR": "🇰🇷", "TR": "🇹🇷", "RU": "🇷🇺", "UA": "🇺🇦",
+}
+COUNTRY_NAME = {
+    "CA": "Canada", "US": "USA", "GB": "UK", "FR": "France", "DE": "Germany",
+    "NL": "Netherlands", "PL": "Poland", "SG": "Singapore", "JP": "Japan",
+    "FI": "Finland", "SE": "Sweden", "CH": "Switzerland", "RO": "Romania",
+    "IT": "Italy", "ES": "Spain", "IN": "India", "PH": "Philippines",
+    "AT": "Austria", "AU": "Australia",
+}
+# Ranking: lower = higher priority. Canada, then US, then any known country,
+# then unknown/CDN-fronted (null exit).
+RANK = {"CA": 0, "US": 1}
 
 
 # ---------------------------------------------------------------- fetching
-def http_get(url, timeout=FETCH_TIMEOUT):
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read()
+def http_get(url, timeout=FETCH_TIMEOUT, retries=3):
+    last = None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception as e:  # transient IncompleteRead / timeouts / resets
+            last = e
+            if isinstance(e, urllib.error.HTTPError) and e.code in (403, 404):
+                raise
+    raise last
 
 
 def looks_like_configs(text):
@@ -57,13 +94,9 @@ def looks_like_configs(text):
 
 def decode_body(raw):
     """Return list of config lines, auto-decoding base64 subscriptions."""
-    try:
-        text = raw.decode("utf-8", "ignore")
-    except Exception:
-        text = str(raw)
+    text = raw.decode("utf-8", "ignore") if isinstance(raw, (bytes, bytearray)) else str(raw)
     if looks_like_configs(text):
         return text.splitlines()
-    # maybe base64 (subscriptions are often a single base64 blob)
     compact = "".join(text.split())
     try:
         pad = compact + "=" * (-len(compact) % 4)
@@ -106,16 +139,12 @@ def parse_host_port(uri):
     """Extract (host, port) from a proxy URI, or None."""
     try:
         if uri.startswith("vmess://"):
-            body = uri[len("vmess://"):]
-            body = body.split("#", 1)[0]
+            body = uri[len("vmess://"):].split("#", 1)[0]
             pad = body + "=" * (-len(body) % 4)
             data = json.loads(base64.b64decode(pad).decode("utf-8", "ignore"))
             host = str(data.get("add", "")).strip()
             port = str(data.get("port", "")).strip()
-            if host and port.isdigit():
-                return host, int(port)
-            return None
-        # vless / trojan / ss / hysteria2: scheme://cred@host:port?...#tag
+            return (host, int(port)) if host and port.isdigit() else None
         m = re.search(r"@\[?([^\]/?#@]+?)\]?:(\d{1,5})", uri)
         if m:
             return m.group(1), int(m.group(2))
@@ -124,73 +153,107 @@ def parse_host_port(uri):
     return None
 
 
-# ---------------------------------------------------------------- tcp check
+# ---------------------------------------------------------------- tcp prefilter
 async def tcp_probe(host, port, sem):
     async with sem:
-        start = time.monotonic()
         try:
             fut = asyncio.open_connection(host, port)
-            reader, writer = await asyncio.wait_for(fut, timeout=TCP_TIMEOUT)
+            _, writer = await asyncio.wait_for(fut, timeout=TCP_TIMEOUT)
             writer.close()
             try:
                 await writer.wait_closed()
             except Exception:
                 pass
-            return int((time.monotonic() - start) * 1000)
+            return True
         except Exception:
-            return None
+            return False
 
 
 async def check_all(targets):
-    """targets: list of (host, port). Returns dict {(host,port): latency_ms}."""
     sem = asyncio.Semaphore(CONCURRENCY)
-    tasks = [tcp_probe(h, p, sem) for (h, p) in targets]
-    results = await asyncio.gather(*tasks)
-    alive = {}
-    for (h, p), lat in zip(targets, results):
-        if lat is not None:
-            alive[(h, p)] = lat
-    return alive
+    results = await asyncio.gather(*(tcp_probe(h, p, sem) for (h, p) in targets))
+    return {t for t, ok in zip(targets, results) if ok}
 
 
-# ---------------------------------------------------------------- geoip
-# Anycast CDN / big-cloud fronts: their edge IP geolocates to wherever the
-# client is, NOT to the real exit server. We flag them so genuine
-# datacenter-hosted Canadian servers get priority over CDN-fronted ones.
-CDN_RE = re.compile(
-    r"cloudflare|fastly|akamai|amazon|aws|google|microsoft|azure|oracle|"
-    r"linode|digitalocean\s+cdn|cloudfront|gcore|bunnycdn|edgecast|incapsula",
-    re.I,
-)
+# ---------------------------------------------------------------- validation
+def find_xray_knife():
+    for cand in (os.environ.get("XRAY_KNIFE"),
+                 shutil.which("xray-knife"),
+                 os.path.expanduser("~/go/bin/xray-knife"),
+                 "/tmp/gobin/xray-knife"):
+        if cand and os.path.exists(cand):
+            return cand
+    return None
 
 
-def geoip_countries(hosts):
-    """Return dict {host: (countryCode, resolved_ip, is_cdn)} via ip-api batch."""
-    out = {}
-    hosts = list(hosts)
-    for i in range(0, len(hosts), GEO_BATCH):
-        chunk = hosts[i:i + GEO_BATCH]
-        payload = json.dumps([{"query": h} for h in chunk]).encode()
+def validate(uris):
+    """Real end-to-end test via xray-knife. Returns list of dicts:
+       {link, delay(int ms), ip, cc}. Only genuinely-working configs."""
+    knife = find_xray_knife()
+    if not knife:
+        print("[!] xray-knife not found. Install it:\n"
+              "    go install github.com/lilendian0x00/xray-knife/v3@latest\n"
+              "    (or set XRAY_KNIFE=/path/to/xray-knife)", file=sys.stderr)
+        sys.exit(2)
+
+    with tempfile.TemporaryDirectory() as td:
+        infile = os.path.join(td, "in.txt")
+        outfile = os.path.join(td, "out.csv")
+        with open(infile, "w", encoding="utf-8") as f:
+            f.write("\n".join(uris) + "\n")
+
+        cmd = [knife, "net", "http", "-f", infile, "-o", outfile, "-x", "csv",
+               "-r", "-s", "-t", KNIFE_THREADS, "-d", KNIFE_MDELAY]
+        print(f"[*] Validating {len(uris)} configs with xray-knife "
+              f"(threads={KNIFE_THREADS}, timeout={KNIFE_MDELAY}ms)...")
+        try:
+            subprocess.run(cmd, cwd=td, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL, timeout=3000)
+        except subprocess.TimeoutExpired:
+            print("[!] xray-knife timed out; using partial results.", file=sys.stderr)
+
+        rows = []
+        if os.path.exists(outfile):
+            with open(outfile, newline="", encoding="utf-8", errors="ignore") as f:
+                for rec in csv.reader(f):
+                    if not rec or rec[0] == "link" or len(rec) < 9:
+                        continue
+                    link, status = rec[0], rec[1]
+                    ip, delay, loc = rec[4], rec[5], rec[-1]
+                    if status != "passed" or not delay.strip().isdigit():
+                        continue
+                    cc = loc.strip().upper()
+                    if cc in ("NULL", "NONE", ""):
+                        cc = ""
+                    rows.append({"link": link, "delay": int(delay), "ip": ip.strip(), "cc": cc})
+        return rows
+
+
+def geoip_fill(rows):
+    """For working configs with unknown country but a real exit IP, resolve the
+    country via ip-api so ranking/labels are accurate."""
+    unknown_ips = sorted({r["ip"] for r in rows if not r["cc"] and r["ip"]
+                          and re.match(r"^\d{1,3}(\.\d{1,3}){3}$", r["ip"])})
+    if not unknown_ips:
+        return
+    ip2cc = {}
+    for i in range(0, len(unknown_ips), 100):
+        chunk = unknown_ips[i:i + 100]
+        payload = json.dumps([{"query": ip} for ip in chunk]).encode()
         req = urllib.request.Request(
-            "http://ip-api.com/batch?fields=status,countryCode,as,isp,query",
-            data=payload,
-            headers={"User-Agent": UA, "Content-Type": "application/json"},
-            method="POST",
-        )
+            "http://ip-api.com/batch?fields=status,countryCode,query",
+            data=payload, headers={"User-Agent": UA, "Content-Type": "application/json"},
+            method="POST")
         try:
             with urllib.request.urlopen(req, timeout=FETCH_TIMEOUT) as r:
-                arr = json.loads(r.read().decode("utf-8", "ignore"))
-            for host, item in zip(chunk, arr):
-                if isinstance(item, dict) and item.get("status") == "success":
-                    org = f"{item.get('as', '')} {item.get('isp', '')}"
-                    is_cdn = bool(CDN_RE.search(org))
-                    out[host] = (item.get("countryCode", ""), item.get("query", host), is_cdn)
-        except Exception as e:
-            print(f"[-] geoip batch failed: {type(e).__name__}", file=sys.stderr)
-        # respect ip-api free rate limit (~45 req/min)
-        if i + GEO_BATCH < len(hosts):
-            time.sleep(1.5)
-    return out
+                for item in json.loads(r.read().decode("utf-8", "ignore")):
+                    if isinstance(item, dict) and item.get("status") == "success":
+                        ip2cc[item["query"]] = item.get("countryCode", "")
+        except Exception:
+            pass
+    for r in rows:
+        if not r["cc"]:
+            r["cc"] = ip2cc.get(r["ip"], "")
 
 
 # ---------------------------------------------------------------- labeling
@@ -202,30 +265,25 @@ def relabel(uri, label):
             pad = body + "=" * (-len(body) % 4)
             data = json.loads(base64.b64decode(pad).decode("utf-8", "ignore"))
             data["ps"] = label
-            packed = base64.b64encode(
+            return "vmess://" + base64.b64encode(
                 json.dumps(data, ensure_ascii=False).encode()).decode()
-            return "vmess://" + packed
         except Exception:
             pass
-    base = uri.split("#", 1)[0]
-    return base + "#" + urllib.parse.quote(label)
-
-
-COUNTRY_FLAG = {"CA": "🇨🇦", "US": "🇺🇸"}
+    return uri.split("#", 1)[0] + "#" + urllib.parse.quote(label)
 
 
 def build_list(picks):
-    """picks: ordered list of dicts {uri, cc, lat}. First = AUTO."""
-    lines = []
+    out = []
     for idx, p in enumerate(picks):
-        flag = COUNTRY_FLAG.get(p["cc"], "🌐")
-        country = "Canada" if p["cc"] == "CA" else (p["cc"] or "Server")
+        cc = p["cc"]
+        flag = COUNTRY_FLAG.get(cc, "🌐")
+        name = COUNTRY_NAME.get(cc, cc or "Server")
         if idx == 0:
-            label = f"{flag} {country} · AUTO (fastest {p['lat']}ms)"
+            label = f"{flag} {name} · AUTO (fastest {p['delay']}ms)"
         else:
-            label = f"{flag} {country}-{idx:02d} · {p['lat']}ms"
-        lines.append(relabel(p["uri"], label))
-    return lines
+            label = f"{flag} {name}-{idx:02d} · {p['delay']}ms"
+        out.append(relabel(p["link"], label))
+    return out
 
 
 # ---------------------------------------------------------------- main
@@ -239,90 +297,62 @@ def main():
     configs = collect_configs(urls)
     print(f"[*] Total configs collected: {len(configs)}")
 
-    # parse + dedup by (host, port), keep first URI seen per endpoint
     by_endpoint = {}
     for uri in configs:
         hp = parse_host_port(uri)
         if hp and hp not in by_endpoint:
             by_endpoint[hp] = uri
     targets = list(by_endpoint.keys())
-    print(f"[*] Unique endpoints to TCP-check: {len(targets)}")
+    print(f"[*] Unique endpoints: {len(targets)}")
 
-    print("[*] Running TCP reachability checks...")
+    print("[*] TCP prefilter...")
     alive = asyncio.run(check_all(targets))
-    print(f"[*] Alive (TCP): {len(alive)}")
-    if not alive:
-        print("No servers passed the TCP check.", file=sys.stderr)
+    alive_uris = [by_endpoint[t] for t in alive]
+    print(f"[*] TCP-alive: {len(alive_uris)}")
+    if not alive_uris:
+        print("Nothing alive.", file=sys.stderr)
         return 1
 
-    # GeoIP only the alive hosts (unique host strings)
-    alive_hosts = sorted({h for (h, p) in alive})
-    print(f"[*] GeoIP lookup for {len(alive_hosts)} alive host(s)...")
-    geo = geoip_countries(alive_hosts)
+    if len(alive_uris) > MAX_VALIDATE:
+        print(f"[*] Capping validation set to {MAX_VALIDATE} (of {len(alive_uris)}).")
+        alive_uris = alive_uris[:MAX_VALIDATE]
 
-    # assemble candidates
-    candidates = []
-    for (h, p), lat in alive.items():
-        cc, ip, is_cdn = geo.get(h, ("", h, False))
-        candidates.append({"uri": by_endpoint[(h, p)], "host": h, "port": p,
-                           "lat": lat, "cc": cc, "ip": ip, "cdn": is_cdn})
-
-    def pool(cc_test, cdn):
-        items = [c for c in candidates if cc_test(c["cc"]) and c["cdn"] == cdn]
-        items.sort(key=lambda x: x["lat"])
-        seen, out = set(), []
-        for it in items:
-            key = it["ip"] or it["host"]
-            if key not in seen:
-                seen.add(key)
-                out.append(it)
-        return out
-
-    is_ca = lambda cc: cc == "CA"
-    is_us = lambda cc: cc == "US"
-    is_other = lambda cc: cc not in ("CA", "US")
-
-    ca_direct, ca_cdn = pool(is_ca, False), pool(is_ca, True)
-    us_direct, us_cdn = pool(is_us, False), pool(is_us, True)
-    other = pool(is_other, False) + pool(is_other, True)
-
-    print(f"[*] Canada: {len(ca_direct)} direct + {len(ca_cdn)} cdn | "
-          f"US: {len(us_direct)} direct + {len(us_cdn)} cdn | other: {len(other)}")
-
-    # Priority: real Canadian datacenter servers first, then CDN-fronted CA,
-    # then nearest (US direct/cdn), then anything else — until we hit TARGET.
-    picks, used_ips = [], set()
-    for src in (ca_direct, ca_cdn, us_direct, us_cdn, other):
-        for c in src:
-            if len(picks) >= TARGET:
-                break
-            key = c["ip"] or c["host"]
-            if key not in used_ips:
-                picks.append(c)
-                used_ips.add(key)
-
-    if len(picks) < TARGET:
-        print(f"[!] Only {len(picks)} servers available (< {TARGET}).", file=sys.stderr)
-    if not picks:
-        print("No usable servers.", file=sys.stderr)
+    working = validate(alive_uris)
+    print(f"[*] Genuinely working: {len(working)}")
+    if not working:
+        print("No servers passed real validation.", file=sys.stderr)
         return 1
+
+    geoip_fill(working)
+
+    # dedup by exit ip (fall back to link), then rank
+    seen, uniq = set(), []
+    for r in sorted(working, key=lambda x: x["delay"]):
+        key = r["ip"] or r["link"]
+        if key not in seen:
+            seen.add(key)
+            uniq.append(r)
+
+    uniq.sort(key=lambda r: (RANK.get(r["cc"], 2 if r["cc"] else 3), r["delay"]))
+    picks = uniq[:TARGET]
+
+    from collections import Counter
+    dist = Counter(r["cc"] or "??" for r in working)
 
     lines = build_list(picks)
     plaintext = "\n".join(lines) + "\n"
-    b64 = base64.b64encode(plaintext.encode()).decode()
-
     with open(OUT_PLAIN, "w", encoding="utf-8") as f:
         f.write(plaintext)
     with open(OUT_B64, "w", encoding="utf-8") as f:
-        f.write(b64 + "\n")
+        f.write(base64.b64encode(plaintext.encode()).decode() + "\n")
 
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    n_ca = sum(1 for p in picks if p["cc"] == "CA")
-    print("-" * 60)
-    print(f"[✓] Wrote {len(lines)} servers ({n_ca} CA) -> canada.txt @ {ts}")
+    print("-" * 64)
+    print(f"[✓] {len(lines)} working servers -> canada.txt @ {ts}")
+    print(f"    exit-country distribution of all working: {dict(dist)}")
     for i, p in enumerate(picks):
         tag = "AUTO" if i == 0 else f"#{i:02d}"
-        print(f"    {tag:>4}  {p['cc'] or '??':>2}  {p['lat']:>4}ms  {p['host']}:{p['port']}")
+        print(f"    {tag:>4}  {(p['cc'] or '??'):>2}  {p['delay']:>4}ms  {p['ip'] or p['link'][:40]}")
     return 0
 
 

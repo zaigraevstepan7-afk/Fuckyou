@@ -1,7 +1,8 @@
 # Public free-config sources aggregated by generate_sub.py
 # One URL per line. Lines starting with '#' are ignored.
 # A source that returns 404/error is skipped silently (public URLs drift).
-# The country filter is done by GeoIP, so protocol-only lists are fine.
+# Every config is real-tested with xray-knife afterwards, and the exit country
+# is detected there, so plain protocol-only lists are perfectly fine here.
 
 # Epodonios/v2ray-configs — split by protocol (base64 blobs, large & fresh)
 https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/Splitted-By-Protocol/vless.txt
