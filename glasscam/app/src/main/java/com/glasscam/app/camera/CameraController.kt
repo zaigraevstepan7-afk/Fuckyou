@@ -152,19 +152,29 @@ class CameraController(private val appContext: Context) {
         })
     }
 
-    /** Apply an AI [grade] (color matrix + sharpen + grain) to a captured JPEG and save it. */
-    fun processAndSave(jpeg: ByteArray, grade: EnhanceParams?): String {
-        var bmp = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return saveJpeg(jpeg)
-        if (grade != null) {
-            val graded = Bitmap.createBitmap(bmp.width, bmp.height, Bitmap.Config.ARGB_8888)
-            Canvas(graded).drawBitmap(bmp, 0f, 0f, Paint().apply {
-                colorFilter = ColorMatrixColorFilter(ColorMatrix(grade.toMatrix()))
-            })
-            bmp.recycle(); bmp = graded
-            if (grade.sharpen > 0.02f) bmp = unsharp(bmp, grade.sharpen)
-        }
+    /** Apply an AI [grade] (color matrix + sharpen) to a captured JPEG and save it. Returns its Uri. */
+    fun processAndSave(jpeg: ByteArray, grade: EnhanceParams?): android.net.Uri {
+        val out = if (grade == null) jpeg else gradeJpeg(jpeg, grade)
+        return saveJpeg(out)
+    }
+
+    /** Re-apply an AI [grade] to an already-saved image, overwriting it in place (background enhance). */
+    fun enhanceSavedInPlace(uri: android.net.Uri, grade: EnhanceParams) {
+        val input = appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
+        val out = gradeJpeg(input, grade)
+        appContext.contentResolver.openOutputStream(uri, "wt")?.use { it.write(out) }
+    }
+
+    private fun gradeJpeg(jpeg: ByteArray, grade: EnhanceParams): ByteArray {
+        var bmp = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return jpeg
+        val graded = Bitmap.createBitmap(bmp.width, bmp.height, Bitmap.Config.ARGB_8888)
+        Canvas(graded).drawBitmap(bmp, 0f, 0f, Paint().apply {
+            colorFilter = ColorMatrixColorFilter(ColorMatrix(grade.toMatrix()))
+        })
+        bmp.recycle(); bmp = graded
+        if (grade.sharpen > 0.02f) bmp = unsharp(bmp, grade.sharpen)
         val bos = ByteArrayOutputStream(); bmp.compress(Bitmap.CompressFormat.JPEG, 95, bos); bmp.recycle()
-        return saveJpeg(bos.toByteArray())
+        return bos.toByteArray()
     }
 
     /** Light unsharp mask via a downscaled blur difference. */
@@ -187,7 +197,7 @@ class CameraController(private val appContext: Context) {
         return out
     }
 
-    private fun saveJpeg(jpeg: ByteArray): String {
+    private fun saveJpeg(jpeg: ByteArray): android.net.Uri {
         val name = "GlassCam_${System.currentTimeMillis()}.jpg"
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, name)
@@ -197,7 +207,7 @@ class CameraController(private val appContext: Context) {
         val uri = appContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
             ?: throw IllegalStateException("Не удалось сохранить снимок")
         appContext.contentResolver.openOutputStream(uri)?.use { it.write(jpeg) }
-        return name
+        return uri
     }
 
     // --- video ---

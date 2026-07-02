@@ -66,9 +66,11 @@ import com.glasscam.app.glass.Glass
 import com.glasscam.app.glass.GlassIconButton
 import com.glasscam.app.glass.GlassShutter
 import com.glasscam.app.glass.liquidGlass
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 private val zoomStops = listOf(0.5f, 1f, 2f, 4f, 8f)
@@ -129,15 +131,26 @@ fun CameraScreen() {
     fun shoot(withDelay: Boolean) = scope.launch {
         if (capturing || recording) return@launch
         capturing = true
+        val aiGrade = if (aiOn) aiResult?.grade else null
         try {
             val jpeg = controller.captureJpeg()
-            val grade = if (aiOn) aiResult?.grade else null
-            controller.processAndSave(jpeg, grade)
-            lastShot = queryLatest(context)
+            val uri = controller.processAndSave(jpeg, aiGrade)
+            lastShot = uri
             toast = "Снимок сохранён"
+            capturing = false
+            // Background AI auto-enhance for shots not already AI-graded — keeps the shutter instant.
+            if (aiGrade == null && GeminiService.hasKey()) {
+                scope.launch {
+                    runCatching {
+                        val small = controller.latestFrame() ?: jpeg
+                        val params = GeminiService.suggestEnhancement(small).getOrNull() ?: return@runCatching
+                        withContext(Dispatchers.IO) { controller.enhanceSavedInPlace(uri, params) }
+                        toast = "ИИ улучшил фото"
+                    }
+                }
+            }
         } catch (e: Exception) {
             toast = e.message ?: "Ошибка съёмки"
-        } finally {
             capturing = false
         }
     }
