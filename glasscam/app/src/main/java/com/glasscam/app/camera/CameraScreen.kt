@@ -187,26 +187,37 @@ fun CameraScreen() {
         }
     }
 
-    // "Aim & lock": the arrow shows where to point. A real-time progress arc fills while you keep
-    // the target centred and the phone steady; when it fills → auto-shoot.
-    val centered = aiResult?.frame?.let {
-        val cx = it.x + it.w / 2f - 0.5f
-        val cy = it.y + it.h / 2f - 0.5f
-        (1f - kotlin.math.hypot(cx, cy) / 0.5f).coerceIn(0f, 1f)
-    } ?: 0f
-    var holdProgress by remember { mutableStateOf(0f) }
-    val alignedNow = rememberUpdatedState(aiOn && aiResult?.frame != null && centered > 0.8f && isSteady && !capturing && !videoMode)
-    val canShootNow = rememberUpdatedState(!capturing)
+    // Live aim: Gemini gives the target centre; between updates we move the ring by device rotation
+    // (gyro/rotation-vector) so it tracks in real time and the arc shows how much more to pan/tilt on.
+    val yawPitch by rememberYawPitch()
+    var baseTx by remember { mutableStateOf(0.5f) }
+    var baseTy by remember { mutableStateOf(0.5f) }
+    var refYaw by remember { mutableStateOf(0f) }
+    var refPitch by remember { mutableStateOf(0f) }
+    LaunchedEffect(aiResult) {
+        aiResult?.frame?.let {
+            baseTx = it.x + it.w / 2f; baseTy = it.y + it.h / 2f
+            refYaw = yawPitch[0]; refPitch = yawPitch[1]
+        }
+    }
+    // approx FOV factors (rad → normalized screen); signs chosen so the ring nears your centre
+    // as you pan/tilt toward it (can be flipped if a device moves it the wrong way).
+    val liveTx = (baseTx - (yawPitch[0] - refYaw) * 0.95f).coerceIn(0.04f, 0.96f)
+    val liveTy = (baseTy + (yawPitch[1] - refPitch) * 1.35f).coerceIn(0.04f, 0.96f)
+    val closeness = if (aiOn && aiResult?.frame != null)
+        (1f - kotlin.math.hypot(liveTx - 0.5f, liveTy - 0.5f) / 0.5f).coerceIn(0f, 1f) else 0f
+    val closeState = rememberUpdatedState(closeness)
+    val steadyState = rememberUpdatedState(isSteady)
+    val capturingState = rememberUpdatedState(capturing)
     LaunchedEffect(aiOn) {
-        if (!aiOn) { holdProgress = 0f; return@LaunchedEffect }
         while (isActive && aiOn) {
-            holdProgress = (holdProgress + if (alignedNow.value) 0.045f else -0.10f).coerceIn(0f, 1f)
-            if (holdProgress >= 1f && canShootNow.value && System.currentTimeMillis() - autoCoolDown > 2500) {
+            if (closeState.value > 0.9f && steadyState.value && !capturingState.value &&
+                System.currentTimeMillis() - autoCoolDown > 3000
+            ) {
                 autoCoolDown = System.currentTimeMillis()
                 shoot(false)
-                holdProgress = 0f
             }
-            delay(60)
+            delay(150)
         }
     }
 
@@ -231,7 +242,7 @@ fun CameraScreen() {
         // Optional rule-of-thirds grid (only when the user enables it).
         if (showGrid) ThirdsGrid()
         // AI aim & framing overlay.
-        if (aiOn) aiResult?.frame?.let { AiTargetOverlay(it, holdProgress) }
+        if (aiOn) aiResult?.frame?.let { AiAimOverlay(liveTx, liveTy, closeness) }
 
         // Top status
         Row(

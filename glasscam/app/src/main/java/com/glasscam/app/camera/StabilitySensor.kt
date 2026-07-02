@@ -14,6 +14,34 @@ import androidx.compose.ui.platform.LocalContext
 import kotlin.math.abs
 import kotlin.math.sqrt
 
+/**
+ * Live device yaw/pitch (radians) from the rotation-vector sensor. Used to move the AI aim ring
+ * in real time between AI updates, so the user sees how much further to pan/tilt onto the target.
+ */
+@Composable
+fun rememberYawPitch(): State<FloatArray> {
+    val context = LocalContext.current
+    val state = remember { mutableStateOf(floatArrayOf(0f, 0f)) }
+    DisposableEffect(Unit) {
+        val sm = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        val sensor = sm?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+            ?: sm?.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR)
+        val rot = FloatArray(9)
+        val orient = FloatArray(3)
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(e: SensorEvent) {
+                SensorManager.getRotationMatrixFromVector(rot, e.values)
+                SensorManager.getOrientation(rot, orient) // [0]=yaw(azimuth), [1]=pitch, [2]=roll
+                state.value = floatArrayOf(orient[0], orient[1])
+            }
+            override fun onAccuracyChanged(s: Sensor?, a: Int) {}
+        }
+        if (sensor != null) sm?.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME)
+        onDispose { sm?.unregisterListener(listener) }
+    }
+    return state
+}
+
 /** True when the phone is being held reasonably still — used to time auto-capture. */
 @Composable
 fun rememberIsSteady(): State<Boolean> {

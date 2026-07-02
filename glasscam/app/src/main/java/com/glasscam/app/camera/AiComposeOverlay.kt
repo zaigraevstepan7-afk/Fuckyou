@@ -101,12 +101,12 @@ fun AimReticle(rect: NormRect, modifier: Modifier = Modifier) {
 }
 
 /**
- * "Aim & lock" overlay (our own implementation of the technique): a recommended framing
- * rectangle with an animated iridescent border, a dimmed surround, and four corner brackets
- * that converge toward the centre as [progress] (hold-steady alignment) rises to 1 = locked.
+ * Live aim overlay: a crosshair at your current centre, a target ring at ([tx],[ty]) that moves
+ * in real time as you pan/tilt the phone, a direction arrow between them, and a progress arc that
+ * fills as you bring the centre onto the ring ([progress] = how close = "how much more to go").
  */
 @Composable
-fun AiTargetOverlay(rect: NormRect, progress: Float, modifier: Modifier = Modifier) {
+fun AiAimOverlay(tx: Float, ty: Float, progress: Float, modifier: Modifier = Modifier) {
     val t = rememberInfiniteTransition(label = "aim")
     val spin by t.animateFloat(
         0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart), label = "spin",
@@ -115,66 +115,44 @@ fun AiTargetOverlay(rect: NormRect, progress: Float, modifier: Modifier = Modifi
         0f, 1f, infiniteRepeatable(tween(1100, easing = LinearEasing), RepeatMode.Reverse), label = "pulse",
     )
     Canvas(modifier.fillMaxSize()) {
-        val x = rect.x * size.width
-        val y = rect.y * size.height
-        val fw = rect.w * size.width
-        val fh = rect.h * size.height
-        val corner = 24.dp.toPx()
-        val screen = Offset(size.width / 2f, size.height / 2f)      // where you point now
-        val target = Offset(x + fw / 2f, y + fh / 2f)               // where the AI says to aim
-        val sweep = Brush.sweepGradient(iridescent.rotated(spin), target)
-
-        // subtle dim + recommended frame
-        val scrim = Color.Black.copy(alpha = 0.18f + 0.10f * progress)
-        drawRect(scrim, Offset(0f, 0f), Size(size.width, y))
-        drawRect(scrim, Offset(0f, y + fh), Size(size.width, size.height - y - fh))
-        drawRect(scrim, Offset(0f, y), Size(x, fh))
-        drawRect(scrim, Offset(x + fw, y), Size(size.width - x - fw, fh))
-        drawRoundRect(sweep, Offset(x, y), Size(fw, fh), CornerRadius(corner, corner),
-            style = Stroke(2f), alpha = 0.5f + 0.5f * progress)
+        val screen = Offset(size.width / 2f, size.height / 2f)
+        val target = Offset(tx * size.width, ty * size.height)
+        val accent = androidx.compose.ui.graphics.lerp(Color(0xFF7CE0FF), Color(0xFF6BFF9E), progress)
 
         // your current centre — crosshair
         val cc = Color.White.copy(alpha = 0.85f)
         drawLine(cc, Offset(screen.x - 16f, screen.y), Offset(screen.x + 16f, screen.y), 2f)
         drawLine(cc, Offset(screen.x, screen.y - 16f), Offset(screen.x, screen.y + 16f), 2f)
 
-        // direction arrow: from your centre toward the target — "aim here"
+        // direction arrow from your centre toward the target ("веди сюда")
         val dx = target.x - screen.x; val dy = target.y - screen.y
         val dist = kotlin.math.hypot(dx, dy)
-        if (dist > 48f) {
+        if (dist > 46f) {
             val ux = dx / dist; val uy = dy / dist
-            val start = Offset(screen.x + ux * 26f, screen.y + uy * 26f)
-            val end = Offset(target.x - ux * 40f, target.y - uy * 40f)
-            drawLine(Color.White, start, end, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
-            // arrow head
+            val start = Offset(screen.x + ux * 24f, screen.y + uy * 24f)
+            val end = Offset(target.x - ux * 44f, target.y - uy * 44f)
+            drawLine(accent, start, end, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
             val ah = 16f
             val a1 = Offset(end.x - (ux * ah - uy * ah * 0.6f), end.y - (uy * ah + ux * ah * 0.6f))
             val a2 = Offset(end.x - (ux * ah + uy * ah * 0.6f), end.y - (uy * ah - ux * ah * 0.6f))
-            drawLine(Color.White, end, a1, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
-            drawLine(Color.White, end, a2, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            drawLine(accent, end, a1, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            drawLine(accent, end, a2, 4f, cap = androidx.compose.ui.graphics.StrokeCap.Round)
         }
 
-        // the target ring you should aim at (pulsing, iridescent) + converging corners around it
+        // target ring (pulsing) at the live target position
         val ringR = 30f
-        drawCircle(sweep, radius = ringR + (1f - progress) * (8f + 8f * pulse), center = target, style = Stroke(3f))
+        val sweep = Brush.sweepGradient(iridescent.rotated(spin), target)
+        drawCircle(sweep, radius = ringR + (1f - progress) * (7f + 7f * pulse), center = target, style = Stroke(3f))
         drawCircle(Color.White, radius = 3f + 2f * progress, center = target)
 
-        // real-time "how much longer" progress arc around the target
+        // "how much more to go" — progress arc that fills as the crosshair nears the ring
         val arcR = ringR + 13f
-        val track = Color.White.copy(alpha = 0.18f)
-        drawCircle(track, radius = arcR, center = target, style = Stroke(5f))
-        val arcColor = androidx.compose.ui.graphics.lerp(Color(0xFF7CE0FF), Color(0xFF6BFF9E), progress)
+        drawCircle(Color.White.copy(alpha = 0.16f), radius = arcR, center = target, style = Stroke(5f))
         drawArc(
-            arcColor, -90f, 360f * progress.coerceIn(0f, 1f), false,
+            accent, -90f, 360f * progress.coerceIn(0f, 1f), false,
             topLeft = Offset(target.x - arcR, target.y - arcR), size = Size(arcR * 2f, arcR * 2f),
             style = Stroke(width = 5f, cap = androidx.compose.ui.graphics.StrokeCap.Round),
         )
-        val arm = 14f
-        val gap = ringR + 8f - progress * 6f
-        cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x - gap, target.y - gap), arm, +1f, +1f)
-        cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x + gap, target.y - gap), arm, -1f, +1f)
-        cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x - gap, target.y + gap), arm, +1f, -1f)
-        cornerAt(Color.White.copy(alpha = 0.5f + 0.5f * progress), 3f, Offset(target.x + gap, target.y + gap), arm, -1f, -1f)
     }
 }
 
