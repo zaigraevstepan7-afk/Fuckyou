@@ -106,7 +106,11 @@ fun AimReticle(rect: NormRect, modifier: Modifier = Modifier) {
  * fills as you bring the centre onto the ring ([progress] = how close = "how much more to go").
  */
 @Composable
-fun AiAimOverlay(tx: Float, ty: Float, progress: Float, modifier: Modifier = Modifier) {
+fun AiAimOverlay(
+    aimRot: androidx.compose.runtime.State<FloatArray>,
+    baseTx: Float, baseTy: Float, refTilt: Float, refPan: Float,
+    modifier: Modifier = Modifier,
+) {
     val t = rememberInfiniteTransition(label = "aim")
     val spin by t.animateFloat(
         0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart), label = "spin",
@@ -115,6 +119,11 @@ fun AiAimOverlay(tx: Float, ty: Float, progress: Float, modifier: Modifier = Mod
         0f, 1f, infiniteRepeatable(tween(1100, easing = LinearEasing), RepeatMode.Reverse), label = "pulse",
     )
     Canvas(modifier.fillMaxSize()) {
+        // world-anchored target: compensate for phone rotation so the ring stays on the real spot.
+        val r = aimRot.value
+        val tx = (baseTx - (r[1] - refPan) * 0.9f).coerceIn(0.04f, 0.96f)
+        val ty = (baseTy - (r[0] - refTilt) * 0.9f).coerceIn(0.04f, 0.96f)
+        val progress = (1f - kotlin.math.hypot(tx - 0.5f, ty - 0.5f) / 0.5f).coerceIn(0f, 1f)
         val screen = Offset(size.width / 2f, size.height / 2f)
         val target = Offset(tx * size.width, ty * size.height)
         val accent = androidx.compose.ui.graphics.lerp(Color(0xFF7CE0FF), Color(0xFF6BFF9E), progress)
