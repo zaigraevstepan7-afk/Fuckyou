@@ -93,6 +93,7 @@ void setup()
 int (*orig_GfxDeviceGLES_PresentFrame)(uintptr_t instance);
 int hk_GfxDeviceGLES_PresentFrame(uintptr_t instance)
 {
+    static bool once = [] { LOGD("DIAG: present hook FIRST CALL instance=%p", (void *)0); return true; }();
     init();
     c_globals->init();
     auto width_fn = c_methods->get_width();
@@ -527,8 +528,14 @@ void init_render_hook()
 {
     // 0.39.1: context = present-frame func-pointer slot (void**) -> present_frame func = 0x53C0330
     void **present_frame_ptr = (void **)(base + c_offsets->context);
+    LOGD("DIAG: render_hook slot=%p *slot=%p (expect present func)", (void *)present_frame_ptr, present_frame_ptr ? *present_frame_ptr : nullptr);
     if (present_frame_ptr && *present_frame_ptr)
+    {
         swap_ptr(present_frame_ptr, hk_GfxDeviceGLES_PresentFrame, (void **)&orig_GfxDeviceGLES_PresentFrame);
+        LOGD("DIAG: render_hook swapped OK");
+    }
+    else
+        LOGD("DIAG: render_hook slot empty -> skipped (no menu, but no crash)");
 }
 
 #define _GNU_SOURCE
@@ -710,8 +717,11 @@ void *entry()
 
     if (base > 0)
     {
+        LOGD("DIAG: entry base=%p, calling init_render_hook", (void *)base);
         init_render_hook();
+        LOGD("DIAG: init_render_hook returned, calling update->init");
         c_update->init();
+        LOGD("DIAG: update->init returned OK");
     }
 
     sleep(4);

@@ -36,6 +36,7 @@ void strict_hit(void* _this, void* hit_data, void* player_hit_controller)
 void (*old_update)(c_player_controller *player);
 void new_update(c_player_controller *player)
 {
+    static bool once = [] { LOGD("DIAG: new_update FIRST CALL (hook works, reading player fields)"); return true; }();
     if (player) {
         c_photon_player *photon{};
         bool is_local{};
@@ -473,33 +474,39 @@ void update::init()
         sleep(oxorany(1));
     } while (!loadedlib(oxorany("lib/arm64/libsigner.so")));
 
+    LOGD("DIAG: update::init start, resolving classes");
     Il2CppClass *game_controller = (Il2CppClass *)il2cpp_class_from_name(dll::charp, oxorany("Axlebolt.Standoff.Game"), oxorany("GameController"));
+    LOGD("DIAG: GameController=%p", (void *)game_controller);
     if (game_controller)
     {
         vmt(game_controller, oxorany("Update"), (void *)new_game_update, (void **)&old_game_update);
+        LOGD("DIAG: hooked GameController.Update");
     }
 
     Il2CppClass *player_controller = (Il2CppClass *)il2cpp_class_from_name(dll::charp, oxorany("Axlebolt.Standoff.Player"), oxorany("PlayerController"));
+    LOGD("DIAG: PlayerController=%p", (void *)player_controller);
     if (player_controller)
     {
         vmt(player_controller, oxorany("Update"), (void *)new_update, (void **)&old_update);
         vmt(player_controller, oxorany("LateUpdate"), (void *)new_lateupdate, (void **)&old_lateupdate);
+        LOGD("DIAG: hooked PlayerController.Update/LateUpdate");
     }
 
     Il2CppClass *hit_controller = (Il2CppClass *)il2cpp_class_from_name(dll::charp, oxorany("Axlebolt.Standoff.Player.Hit"), oxorany("PlayerHitController"));
+    LOGD("DIAG: PlayerHitController=%p", (void *)hit_controller);
     if (hit_controller) {
-        LOGD("hit_controller -> %p", hit_controller);
+        // vmt() уже пишет vtable по верному method->slot; хардкод vtable[84] убран (в 0.39.1 слот другой -> OOB-запись/краш)
         vmt(hit_controller, oxorany("ACHHGEDAEGBBHFB"), (void *)strict_hit, (void **)&old_strict_hit);
-        // 0.39.1: vtable @ +0x198, слот 84
-        il2cpp39::set_vtable_slot(hit_controller, 84, (void *)strict_hit);
+        LOGD("DIAG: hooked PlayerHitController");
     }
 
     Il2CppClass *gun_controller = (Il2CppClass *)il2cpp_class_from_name(dll::charp, oxorany("Axlebolt.Standoff.Inventory.Gun"), oxorany("GunController"));
+    LOGD("DIAG: GunController=%p", (void *)gun_controller);
     if (gun_controller)
     {
+        // хардкод vtable[20] убран (в 0.39.1 слот другой -> OOB-запись/краш); vmt() пишет по method->slot
         vmt(gun_controller, oxorany("FEEBGAGHGGCGACA"), (void *)hook_executecommands, (void **)&old_executecommands);
-        // 0.39.1: vtable @ +0x198, слот 20
-        il2cpp39::set_vtable_slot(gun_controller, 20, (void *)hook_executecommands);
+        LOGD("DIAG: hooked GunController");
     }
 
     // 0.39.1: ray (0x84DB9F0, от 0.36.1) указывает в исполняемый КОД (RO), а не в слот делегата.
