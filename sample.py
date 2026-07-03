@@ -26,6 +26,15 @@ def load_model(ckpt_path, device="cpu"):
     return model, ckpt
 
 
+def pick_checkpoint():
+    """Предпочитаем лёгкий model.pt, иначе best.pt, иначе ckpt.pt."""
+    for name in ("model.pt", "best.pt", "ckpt.pt"):
+        p = os.path.join(CKPT_DIR, name)
+        if os.path.exists(p):
+            return p
+    raise SystemExit("Не найден чекпоинт в checkpoints/. Сначала обучи модель (train.py).")
+
+
 def find_tokenizer():
     for name in ("tokenizer.json", "tokenizer.char.json"):
         p = os.path.join(CKPT_DIR, name)
@@ -36,15 +45,15 @@ def find_tokenizer():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ckpt", default=os.path.join(CKPT_DIR, "best.pt"))
+    ap.add_argument("--ckpt", default=None)
     ap.add_argument("--prompt", default="Однажды")
     ap.add_argument("--tokens", type=int, default=200)
     ap.add_argument("--temperature", type=float, default=0.8)
     ap.add_argument("--top_k", type=int, default=50)
     args = ap.parse_args()
 
-    if not os.path.exists(args.ckpt):
-        args.ckpt = os.path.join(CKPT_DIR, "ckpt.pt")
+    if args.ckpt is None:
+        args.ckpt = pick_checkpoint()
 
     tok = load_tokenizer(find_tokenizer())
     model, ckpt = load_model(args.ckpt)

@@ -14,7 +14,7 @@ import os
 
 import torch
 
-from sample import load_model, find_tokenizer
+from sample import load_model, find_tokenizer, pick_checkpoint
 from tokenizer import load_tokenizer, build_chat_prompt, EOT, ASSISTANT
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -44,15 +44,15 @@ def generate_reply(model, tok, history, user_msg, max_new_tokens=200,
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ckpt", default=os.path.join(CKPT_DIR, "best.pt"))
+    ap.add_argument("--ckpt", default=None)
     ap.add_argument("--once", default=None, help="задать один вопрос и выйти")
     ap.add_argument("--temperature", type=float, default=0.8)
     ap.add_argument("--top_k", type=int, default=40)
     ap.add_argument("--max_history", type=int, default=4)
     args = ap.parse_args()
 
-    if not os.path.exists(args.ckpt):
-        args.ckpt = os.path.join(CKPT_DIR, "ckpt.pt")
+    if args.ckpt is None:
+        args.ckpt = pick_checkpoint()
 
     tok = load_tokenizer(find_tokenizer())
     model, ckpt = load_model(args.ckpt)
