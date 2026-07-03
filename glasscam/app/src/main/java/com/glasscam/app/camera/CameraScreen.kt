@@ -99,7 +99,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
-private val zoomStops = listOf(0.5f, 1f, 2f, 4f, 8f)
+private val zoomStops = listOf(1f, 2f, 4f, 8f)
+private const val MAX_ZOOM = 8f
 private val shutterColors = listOf(
     Color(0xFF7CE0FF), Color(0xFFB69CFF), Color(0xFFFF9CE0),
     Color(0xFFFFC98C), Color(0xFF9CFFC1), Color(0xFF7CE0FF),
@@ -162,6 +163,15 @@ fun CameraScreen() {
     LaunchedEffect(toast) { if (toast != null) { delay(1800); toast = null } }
     DisposableEffect(Unit) { onDispose { glView?.releaseGl() } }
 
+    // Software zoom: scale the preview around its centre so what's shown matches the cropped photo.
+    // Video isn't cropped, so the preview is shown 1:1 there.
+    LaunchedEffect(zoom, videoMode) {
+        if (glView == null) {
+            val s = if (videoMode) 1f else zoom
+            previewView.scaleX = s; previewView.scaleY = s
+        }
+    }
+
     fun applyGradeToGl(g: EnhanceParams?) {
         glView?.setGrade(
             g?.exposure ?: 0f, g?.contrast ?: 1f, g?.saturation ?: 1f, g?.warmth ?: 0f,
@@ -182,6 +192,7 @@ fun CameraScreen() {
         val effects = (if (aiOn) aiResult?.effects else null) ?: PhotoEffects.auto()
         val straightenDeg = roll   // auto-horizon: snapshot the tilt at capture
         val wm = watermark
+        val zoomSnap = zoom        // crop the saved photo to match the zoomed preview
         val mode = photoMode
         val jpeg = try {
             when (mode) {
@@ -198,7 +209,7 @@ fun CameraScreen() {
         scope.launch(Dispatchers.Default) {
             runCatching {
                 val shot = if (mode == PhotoMode.PORTRAIT) controller.applyPortraitBlur(jpeg) else jpeg
-                val uri = controller.processAndSave(shot, grade, effects, straightenDeg, wm)
+                val uri = controller.processAndSave(shot, grade, effects, straightenDeg, wm, zoomSnap)
                 withContext(Dispatchers.Main) {
                     lastShot = uri
                     toast = when (mode) {
@@ -228,8 +239,8 @@ fun CameraScreen() {
                     aiResult = r; aiError = null
                     applyGradeToGl(r.grade)
                     r.zoom?.let { z ->
-                        val target = z.coerceIn(controller.minZoom, controller.maxZoom)
-                        animate(zoom, target, animationSpec = tween(500)) { v, _ -> zoom = v; controller.setZoomAbsolute(v) }
+                        val target = z.coerceIn(1f, MAX_ZOOM)
+                        animate(zoom, target, animationSpec = tween(500)) { v, _ -> zoom = v }
                     }
                 } else {
                     aiError = res.exceptionOrNull()?.message
@@ -296,8 +307,7 @@ fun CameraScreen() {
             Modifier.fillMaxSize()
                 .pointerInput(Unit) {
                     detectTransformGestures { _, _, zoomChange, _ ->
-                        val nz = (zoom * zoomChange).coerceIn(controller.minZoom, controller.maxZoom)
-                        zoom = nz; controller.setZoomAbsolute(nz)
+                        zoom = (zoom * zoomChange).coerceIn(1f, MAX_ZOOM)
                     }
                 }
                 .pointerInput(Unit) {
@@ -368,7 +378,7 @@ fun CameraScreen() {
                         Box(
                             Modifier.clip(RoundedCornerShape(percent = 50))
                                 .background(if (sel) Color.White.copy(alpha = 0.92f) else Color.Transparent)
-                                .clickable { scope.launch { animate(zoom, z, animationSpec = tween(300)) { v, _ -> zoom = v; controller.setZoomAbsolute(v) } } }
+                                .clickable { scope.launch { animate(zoom, z, animationSpec = tween(300)) { v, _ -> zoom = v } } }
                                 .padding(horizontal = 12.dp, vertical = 6.dp),
                         ) {
                             Text(if (sel) "$lbl×" else lbl, color = if (sel) Color(0xFF06121F) else Glass.tint,

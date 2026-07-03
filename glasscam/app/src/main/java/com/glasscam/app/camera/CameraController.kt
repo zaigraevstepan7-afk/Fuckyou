@@ -306,27 +306,39 @@ class CameraController(private val appContext: Context) {
         return (0xFF shl 24) or (r shl 16) or (g shl 8) or bb
     }
 
-    /** Full save pipeline: grade + curve + sharpen + effects, then auto-straighten and watermark. */
+    /** Full save pipeline: zoom-crop + grade + curve + sharpen + effects, then straighten + watermark. */
     fun processAndSave(
         jpeg: ByteArray, grade: EnhanceParams?, effects: PhotoEffects? = null,
-        straightenDeg: Float = 0f, watermark: Boolean = false,
+        straightenDeg: Float = 0f, watermark: Boolean = false, zoom: Float = 1f,
     ): android.net.Uri {
-        val out = renderPhoto(jpeg, grade, effects, straightenDeg, watermark)
+        val out = renderPhoto(jpeg, grade, effects, straightenDeg, watermark, zoom)
         return saveJpeg(out)
     }
 
     /** Re-apply an AI [grade] to an already-saved image, overwriting it in place (background enhance). */
     fun enhanceSavedInPlace(uri: android.net.Uri, grade: EnhanceParams) {
         val input = appContext.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
-        val out = renderPhoto(input, grade, null, 0f, false)
+        val out = renderPhoto(input, grade, null, 0f, false, 1f)
         appContext.contentResolver.openOutputStream(uri, "wt")?.use { it.write(out) }
+    }
+
+    /** Center-crop [src] to a 1/[zoom] window (digital zoom that matches the software-zoomed preview). */
+    private fun cropZoom(src: Bitmap, zoom: Float): Bitmap {
+        val z = zoom.coerceAtLeast(1f)
+        if (z <= 1.01f) return src
+        val cw = (src.width / z).toInt().coerceIn(1, src.width)
+        val ch = (src.height / z).toInt().coerceIn(1, src.height)
+        val x = ((src.width - cw) / 2).coerceAtLeast(0)
+        val y = ((src.height - ch) / 2).coerceAtLeast(0)
+        return Bitmap.createBitmap(src, x, y, cw, ch)
     }
 
     private fun renderPhoto(
         jpeg: ByteArray, grade: EnhanceParams?, effects: PhotoEffects?,
-        straightenDeg: Float, watermark: Boolean,
+        straightenDeg: Float, watermark: Boolean, zoom: Float,
     ): ByteArray {
         var bmp = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size) ?: return jpeg
+        if (zoom > 1.01f) { val z = cropZoom(bmp, zoom); if (z !== bmp) { bmp.recycle(); bmp = z } }
         if (grade != null) {
             val graded = Bitmap.createBitmap(bmp.width, bmp.height, Bitmap.Config.ARGB_8888)
             Canvas(graded).drawBitmap(bmp, 0f, 0f, Paint().apply {
