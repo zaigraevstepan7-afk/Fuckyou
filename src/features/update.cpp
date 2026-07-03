@@ -75,15 +75,24 @@ void new_update(c_player_controller *player)
                     }
                 }
                 // func with local player
+#define DIAG_ONCE(m) do { static bool _o = [] { LOGD("DIAG: %s", m); return true; }(); } while (0)
 
+                DIAG_ONCE("before misc->init");
                 c_misc->init(c_player->local);
+                DIAG_ONCE("before visual->hits");
                 c_visual->hits(c_player->local);
+                DIAG_ONCE("before antiaim->update");
                 c_antiaim->update();
+                DIAG_ONCE("before world->init");
                 c_world->init(c_player->local);
+                DIAG_ONCE("before chams->local");
                 c_chams->local(c_player->local);
+                DIAG_ONCE("before chams->weapon");
                 c_chams->weapon(c_player->local);
+                DIAG_ONCE("after local features OK");
             }
 
+            DIAG_ONCE("before is_enemy");
             if (c_globals->is_enemy(c_player->local, player))
                 c_player->enemy = player;
 
@@ -92,7 +101,9 @@ void new_update(c_player_controller *player)
             if (c_player->enemy) {
 
                 // func with enemy player
+                DIAG_ONCE("before chams->enemy");
                 c_chams->enemy(c_player->enemy);
+                DIAG_ONCE("after chams->enemy OK");
                 static int last_damage{};
 
                 if (g.hit_chams) {
@@ -127,8 +138,11 @@ void new_update(c_player_controller *player)
             }
         }
     }
+    DIAG_ONCE("before player->collect");
     c_player->collect(player);
+    DIAG_ONCE("before player->update");
     c_player->update();
+    DIAG_ONCE("new_update full cycle OK");
     old_update(player);
 }
 
@@ -192,6 +206,7 @@ void new_game_update(c_game_controller *game)
     {
         c_player->game = game;
         c_player->controls = *(c_player_controls **)((uintptr_t)game + oxorany(0x298));
+        { static bool _o = [] { LOGD("DIAG: new_game_update controls set (game+0x298)"); return true; }(); }
     } else {
         c_player->after_match();
     }
