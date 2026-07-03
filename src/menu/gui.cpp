@@ -93,8 +93,13 @@ namespace gui
         other();
         ui.render();
         ImGui::GetStyle().WindowMinSize = ImVec2(0, 0);
-        ImGui::SetNextWindowPos(ImVec2(c_egl->width / 2 - 100, c_egl->heigth - 60));
-        ImGui::SetNextWindowSize(ImVec2(400, 100));
+        // полоска внизу (открывает меню) — увеличена
+        const float barHalfW = 190.0f; // половина ширины полоски (было 100)
+        const float barH = 26.0f;      // толщина полоски (было 10)
+        const float barBottom = 14.0f; // отступ от низа экрана
+
+        ImGui::SetNextWindowPos(ImVec2(c_egl->width / 2 - (barHalfW + 20), c_egl->heigth - (barH + barBottom + 30)));
+        ImGui::SetNextWindowSize(ImVec2((barHalfW + 20) * 2, barH + barBottom + 45));
         ImGui::Begin(oxorany("##dfdsfsdfdsdsf"), nullptr,
                      ImGuiWindowFlags_NoCollapse |
                          ImGuiWindowFlags_NoTitleBar |
@@ -105,33 +110,33 @@ namespace gui
                                    ImGui::GetWindowSize()))
             open = !open;
 
-        ImVec2 rectStart = ImVec2(c_egl->width / 2 - 100, c_egl->heigth - 20);
-        ImVec2 rectEnd = ImVec2(c_egl->width / 2 + 100, c_egl->heigth - 10);
+        ImVec2 rectStart = ImVec2(c_egl->width / 2 - barHalfW, c_egl->heigth - (barH + barBottom));
+        ImVec2 rectEnd = ImVec2(c_egl->width / 2 + barHalfW, c_egl->heigth - barBottom);
         float rectWidth = rectEnd.x - rectStart.x;
 
         ImGui::GetWindowDrawList()->AddRectFilled(
             rectStart,
             rectEnd,
             IM_COL32(255, 255, 255, 150),
-            6.0f);
+            barH * 0.5f);
 
-        ImVec2 indicatorPos = ImVec2(c_egl->width / 2, c_egl->heigth - 15);
+        ImVec2 indicatorPos = ImVec2(c_egl->width / 2, (rectStart.y + rectEnd.y) * 0.5f);
         ImGui::GetWindowDrawList()->AddCircleFilled(
             indicatorPos,
-            3.0f,
+            5.0f,
             IM_COL32(200, 200, 200, 200));
 
         ImGui::GetWindowDrawList()->AddRectFilled(
             ImVec2(rectStart.x, rectStart.y),
-            ImVec2(rectStart.x + 15, rectEnd.y),
+            ImVec2(rectStart.x + 28, rectEnd.y),
             IM_COL32(255, 255, 255, 40),
-            3.0f);
+            barH * 0.5f);
 
         ImGui::GetWindowDrawList()->AddRectFilled(
-            ImVec2(rectEnd.x - 15, rectStart.y),
+            ImVec2(rectEnd.x - 28, rectStart.y),
             ImVec2(rectEnd.x, rectEnd.y),
             IM_COL32(255, 255, 255, 40),
-            3.0f);
+            barH * 0.5f);
 
         ImGui::End();
 
