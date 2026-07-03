@@ -139,6 +139,11 @@ void new_update(c_player_controller *player)
     c_player->collect(player);
     c_player->update();
     old_update(player);
+
+    // пульс: если эти строки идут в логе — цикл жив (краша нет). Пропали — краш.
+    static int hb = 0;
+    if ((++hb % 300) == 0)
+        LOGD("DIAG: HEARTBEAT alive frame=%d", hb);
 }
 
 void (*old_lateupdate)(c_player_controller *player);
