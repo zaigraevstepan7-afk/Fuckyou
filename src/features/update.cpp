@@ -489,9 +489,9 @@ void update::init()
     while (!loadedlib(oxorany("lib/arm64/libsigner.so")))
     {
         sleep(oxorany(1));
-        if (++sig_wait >= 20) // таймаут: не виснуть вечно если libsigner не грузится в 0.39.1
+        if (++sig_wait >= 4) // короткий таймаут: il2cpp уже готов, не ждать долго если libsigner нет
         {
-            LOGD("DIAG: libsigner not found after 20s, proceeding anyway");
+            LOGD("DIAG: libsigner not found after 4s, proceeding anyway");
             break;
         }
     }
