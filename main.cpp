@@ -224,11 +224,11 @@ EGLBoolean (*old_egl_swap_buffers)(EGLDisplay display, EGLSurface surface);
 EGLBoolean hook_egl_swap_buffers(EGLDisplay display, EGLSurface surface)
 {
     init();
+    c_globals->init(); // биндит c_methods (get_touch/get_count и т.д.) — нужно для handle_touch/ESP
     int (*width)() = (int (*)())(base + c_offsets->get_width);
     int (*heigh)() = (int (*)())(base + c_offsets->get_heigth);
     c_egl->width = width();
     c_egl->heigth = heigh();
-    // c_globals->init();
 
     if (!egl_inited)
     {
@@ -316,7 +316,9 @@ EGLBoolean hook_egl_swap_buffers(EGLDisplay display, EGLSurface surface)
     NewFrame();
     handle_touch();
     gui::render();
-    // c_globals->update();
+    c_visual->draw_hits();
+    c_visual->hitmarker();
+    c_esp->render();
 
     if (cmi)
     {
@@ -524,18 +526,72 @@ bool is_executable_address(void *ptr)
     return info.dli_fbase != nullptr;
 }
 
+#ifndef ELF64_R_SYM
+#define ELF64_R_SYM(i) ((i) >> 32)
+#endif
+
+// 0.39.1: слот context(0xAD63EE0) держит НЕ present-функцию (проверено логом: *slot != base+0x53C0330,
+// а мусор -> краш). Надёжный оверлей: хук импорта eglSwapBuffers в GOT libunity (без оффсетов).
+static bool hook_egl_via_got()
+{
+    Elf64_Ehdr *ehdr = reinterpret_cast<Elf64_Ehdr *>(base);
+    Elf64_Phdr *phdr = reinterpret_cast<Elf64_Phdr *>(base + ehdr->e_phoff);
+    Elf64_Dyn *dyn = nullptr;
+    for (int i = 0; i < ehdr->e_phnum; i++)
+        if (phdr[i].p_type == PT_DYNAMIC)
+        {
+            dyn = reinterpret_cast<Elf64_Dyn *>(base + phdr[i].p_vaddr);
+            break;
+        }
+    if (!dyn)
+        return false;
+
+    const char *strtab = nullptr;
+    Elf64_Sym *symtab = nullptr;
+    Elf64_Rela *jmprel = nullptr, *rela = nullptr;
+    size_t pltrelsz = 0, relasz = 0;
+    for (Elf64_Dyn *d = dyn; d->d_tag != DT_NULL; d++)
+    {
+        switch (d->d_tag)
+        {
+        case DT_STRTAB: strtab = reinterpret_cast<const char *>(base + d->d_un.d_ptr); break;
+        case DT_SYMTAB: symtab = reinterpret_cast<Elf64_Sym *>(base + d->d_un.d_ptr); break;
+        case DT_JMPREL: jmprel = reinterpret_cast<Elf64_Rela *>(base + d->d_un.d_ptr); break;
+        case DT_PLTRELSZ: pltrelsz = d->d_un.d_val; break;
+        case DT_RELA: rela = reinterpret_cast<Elf64_Rela *>(base + d->d_un.d_ptr); break;
+        case DT_RELASZ: relasz = d->d_un.d_val; break;
+        }
+    }
+    if (!strtab || !symtab)
+        return false;
+
+    auto scan = [&](Elf64_Rela *r, size_t sz) -> bool {
+        if (!r)
+            return false;
+        for (size_t i = 0; i < sz / sizeof(Elf64_Rela); i++)
+        {
+            uint32_t si = ELF64_R_SYM(r[i].r_info);
+            const char *nm = strtab + symtab[si].st_name;
+            if (nm && strcmp(nm, oxorany("eglSwapBuffers")) == 0)
+            {
+                void **got = reinterpret_cast<void **>(base + r[i].r_offset);
+                menu_includes::hook((void *)got, (void *)hook_egl_swap_buffers, (void **)&old_egl_swap_buffers);
+                return true;
+            }
+        }
+        return false;
+    };
+    if (scan(jmprel, pltrelsz))
+        return true;
+    return scan(rela, relasz);
+}
+
 void init_render_hook()
 {
-    // 0.39.1: context = present-frame func-pointer slot (void**) -> present_frame func = 0x53C0330
-    void **present_frame_ptr = (void **)(base + c_offsets->context);
-    LOGD("DIAG: render_hook slot=%p *slot=%p (expect present func)", (void *)present_frame_ptr, present_frame_ptr ? *present_frame_ptr : nullptr);
-    if (present_frame_ptr && *present_frame_ptr)
-    {
-        swap_ptr(present_frame_ptr, hk_GfxDeviceGLES_PresentFrame, (void **)&orig_GfxDeviceGLES_PresentFrame);
-        LOGD("DIAG: render_hook swapped OK");
-    }
+    if (hook_egl_via_got())
+        LOGD("DIAG: eglSwapBuffers hooked via GOT OK (overlay ready)");
     else
-        LOGD("DIAG: render_hook slot empty -> skipped (no menu, but no crash)");
+        LOGD("DIAG: eglSwapBuffers GOT entry NOT found!");
 }
 
 #define _GNU_SOURCE
