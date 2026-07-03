@@ -416,10 +416,9 @@ int vmt(Il2CppClass *clazz, const char *methodName, void *hookMethod, void **old
 
                 *oldMethod = il2cpp39::get_method_ptr(method);
                 il2cpp39::set_method_ptr(method, hookMethod);
-                // virtualMethodPointer нет как поля — правим слот в vtable класса
-                uint16_t slot = il2cpp39::method_slot(method);
-                if (slot != 0xFFFF)
-                    il2cpp39::set_vtable_slot(clazz, slot, hookMethod);
+                // NB: запись vtable[slot] УБРАНА — Unity зовёт Update/LateUpdate/hit через
+                // methodPointer (хуки срабатывают, лог доказывает), а запись в vtable могла
+                // портить соседнюю запись -> краш при появлении врага/хите.
                 return oxorany(0);
             }
         }
