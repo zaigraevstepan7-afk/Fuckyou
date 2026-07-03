@@ -1,0 +1,11 @@
+{
+  "vocab_size": 12000,
+  "tokenizer": "checkpoints/tokenizer.json",
+  "special_tokens": {
+    "<|endoftext|>": 0,
+    "<|user|>": 1,
+    "<|assistant|>": 2
+  },
+  "train_tokens": 20936498,
+  "val_tokens": 211479
+}

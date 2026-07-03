@@ -1,0 +1,18 @@
+# данные (большие, воспроизводятся скриптами)
+data/corpus.txt
+data/*.bin
+data/*.log
+
+# логи обучения
+train.log
+*.log
+
+# кэши
+__pycache__/
+*.pyc
+.hf_cache/
+
+# чекпоинты весов: не коммитим автоматически (большие).
+# Финальную обученную модель добавляем вручную: git add -f checkpoints/best.pt
+checkpoints/*.pt
+checkpoints/*.tmp
