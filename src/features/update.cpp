@@ -101,9 +101,7 @@ void new_update(c_player_controller *player)
             if (c_player->enemy) {
 
                 // func with enemy player
-                LOGD("DIAG: enemy-block -> chams->enemy");
                 c_chams->enemy(c_player->enemy);
-                LOGD("DIAG: enemy-block -> chams->enemy OK");
                 static int last_damage{};
 
                 if (g.hit_chams) {
@@ -138,14 +136,9 @@ void new_update(c_player_controller *player)
             }
         }
     }
-    bool dbg = (c_player->enemy != nullptr); // логируем хвост только когда есть враг (условие краша)
-    if (dbg) LOGD("DIAG: tail -> collect");
     c_player->collect(player);
-    if (dbg) LOGD("DIAG: tail -> update");
     c_player->update();
-    if (dbg) LOGD("DIAG: tail -> old_update");
     old_update(player);
-    if (dbg) LOGD("DIAG: tail -> after old_update OK");
 }
 
 void (*old_lateupdate)(c_player_controller *player);
@@ -522,18 +515,20 @@ void update::init()
     Il2CppClass *hit_controller = (Il2CppClass *)il2cpp_class_from_name(dll::charp, oxorany("Axlebolt.Standoff.Player.Hit"), oxorany("PlayerHitController"));
     LOGD("DIAG: PlayerHitController=%p", (void *)hit_controller);
     if (hit_controller) {
-        // vmt() уже пишет vtable по верному method->slot; хардкод vtable[84] убран (в 0.39.1 слот другой -> OOB-запись/краш)
-        vmt(hit_controller, oxorany("ACHHGEDAEGBBHFB"), (void *)strict_hit, (void **)&old_strict_hit);
-        LOGD("DIAG: hooked PlayerHitController");
+        // ОТКЛЮЧЕНО: обфусц. имя "ACHHGEDAEGBBHFB" от старой версии. В 0.39.1 оно может
+        // указывать на ДРУГОЙ метод -> хук с чужой сигнатурой -> краш при хите. (hit_chams всё равно off)
+        // vmt(hit_controller, oxorany("ACHHGEDAEGBBHFB"), (void *)strict_hit, (void **)&old_strict_hit);
+        LOGD("DIAG: PlayerHitController hook SKIPPED (obf name)");
     }
 
     Il2CppClass *gun_controller = (Il2CppClass *)il2cpp_class_from_name(dll::charp, oxorany("Axlebolt.Standoff.Inventory.Gun"), oxorany("GunController"));
     LOGD("DIAG: GunController=%p", (void *)gun_controller);
     if (gun_controller)
     {
-        // хардкод vtable[20] убран (в 0.39.1 слот другой -> OOB-запись/краш); vmt() пишет по method->slot
-        vmt(gun_controller, oxorany("FEEBGAGHGGCGACA"), (void *)hook_executecommands, (void **)&old_executecommands);
-        LOGD("DIAG: hooked GunController");
+        // ОТКЛЮЧЕНО: обфусц. имя "FEEBGAGHGGCGACA" от старой версии. В 0.39.1 оно может
+        // указывать на ДРУГОЙ метод -> хук с чужой сигнатурой -> краш при стрельбе. (silent-fire всё равно off)
+        // vmt(gun_controller, oxorany("FEEBGAGHGGCGACA"), (void *)hook_executecommands, (void **)&old_executecommands);
+        LOGD("DIAG: GunController hook SKIPPED (obf name)");
     }
 
     // 0.39.1: ray (0x84DB9F0, от 0.36.1) указывает в исполняемый КОД (RO), а не в слот делегата.
