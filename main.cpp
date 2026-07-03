@@ -701,9 +701,11 @@ static bool address_in_maps(uintptr_t addr)
 
 void *entry()
 {
+    LOGD("DIAG: entry thread STARTED, waiting for libunity.so");
     if (!_il2cpp)
         _il2cpp = new il2cpp_t();
 
+    int waited = 0;
     while (true)
     {
         if (_il2cpp->is_loaded())
@@ -712,8 +714,11 @@ void *entry()
             if (base > 0x100000000)
                 break;
         }
+        if ((waited++ % 3) == 0)
+            LOGD("DIAG: waiting libunity... loaded=%d base=%p", (int)_il2cpp->is_loaded(), (void *)base);
         sleep(1);
     }
+    LOGD("DIAG: libunity found, base=%p", (void *)base);
 
     if (base > 0)
     {
@@ -737,6 +742,8 @@ extern "C" jint JNIEXPORT JNI_OnLoad(JavaVM *vm, void *key)
     // key 1337 is passed by injector
     if (key != (void *)1337)
         return JNI_VERSION_1_6;
+
+    LOGD("DIAG: JNI_OnLoad key=1337 OK, spawning entry thread");
 
     JNIEnv *env = nullptr;
     if (vm->GetEnv((void **)&env, JNI_VERSION_1_6) == JNI_OK)

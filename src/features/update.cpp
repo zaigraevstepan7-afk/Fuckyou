@@ -469,10 +469,17 @@ void vmtHook(uintptr_t object, int method, void* news, void** old) {
 void update::init()
 {
     sleep(1);
-    do
+    LOGD("DIAG: update::init waiting for libsigner.so");
+    int sig_wait = 0;
+    while (!loadedlib(oxorany("lib/arm64/libsigner.so")))
     {
         sleep(oxorany(1));
-    } while (!loadedlib(oxorany("lib/arm64/libsigner.so")));
+        if (++sig_wait >= 20) // таймаут: не виснуть вечно если libsigner не грузится в 0.39.1
+        {
+            LOGD("DIAG: libsigner not found after 20s, proceeding anyway");
+            break;
+        }
+    }
 
     LOGD("DIAG: update::init start, resolving classes");
     Il2CppClass *game_controller = (Il2CppClass *)il2cpp_class_from_name(dll::charp, oxorany("Axlebolt.Standoff.Game"), oxorany("GameController"));
