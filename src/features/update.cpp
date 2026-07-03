@@ -101,9 +101,9 @@ void new_update(c_player_controller *player)
             if (c_player->enemy) {
 
                 // func with enemy player
-                DIAG_ONCE("before chams->enemy");
+                LOGD("DIAG: enemy-block -> chams->enemy");
                 c_chams->enemy(c_player->enemy);
-                DIAG_ONCE("after chams->enemy OK");
+                LOGD("DIAG: enemy-block -> chams->enemy OK");
                 static int last_damage{};
 
                 if (g.hit_chams) {
@@ -138,12 +138,14 @@ void new_update(c_player_controller *player)
             }
         }
     }
-    DIAG_ONCE("before player->collect");
+    bool dbg = (c_player->enemy != nullptr); // логируем хвост только когда есть враг (условие краша)
+    if (dbg) LOGD("DIAG: tail -> collect");
     c_player->collect(player);
-    DIAG_ONCE("before player->update");
+    if (dbg) LOGD("DIAG: tail -> update");
     c_player->update();
-    DIAG_ONCE("new_update full cycle OK");
+    if (dbg) LOGD("DIAG: tail -> old_update");
     old_update(player);
+    if (dbg) LOGD("DIAG: tail -> after old_update OK");
 }
 
 void (*old_lateupdate)(c_player_controller *player);
