@@ -291,6 +291,9 @@ void hk_filter(c_delegate *thisptr, c_player_inputs *inputs)
 
 void antiaim::update()
 {
+    if (!g.b_antiaim) // не ставить хук инпут-фильтра пока анти-эйм выключен (иначе краш при выкл. фичах)
+        return;
+
     c_player_controls *controls{};
     controls = c_player->controls;
     if (!controls)

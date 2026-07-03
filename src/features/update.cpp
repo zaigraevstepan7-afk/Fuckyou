@@ -205,8 +205,8 @@ void new_game_update(c_game_controller *game)
     if (game)
     {
         c_player->game = game;
-        c_player->controls = *(c_player_controls **)((uintptr_t)game + oxorany(0x298));
-        { static bool _o = [] { LOGD("DIAG: new_game_update controls set (game+0x298)"); return true; }(); }
+        // 0.39.1: PlayerControls backing field в GameController = 0x2B0 (было 0x298 от 0.36.1 -> мусор -> краш)
+        c_player->controls = *(c_player_controls **)((uintptr_t)game + oxorany(0x2B0));
     } else {
         c_player->after_match();
     }
