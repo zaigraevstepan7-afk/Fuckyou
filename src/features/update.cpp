@@ -163,9 +163,13 @@ void new_lateupdate(c_player_controller *player)
                 local = player;
 
             if (local) {
+                DIAG_ONCE("lateupdate: before updateGun");
                 c_globals->updateGun();
+                DIAG_ONCE("lateupdate: before antiaim->late_update");
                 c_antiaim->late_update(local);
+                DIAG_ONCE("lateupdate: before visual->remove");
                 c_visual->remove(c_player->local);
+                DIAG_ONCE("lateupdate: local block OK");
 
                 if (g.b_aspect)
                 {

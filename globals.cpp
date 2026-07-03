@@ -219,24 +219,32 @@ void player::update()
     }
 }
 
+// быстрая проверка указателя: ловит мусор (маленькие/огромные/невыровненные значения),
+// который проходит через null-проверки при неверных оффсетах и крашит при разыменовании
+static inline bool vptr(const void *p)
+{
+    uintptr_t v = reinterpret_cast<uintptr_t>(p);
+    return v > 0x10000 && v < 0x8000000000ULL && (v & 7) == 0;
+}
+
 void globals::updateGun()
 {
-    if (!c_player->local)
+    if (!vptr(c_player->local))
         return;
     c_weaponry_controller *weaponry{};
 
     weaponry = c_player->local->m_pWeaponry;
-    if (!weaponry)
+    if (!vptr(weaponry))
         return;
 
     c_player->weapon_controller = weaponry->m_pCurrentWeapon;
     c_player->gun_controller = (c_gun_controller *)weaponry->m_pCurrentWeapon;
-    if (!c_player->weapon_controller || !c_player->gun_controller)
+    if (!vptr(c_player->weapon_controller) || !vptr(c_player->gun_controller))
         return;
 
     c_player->weapon_parameters = c_player->weapon_controller->m_pParameters;
     c_player->gun_parameters = c_player->gun_controller->m_pParameters;
-    if (!c_player->weapon_parameters || !c_player->gun_parameters)
+    if (!vptr(c_player->weapon_parameters) || !vptr(c_player->gun_parameters))
         return;
 
     if (!this->holding_gun()) return;
