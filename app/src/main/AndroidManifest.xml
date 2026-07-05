@@ -32,6 +32,11 @@
             </intent-filter>
         </activity>
 
+        <!-- Свой экран ввода запроса (fallback, если нет системного RemoteInput) -->
+        <activity
+            android:name=".SearchActivity"
+            android:exported="false" />
+
         <!-- Браузер: принимает и внешние ссылки http/https -->
         <activity
             android:name=".BrowserActivity"

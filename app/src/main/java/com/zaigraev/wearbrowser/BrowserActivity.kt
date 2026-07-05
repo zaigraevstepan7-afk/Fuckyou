@@ -12,6 +12,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewConfigurationCompat
@@ -28,7 +29,15 @@ class BrowserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        webView = WebView(this)
+        // На некоторых часах Wear OS системный WebView отсутствует —
+        // сообщаем об этом вместо падения.
+        webView = try {
+            WebView(this)
+        } catch (t: Throwable) {
+            Toast.makeText(this, R.string.webview_missing, Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
         progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
             max = 100
         }
@@ -128,7 +137,9 @@ class BrowserActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
-        webView.destroy()
+        if (::webView.isInitialized) {
+            webView.destroy()
+        }
         super.onDestroy()
     }
 }

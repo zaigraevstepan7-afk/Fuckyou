@@ -91,14 +91,20 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun launchSearchInput() {
-        val intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
-        val remoteInputs = listOf(
-            RemoteInput.Builder(KEY_QUERY)
-                .setLabel(getString(R.string.search_prompt))
-                .build()
-        )
-        RemoteInputIntentHelper.putRemoteInputsExtra(intent, remoteInputs)
-        searchLauncher.launch(intent)
+        // Системный ввод Wear (голос/клавиатура); на часах без него
+        // (например, некоторых OnePlus) открываем свой экран поиска.
+        try {
+            val intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
+            val remoteInputs = listOf(
+                RemoteInput.Builder(KEY_QUERY)
+                    .setLabel(getString(R.string.search_prompt))
+                    .build()
+            )
+            RemoteInputIntentHelper.putRemoteInputsExtra(intent, remoteInputs)
+            searchLauncher.launch(intent)
+        } catch (t: Throwable) {
+            startActivity(Intent(this, SearchActivity::class.java))
+        }
     }
 
     private fun openUrl(url: String) {

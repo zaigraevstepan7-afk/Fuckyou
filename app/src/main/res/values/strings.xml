@@ -3,6 +3,8 @@
     <string name="app_name">Wear Браузер</string>
     <string name="search_google">Поиск Google</string>
     <string name="search_prompt">Что ищем?</string>
+    <string name="search_go">Найти</string>
+    <string name="webview_missing">На часах нет системного WebView — браузер работать не сможет</string>
     <string name="bookmarks">Закладки</string>
     <string name="history">История</string>
     <string name="clear_history">Очистить историю</string>
