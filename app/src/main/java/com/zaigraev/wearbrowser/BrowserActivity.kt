@@ -3,7 +3,9 @@ package com.zaigraev.wearbrowser
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.view.InputDevice
 import android.view.MotionEvent
@@ -33,12 +35,24 @@ class BrowserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Извне (exported activity) могут прислать любой URI —
+        // работаем только с http/https, иначе открываем Google
+        val requested = intent?.data
+        val startUrl = if (requested?.scheme == "http" || requested?.scheme == "https") {
+            requested.toString()
+        } else {
+            "https://www.google.com"
+        }
+
         // На некоторых часах Wear OS системный WebView отсутствует —
-        // сообщаем об этом вместо падения.
+        // тогда отдаём страницу установленному браузеру (Samsung
+        // Internet и т.п.), а не падаем.
         val web = try {
             WebView(this)
         } catch (t: Throwable) {
-            Toast.makeText(this, R.string.webview_missing, Toast.LENGTH_LONG).show()
+            if (!openInExternalBrowser(Uri.parse(startUrl))) {
+                Toast.makeText(this, R.string.webview_missing, Toast.LENGTH_LONG).show()
+            }
             finish()
             return
         }
@@ -152,15 +166,31 @@ class BrowserActivity : ComponentActivity() {
         web.isVerticalScrollBarEnabled = true
         web.requestFocus()
 
-        // Извне (exported activity) могут прислать любой URI —
-        // загружаем только http/https, иначе открываем Google
-        val requested = intent?.data
-        val url = if (requested?.scheme == "http" || requested?.scheme == "https") {
-            requested.toString()
-        } else {
-            "https://www.google.com"
+        web.loadUrl(startUrl)
+    }
+
+    /**
+     * Запасной путь без системного WebView: открываем страницу в любом
+     * установленном браузере, предпочитая Samsung Internet.
+     */
+    private fun openInExternalBrowser(uri: Uri): Boolean {
+        val viewIntent = Intent(Intent.ACTION_VIEW, uri)
+        val candidates = packageManager
+            .queryIntentActivities(viewIntent, PackageManager.MATCH_ALL)
+            .mapNotNull { it.activityInfo }
+            .filter { it.packageName != packageName }
+        val target = candidates.firstOrNull { it.packageName.contains("sbrowser") }
+            ?: candidates.firstOrNull()
+            ?: return false
+        return try {
+            startActivity(
+                Intent(Intent.ACTION_VIEW, uri)
+                    .setClassName(target.packageName, target.name)
+            )
+            true
+        } catch (t: Throwable) {
+            false
         }
-        web.loadUrl(url)
     }
 
     /**
