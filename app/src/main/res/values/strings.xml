@@ -7,4 +7,7 @@
     <string name="bookmarks">Закладки</string>
     <string name="history">История</string>
     <string name="clear_history">Очистить историю</string>
+    <string name="crash_report">Отчёт о сбое</string>
+    <string name="clear_crash">Очистить отчёт</string>
+    <string name="no_crash">Сбоев не зафиксировано</string>
 </resources>

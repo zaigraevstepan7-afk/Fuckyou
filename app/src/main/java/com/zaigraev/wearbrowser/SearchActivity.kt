@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -47,6 +48,7 @@ class SearchActivity : ComponentActivity() {
             MaterialTheme {
                 var query by remember { mutableStateOf("") }
                 val focusRequester = remember { FocusRequester() }
+                val keyboard = LocalSoftwareKeyboardController.current
 
                 fun submit() {
                     val text = query.trim()
@@ -99,6 +101,7 @@ class SearchActivity : ComponentActivity() {
                     // если узел ещё не прикреплён — фокус не критичен
                     try {
                         focusRequester.requestFocus()
+                        keyboard?.show()
                     } catch (e: IllegalStateException) {
                         // пользователь просто тапнет по полю сам
                     }

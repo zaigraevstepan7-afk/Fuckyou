@@ -35,9 +35,14 @@
             </intent-filter>
         </activity>
 
-        <!-- Свой экран ввода запроса (fallback, если нет системного RemoteInput) -->
+        <!-- Экран ввода поискового запроса -->
         <activity
             android:name=".SearchActivity"
+            android:exported="false" />
+
+        <!-- Просмотр отчёта о последнем сбое -->
+        <activity
+            android:name=".CrashActivity"
             android:exported="false" />
 
         <!-- Браузер: принимает и внешние ссылки http/https -->

@@ -20,7 +20,9 @@ object UrlUtils {
         return if (looksLikeUrl) {
             "https://$text"
         } else {
-            "https://www.google.com/search?q=" + Uri.encode(text)
+            // gbv=1 — облегчённая HTML-версия результатов Google:
+            // без тяжёлого JS, на часах грузится в разы быстрее
+            "https://www.google.com/search?gbv=1&q=" + Uri.encode(text)
         }
     }
 }

@@ -1,12 +1,12 @@
 package com.zaigraev.wearbrowser
 
-import android.app.RemoteInput
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,12 +16,18 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,15 +43,12 @@ import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
-import androidx.wear.input.RemoteInputIntentHelper
-
-private const val KEY_QUERY = "query"
+import kotlinx.coroutines.launch
 
 private data class Bookmark(val title: String, val url: String)
 
 private val BOOKMARKS = listOf(
-    Bookmark("Google", "https://www.google.com"),
-    Bookmark("YouTube", "https://m.youtube.com"),
+    Bookmark("Google", "https://www.google.com/?gbv=1"),
     Bookmark("Википедия", "https://ru.m.wikipedia.org"),
     Bookmark("Переводчик", "https://translate.google.com"),
     Bookmark("Новости", "https://news.google.com"),
@@ -53,32 +56,24 @@ private val BOOKMARKS = listOf(
 
 class MainActivity : ComponentActivity() {
 
-    private var historyVersion by mutableStateOf(0)
-
-    private val searchLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val data = result.data ?: return@registerForActivityResult
-        val query = RemoteInput.getResultsFromIntent(data)
-            ?.getCharSequence(KEY_QUERY)
-            ?.toString()
-            ?.trim()
-        if (!query.isNullOrEmpty()) {
-            openUrl(UrlUtils.toUrl(query))
-        }
-    }
+    private var refreshTick by mutableStateOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
                 HomeScreen(
-                    historyVersion = historyVersion,
-                    onSearch = ::launchSearchInput,
+                    refreshTick = refreshTick,
+                    onSearch = {
+                        startActivity(Intent(this, SearchActivity::class.java))
+                    },
                     onOpen = ::openUrl,
                     onClearHistory = {
                         HistoryStore.clear(this)
-                        historyVersion++
+                        refreshTick++
+                    },
+                    onShowCrash = {
+                        startActivity(Intent(this, CrashActivity::class.java))
                     }
                 )
             }
@@ -87,24 +82,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        historyVersion++
-    }
-
-    private fun launchSearchInput() {
-        // Системный ввод Wear (голос/клавиатура); на часах без него
-        // (например, некоторых OnePlus) открываем свой экран поиска.
-        try {
-            val intent = RemoteInputIntentHelper.createActionRemoteInputIntent()
-            val remoteInputs = listOf(
-                RemoteInput.Builder(KEY_QUERY)
-                    .setLabel(getString(R.string.search_prompt))
-                    .build()
-            )
-            RemoteInputIntentHelper.putRemoteInputsExtra(intent, remoteInputs)
-            searchLauncher.launch(intent)
-        } catch (t: Throwable) {
-            startActivity(Intent(this, SearchActivity::class.java))
-        }
+        refreshTick++
     }
 
     private fun openUrl(url: String) {
@@ -116,14 +94,18 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun HomeScreen(
-    historyVersion: Int,
+    refreshTick: Int,
     onSearch: () -> Unit,
     onOpen: (String) -> Unit,
-    onClearHistory: () -> Unit
+    onClearHistory: () -> Unit,
+    onShowCrash: () -> Unit
 ) {
     val context = LocalContext.current
-    val history = remember(historyVersion) { HistoryStore.load(context) }
+    val history = remember(refreshTick) { HistoryStore.load(context) }
+    val hasCrash = remember(refreshTick) { CrashLog.load(context) != null }
     val listState = rememberScalingLazyListState()
+    val scope = rememberCoroutineScope()
+    val focusRequester = remember { FocusRequester() }
 
     Scaffold(
         timeText = { TimeText() },
@@ -131,7 +113,15 @@ private fun HomeScreen(
     ) {
         ScalingLazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                // Прокрутка списка вращающейся коронкой
+                .onRotaryScrollEvent {
+                    scope.launch { listState.scrollBy(it.verticalScrollPixels) }
+                    true
+                }
+                .focusRequester(focusRequester)
+                .focusable()
         ) {
             item {
                 Chip(
@@ -153,6 +143,24 @@ private fun HomeScreen(
                         )
                     }
                 )
+            }
+
+            if (hasCrash) {
+                item {
+                    Chip(
+                        onClick = onShowCrash,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ChipDefaults.secondaryChipColors(),
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        label = { Text(context.getString(R.string.crash_report)) }
+                    )
+                }
             }
 
             item {
@@ -230,6 +238,14 @@ private fun HomeScreen(
                     )
                 }
             }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        try {
+            focusRequester.requestFocus()
+        } catch (e: IllegalStateException) {
+            // фокус не критичен — коронка заработает после первого тапа
         }
     }
 }

@@ -13,8 +13,8 @@ android {
         // Wear OS 4 = API 33; minSdk 30 покрывает Wear OS 3+
         minSdk = 30
         targetSdk = 33
-        versionCode = 5
-        versionName = "2.0.1"
+        versionCode = 6
+        versionName = "2.1"
 
         // OnePlus Watch (OPWWE261) — 32-битные часы (armeabi-v7a);
         // без фильтра APK вырос бы в разы из-за нативных библиотек
@@ -69,9 +69,6 @@ dependencies {
     // Compose для Wear OS
     implementation("androidx.wear.compose:compose-material:1.3.0")
     implementation("androidx.wear.compose:compose-foundation:1.3.0")
-
-    // Голосовой/клавиатурный ввод на часах (RemoteInput)
-    implementation("androidx.wear:wear-input:1.1.0")
 
     // Встроенный браузерный движок (Firefox/Gecko) — работает на часах
     // без системного WebView

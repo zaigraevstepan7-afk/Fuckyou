@@ -37,7 +37,7 @@ class BrowserActivity : ComponentActivity() {
         currentUrl = if (requested?.scheme == "http" || requested?.scheme == "https") {
             requested.toString()
         } else {
-            "https://www.google.com"
+            "https://www.google.com/?gbv=1"
         }
 
         geckoView = GeckoView(this)
@@ -176,8 +176,10 @@ class BrowserActivity : ComponentActivity() {
 
     /**
      * Прокрутка страницы вращающейся коронкой OnePlus Watch / безелем.
+     * Перехватываем в dispatch-фазе: GeckoView поглощает generic-события,
+     * поэтому onGenericMotionEvent активности до них не добирается.
      */
-    override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
         val s = session
         if (s != null &&
             event.action == MotionEvent.ACTION_SCROLL &&
@@ -193,7 +195,7 @@ class BrowserActivity : ComponentActivity() {
             )
             return true
         }
-        return super.onGenericMotionEvent(event)
+        return super.dispatchGenericMotionEvent(event)
     }
 
     override fun onDestroy() {
