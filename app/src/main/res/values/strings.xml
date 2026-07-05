@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wear Браузер</string>
+    <string name="search_google">Поиск Google</string>
+    <string name="search_prompt">Что ищем?</string>
+    <string name="bookmarks">Закладки</string>
+    <string name="history">История</string>
+    <string name="clear_history">Очистить историю</string>
+    <string name="loading">Загрузка…</string>
+</resources>
