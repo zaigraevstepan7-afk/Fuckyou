@@ -23,3 +23,17 @@
 | Метка | 🇳🇱 Стёпка топ а Никита лох |
 
 > Конфиг публичный/шэрный (изначально из тгк Vlesstrogan). Стабильность и доступность не гарантированы.
+
+---
+
+## 🛰️ Подписка «antygravity»
+
+Сборная подписка со всеми серверами лежит в папке [`antygravity/`](./antygravity/).
+
+Добавь этот URL в раздел **Подписки** своего клиента:
+
+```
+https://raw.githubusercontent.com/zaigraevstepan7-afk/Fuckyou/claude/vpn-server-config-y9rpro/antygravity/subscription.txt
+```
+
+Подробности и два отдельных JSON-конфига — в [`antygravity/README.md`](./antygravity/README.md).
