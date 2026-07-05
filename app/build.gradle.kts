@@ -13,13 +13,14 @@ android {
         // Wear OS 4 = API 33; minSdk 30 покрывает Wear OS 3+
         minSdk = 30
         targetSdk = 33
-        versionCode = 4
-        versionName = "2.0"
+        versionCode = 5
+        versionName = "2.0.1"
 
-        // Часы — только arm64; без фильтра APK вырос бы в ~4 раза
-        // из-за нативных библиотек GeckoView под все архитектуры
+        // OnePlus Watch (OPWWE261) — 32-битные часы (armeabi-v7a);
+        // без фильтра APK вырос бы в разы из-за нативных библиотек
+        // GeckoView под все архитектуры
         ndk {
-            abiFilters.add("arm64-v8a")
+            abiFilters.add("armeabi-v7a")
         }
     }
 
