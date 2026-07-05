@@ -95,7 +95,13 @@ class SearchActivity : ComponentActivity() {
                 }
 
                 LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
+                    // requestFocus может кинуть IllegalStateException,
+                    // если узел ещё не прикреплён — фокус не критичен
+                    try {
+                        focusRequester.requestFocus()
+                    } catch (e: IllegalStateException) {
+                        // пользователь просто тапнет по полю сам
+                    }
                 }
             }
         }
