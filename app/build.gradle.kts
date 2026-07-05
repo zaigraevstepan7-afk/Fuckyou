@@ -6,15 +6,15 @@ plugins {
 
 android {
     namespace = "com.zaigraev.wearbrowser"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.zaigraev.wearbrowser"
         // Wear OS 4 = API 33; minSdk 30 покрывает Wear OS 3+
         minSdk = 30
         targetSdk = 33
-        versionCode = 6
-        versionName = "2.1"
+        versionCode = 8
+        versionName = "2.2-gecko152"
 
         // OnePlus Watch (OPWWE261) — 32-битные часы (armeabi-v7a);
         // без фильтра APK вырос бы в разы из-за нативных библиотек
@@ -40,10 +40,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
     }
@@ -55,6 +51,12 @@ android {
             // скорость работы браузера не влияет.
             useLegacyPackaging = true
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
@@ -72,5 +74,5 @@ dependencies {
 
     // Встроенный браузерный движок (Firefox/Gecko) — работает на часах
     // без системного WebView
-    implementation("org.mozilla.geckoview:geckoview:139.0.20250609112858")
+    implementation("org.mozilla.geckoview:geckoview:152.0.20260629141727")
 }
