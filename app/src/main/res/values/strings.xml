@@ -4,10 +4,7 @@
     <string name="search_google">Поиск Google</string>
     <string name="search_prompt">Что ищем?</string>
     <string name="search_go">Найти</string>
-    <string name="webview_missing">На часах нет системного WebView — браузер работать не сможет</string>
-    <string name="page_too_heavy">Страница оказалась слишком тяжёлой для часов и была закрыта</string>
     <string name="bookmarks">Закладки</string>
     <string name="history">История</string>
     <string name="clear_history">Очистить историю</string>
-    <string name="loading">Загрузка…</string>
 </resources>

@@ -1,70 +1,53 @@
 package com.zaigraev.wearbrowser
 
-import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.ViewConfiguration
-import android.view.ViewGroup
-import android.webkit.RenderProcessGoneDetail
-import android.webkit.WebChromeClient
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewConfigurationCompat
-import androidx.webkit.WebSettingsCompat
-import androidx.webkit.WebViewFeature
-import kotlin.math.roundToInt
+import org.mozilla.geckoview.AllowOrDeny
+import org.mozilla.geckoview.GeckoResult
+import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.GeckoSessionSettings
+import org.mozilla.geckoview.GeckoView
+import org.mozilla.geckoview.ScreenLength
 
 class BrowserActivity : ComponentActivity() {
 
-    private var webView: WebView? = null
+    private lateinit var geckoView: GeckoView
     private lateinit var progressBar: ProgressBar
+    private var session: GeckoSession? = null
 
-    @SuppressLint("SetJavaScriptEnabled")
+    private var canGoBack = false
+    private var currentUrl = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Извне (exported activity) могут прислать любой URI —
         // работаем только с http/https, иначе открываем Google
         val requested = intent?.data
-        val startUrl = if (requested?.scheme == "http" || requested?.scheme == "https") {
+        currentUrl = if (requested?.scheme == "http" || requested?.scheme == "https") {
             requested.toString()
         } else {
             "https://www.google.com"
         }
 
-        // На некоторых часах Wear OS системный WebView отсутствует —
-        // тогда отдаём страницу установленному браузеру (Samsung
-        // Internet и т.п.), а не падаем.
-        val web = try {
-            WebView(this)
-        } catch (t: Throwable) {
-            if (!openInExternalBrowser(Uri.parse(startUrl))) {
-                Toast.makeText(this, R.string.webview_missing, Toast.LENGTH_LONG).show()
-            }
-            finish()
-            return
-        }
-        webView = web
-
+        geckoView = GeckoView(this)
         progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
             max = 100
         }
 
         val root = FrameLayout(this).apply {
             addView(
-                web,
+                geckoView,
                 FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.MATCH_PARENT
@@ -80,125 +63,123 @@ class BrowserActivity : ComponentActivity() {
         }
         setContentView(root)
 
-        web.settings.apply {
-            javaScriptEnabled = true
-            domStorageEnabled = true
-            useWideViewPort = true
-            loadWithOverviewMode = true
-            setSupportZoom(true)
-            builtInZoomControls = true
-            displayZoomControls = false
-        }
-
-        // Тёмная тема страниц — на часах экономит AMOLED и глаза
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
-            WebSettingsCompat.setAlgorithmicDarkeningAllowed(web.settings, true)
-        }
-
-        web.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(
-                view: WebView,
-                request: WebResourceRequest
-            ): Boolean {
-                val scheme = request.url.scheme
-                // Всю http/https-навигацию оставляем внутри WebView
-                if (scheme == "http" || scheme == "https") {
-                    return false
-                }
-                // tel:, mailto:, market: и т.п. — пробуем отдать системе
-                try {
-                    startActivity(Intent(Intent.ACTION_VIEW, request.url))
-                } catch (e: ActivityNotFoundException) {
-                    // на часах некому обработать — просто игнорируем
-                }
-                return true
-            }
-
-            override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-                progressBar.visibility = ProgressBar.VISIBLE
-            }
-
-            override fun onPageFinished(view: WebView, url: String) {
-                progressBar.visibility = ProgressBar.GONE
-                HistoryStore.add(this@BrowserActivity, view.title ?: "", url)
-            }
-
-            // Системе не хватило памяти и она убила рендерер WebView —
-            // без этого обработчика приложение обязано упасть (частая
-            // ситуация на часах). Закрываемся мягко.
-            override fun onRenderProcessGone(
-                view: WebView,
-                detail: RenderProcessGoneDetail
-            ): Boolean {
-                if (webView === view) {
-                    (view.parent as? ViewGroup)?.removeView(view)
-                    view.destroy()
-                    webView = null
-                    Toast.makeText(
-                        this@BrowserActivity,
-                        R.string.page_too_heavy,
-                        Toast.LENGTH_LONG
-                    ).show()
-                    finish()
-                }
-                return true
-            }
-        }
-
-        web.webChromeClient = object : WebChromeClient() {
-            override fun onProgressChanged(view: WebView, newProgress: Int) {
-                progressBar.progress = newProgress
-            }
-        }
-
-        // Кнопка/жест «назад»: сначала история WebView, потом закрытие
+        // Кнопка/жест «назад»: сначала история страниц, потом закрытие
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val wv = webView
-                if (wv != null && wv.canGoBack()) {
-                    wv.goBack()
+                val s = session
+                if (s != null && canGoBack) {
+                    s.goBack()
                 } else {
                     finish()
                 }
             }
         })
 
-        web.isVerticalScrollBarEnabled = true
-        web.requestFocus()
-
-        web.loadUrl(startUrl)
+        openSession(loadUrl = currentUrl)
     }
 
-    /**
-     * Запасной путь без системного WebView: открываем страницу в любом
-     * установленном браузере, предпочитая Samsung Internet.
-     */
-    private fun openInExternalBrowser(uri: Uri): Boolean {
-        val viewIntent = Intent(Intent.ACTION_VIEW, uri)
-        val candidates = packageManager
-            .queryIntentActivities(viewIntent, PackageManager.MATCH_ALL)
-            .mapNotNull { it.activityInfo }
-            .filter { it.packageName != packageName }
-        val target = candidates.firstOrNull { it.packageName.contains("sbrowser") }
-            ?: candidates.firstOrNull()
-            ?: return false
-        return try {
-            startActivity(
-                Intent(Intent.ACTION_VIEW, uri)
-                    .setClassName(target.packageName, target.name)
-            )
-            true
-        } catch (t: Throwable) {
-            false
+    private fun createSession(): GeckoSession {
+        val s = GeckoSession(
+            GeckoSessionSettings.Builder()
+                .userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_MOBILE)
+                .viewportMode(GeckoSessionSettings.VIEWPORT_MODE_MOBILE)
+                .useTrackingProtection(true)
+                .build()
+        )
+
+        s.progressDelegate = object : GeckoSession.ProgressDelegate {
+            override fun onPageStart(session: GeckoSession, url: String) {
+                progressBar.visibility = ProgressBar.VISIBLE
+            }
+
+            override fun onPageStop(session: GeckoSession, success: Boolean) {
+                progressBar.visibility = ProgressBar.GONE
+            }
+
+            override fun onProgressChange(session: GeckoSession, progress: Int) {
+                progressBar.progress = progress
+            }
         }
+
+        s.navigationDelegate = object : GeckoSession.NavigationDelegate {
+            override fun onLocationChange(
+                session: GeckoSession,
+                url: String?,
+                perms: MutableList<GeckoSession.PermissionDelegate.ContentPermission>,
+                hasUserGesture: Boolean
+            ) {
+                if (!url.isNullOrEmpty()) {
+                    currentUrl = url
+                }
+            }
+
+            override fun onCanGoBack(session: GeckoSession, value: Boolean) {
+                canGoBack = value
+            }
+
+            override fun onLoadRequest(
+                session: GeckoSession,
+                request: GeckoSession.NavigationDelegate.LoadRequest
+            ): GeckoResult<AllowOrDeny>? {
+                val uri = Uri.parse(request.uri)
+                if (uri.scheme == "http" || uri.scheme == "https") {
+                    return GeckoResult.fromValue(AllowOrDeny.ALLOW)
+                }
+                // tel:, mailto: и т.п. — пробуем отдать системе
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, uri))
+                } catch (e: ActivityNotFoundException) {
+                    // на часах некому обработать — игнорируем
+                }
+                return GeckoResult.fromValue(AllowOrDeny.DENY)
+            }
+        }
+
+        s.contentDelegate = object : GeckoSession.ContentDelegate {
+            override fun onTitleChange(session: GeckoSession, title: String?) {
+                if (currentUrl.isNotEmpty()) {
+                    HistoryStore.add(this@BrowserActivity, title ?: "", currentUrl)
+                }
+            }
+
+            // Рендерер движка убит системой (нехватка памяти) или упал —
+            // пересоздаём сессию и загружаем страницу заново вместо
+            // краша всего приложения
+            override fun onCrash(session: GeckoSession) {
+                recoverSession()
+            }
+
+            override fun onKill(session: GeckoSession) {
+                recoverSession()
+            }
+        }
+
+        return s
+    }
+
+    private fun openSession(loadUrl: String?) {
+        val s = createSession()
+        session = s
+        s.open(WearBrowserApp.runtime(this))
+        geckoView.setSession(s)
+        if (!loadUrl.isNullOrEmpty()) {
+            s.loadUri(loadUrl)
+        }
+    }
+
+    private fun recoverSession() {
+        if (isFinishing || isDestroyed) return
+        geckoView.releaseSession()
+        session?.close()
+        openSession(loadUrl = currentUrl)
     }
 
     /**
      * Прокрутка страницы вращающейся коронкой OnePlus Watch / безелем.
      */
     override fun onGenericMotionEvent(event: MotionEvent): Boolean {
-        val wv = webView
-        if (wv != null &&
+        val s = session
+        if (s != null &&
             event.action == MotionEvent.ACTION_SCROLL &&
             event.isFromSource(InputDevice.SOURCE_ROTARY_ENCODER)
         ) {
@@ -206,21 +187,19 @@ class BrowserActivity : ComponentActivity() {
                 ViewConfigurationCompat.getScaledVerticalScrollFactor(
                     ViewConfiguration.get(this), this
                 )
-            wv.scrollBy(0, delta.roundToInt())
+            s.panZoomController.scrollBy(
+                ScreenLength.zero(),
+                ScreenLength.fromPixels(delta.toDouble())
+            )
             return true
         }
         return super.onGenericMotionEvent(event)
     }
 
     override fun onDestroy() {
-        // Перед destroy() WebView обязательно отсоединяем от иерархии —
-        // иначе возможен нативный краш в Chromium
-        webView?.let { wv ->
-            (wv.parent as? ViewGroup)?.removeView(wv)
-            wv.stopLoading()
-            wv.destroy()
-        }
-        webView = null
+        geckoView.releaseSession()
+        session?.close()
+        session = null
         super.onDestroy()
     }
 }

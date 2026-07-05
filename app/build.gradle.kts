@@ -1,19 +1,26 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
     namespace = "com.zaigraev.wearbrowser"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.zaigraev.wearbrowser"
         // Wear OS 4 = API 33; minSdk 30 покрывает Wear OS 3+
         minSdk = 30
         targetSdk = 33
-        versionCode = 3
-        versionName = "1.3"
+        versionCode = 4
+        versionName = "2.0"
+
+        // Часы — только arm64; без фильтра APK вырос бы в ~4 раза
+        // из-за нативных библиотек GeckoView под все архитектуры
+        ndk {
+            abiFilters.add("arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -40,8 +47,13 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+    packaging {
+        jniLibs {
+            // Сжимаем нативные библиотеки движка: APK ~65 МБ вместо ~180.
+            // Распаковка выполняется один раз при установке и на
+            // скорость работы браузера не влияет.
+            useLegacyPackaging = true
+        }
     }
 }
 
@@ -60,6 +72,7 @@ dependencies {
     // Голосовой/клавиатурный ввод на часах (RemoteInput)
     implementation("androidx.wear:wear-input:1.1.0")
 
-    // Современные возможности WebView (тёмная тема и т.п.)
-    implementation("androidx.webkit:webkit:1.10.0")
+    // Встроенный браузерный движок (Firefox/Gecko) — работает на часах
+    // без системного WebView
+    implementation("org.mozilla.geckoview:geckoview:139.0.20250609112858")
 }

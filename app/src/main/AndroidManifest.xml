@@ -5,21 +5,11 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
-    <!-- Видимость сторонних браузеров (Samsung Internet и др.)
-         для запасного открытия ссылок, когда нет системного WebView -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="https" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="http" />
-        </intent>
-    </queries>
-
     <application
+        android:name=".WearBrowserApp"
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
