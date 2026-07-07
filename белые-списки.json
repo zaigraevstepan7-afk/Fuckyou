@@ -1,0 +1,4074 @@
+[
+  {
+    "api": {
+      "listen": "127.0.0.1:10085",
+      "services": [
+        "StatsService"
+      ],
+      "tag": "api"
+    },
+    "log": {
+      "loglevel": "none"
+    },
+    "burstObservatory": {
+      "pingConfig": {
+        "timeout": "3s",
+        "interval": "5m",
+        "sampling": 1,
+        "destination": "http://connectivitycheck.gstatic.com/generate_204",
+        "connectivity": ""
+      },
+      "subjectSelector": [
+        "DIRECT",
+        "WL-0"
+      ]
+    },
+    "dns": {
+      "servers": [
+        "1.1.1.1",
+        "8.8.8.8",
+        {
+          "address": "77.88.8.8",
+          "domains": [
+            "geosite:private",
+            "geosite:category-ru",
+            "domain:monkeyvillage.pro",
+            "domain:gstatic.com"
+          ],
+          "port": 53
+        }
+      ],
+      "queryStrategy": "UseIPv4"
+    },
+    "remarks": "🇩🇪 Германия",
+    "routing": {
+      "balancers": [
+        {
+          "fallbackTag": "LOOP-WL",
+          "selector": [
+            "DIRECT"
+          ],
+          "tag": "WL-BALANCER"
+        },
+        {
+          "selector": [
+            "WL-BRIDGE"
+          ],
+          "tag": "WL-BRIDGE-BALANCER"
+        },
+        {
+          "fallbackTag": "LOOP-01",
+          "selector": [
+            "WL-01"
+          ],
+          "tag": "01-FALLBACK"
+        },
+        {
+          "fallbackTag": "LOOP-02",
+          "selector": [
+            "WL-02"
+          ],
+          "tag": "02-FALLBACK"
+        },
+        {
+          "fallbackTag": "DIRECT",
+          "selector": [
+            "WL-03"
+          ],
+          "tag": "03-FALLBACK"
+        }
+      ],
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "network": "udp",
+          "outboundTag": "BLOCK",
+          "port": "443"
+        },
+        {
+          "balancerTag": "WL-BALANCER",
+          "inboundTag": [
+            "WL-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "WL-BRIDGE-BALANCER",
+          "inboundTag": [
+            "WL-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "01-FALLBACK",
+          "inboundTag": [
+            "ROUTING-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "02-FALLBACK",
+          "inboundTag": [
+            "01-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "03-FALLBACK",
+          "inboundTag": [
+            "02-REROUTE"
+          ]
+        },
+        {
+          "ip": [
+            "1.1.1.1",
+            "8.8.8.8"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "ip": [
+            "77.88.8.8",
+            "5.61.237.120",
+            "195.208.4.1"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:habr.com",
+            "domain:jut.su",
+            "4pda"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "domain": [
+            "geosite:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:dom.ru",
+            "domain:tochka.com",
+            "domain:nic.ru",
+            "domain:sber.ru",
+            "domain:sber.com",
+            "domain:sberbank.ru",
+            "domain:sberbank.com",
+            "domain:alfabank.ru",
+            "domain:gazprombank.ru",
+            "domain:psbank.ru",
+            "domain:tbank.ru",
+            "domain:tbank-online.com",
+            "domain:vtb.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:ads.x5.ru",
+            "domain:aif.ru",
+            "domain:aeroflot.ru",
+            "domain:avito.ru",
+            "domain:beeline.ru",
+            "domain:burgerkingrus.ru",
+            "domain:dellin.ru",
+            "domain:drive2.ru",
+            "domain:dzen.ru",
+            "domain:flypobeda.ru",
+            "domain:forbes.ru",
+            "domain:gazeta.ru",
+            "domain:gismeteo.ru",
+            "domain:gosuslugi.ru",
+            "domain:nalog.ru",
+            "domain:nalog.gov.ru",
+            "domain:hh.ru",
+            "domain:kontur.ru",
+            "domain:kontur.host",
+            "domain:kp.ru",
+            "domain:kuper.ru",
+            "domain:lenta.ru",
+            "domain:mail.ru",
+            "domain:max.ru",
+            "domain:megamarket.ru",
+            "domain:megamarket.tech",
+            "domain:megafon.ru",
+            "domain:moex.com",
+            "domain:motivtelecom.ru",
+            "domain:ozon.ru",
+            "domain:pervye.ru",
+            "domain:rambler.ru",
+            "domain:rambler-co.ru",
+            "domain:rbc.ru",
+            "domain:reg.ru",
+            "domain:reviews.2gis.com",
+            "domain:rg.ru",
+            "domain:ria.ru",
+            "domain:ruwiki.ru",
+            "domain:rustore.ru",
+            "domain:rutube.ru",
+            "domain:rzd.ru",
+            "domain:sirena-travel.ru",
+            "domain:sravni.ru",
+            "domain:t-j.ru",
+            "domain:t2.ru",
+            "domain:taximaxim.ru",
+            "domain:tildaapi.com",
+            "domain:tutu.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vkvideo.ru",
+            "domain:x5.ru",
+            "domain:ya.ru",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yandex.com",
+            "domain:yastatic.net",
+            "domain:yandexcloud.net",
+            "domain:dzen.ru",
+            "domain:go.yandex",
+            "domain:ruwiki.ru",
+            "domain:oneme.ru",
+            "domain:vk-analytics.ru"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "geosite:category-ru"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "network": "tcp",
+          "outboundTag": "FORCE-DIRECT",
+          "port": "25,465,587,8080"
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "mixed",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "routeOnly": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ]
+        },
+        "tag": "MIXED"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10809,
+        "protocol": "http",
+        "tag": "HTTP"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10810,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "ROUTING-SOCKS"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10811,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "WL-SOCKS"
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "de.monkeyvillage.pro",
+              "port": 443,
+              "users": [
+                {
+                  "id": "fbf73f7a-8f36-44ef-a906-2dd02cc5e617",
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "tcpSettings": {
+            "header": {
+              "type": "none"
+            }
+          },
+          "security": "reality",
+          "realitySettings": {
+            "serverName": "de.monkeyvillage.pro",
+            "publicKey": "Q7-sRiaAcmlJ_iwqiA46kDKso_r2kJ7X1mrVjL2illo",
+            "shortId": "9567779103b2a09b",
+            "fingerprint": "firefox"
+          },
+          "sockopt": {
+            "dialerProxy": "WL-IN"
+          }
+        }
+      },
+      {
+        "mux": {
+          "concurrency": 4,
+          "enabled": true,
+          "xudpConcurrency": 4,
+          "xudpProxyUDP443": "reject"
+        },
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-de.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "publicKey": "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+            "serverName": "pro-de.emrata.top"
+          },
+          "security": "reality",
+          "sockopt": {
+            "dialerProxy": "ROUTING-IN"
+          },
+          "tcpSettings": {}
+        },
+        "tag": "WL-BRIDGE-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-213.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "eh.vk.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-01-LM-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-m.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "ads.x5.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-02-LM-2"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "DIRECT"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "FORCE-DIRECT"
+      },
+      {
+        "protocol": "blackhole",
+        "tag": "BLOCK"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10810
+            }
+          ]
+        },
+        "tag": "ROUTING-IN"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10811
+            }
+          ]
+        },
+        "tag": "WL-IN"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "WL-REROUTE"
+        },
+        "tag": "LOOP-WL"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "01-REROUTE"
+        },
+        "tag": "LOOP-01"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "02-REROUTE"
+        },
+        "tag": "LOOP-02"
+      }
+    ]
+  },
+  {
+    "api": {
+      "listen": "127.0.0.1:10085",
+      "services": [
+        "StatsService"
+      ],
+      "tag": "api"
+    },
+    "log": {
+      "loglevel": "none"
+    },
+    "burstObservatory": {
+      "pingConfig": {
+        "timeout": "3s",
+        "interval": "5m",
+        "sampling": 1,
+        "destination": "http://connectivitycheck.gstatic.com/generate_204",
+        "connectivity": ""
+      },
+      "subjectSelector": [
+        "DIRECT",
+        "WL-0"
+      ]
+    },
+    "dns": {
+      "servers": [
+        "1.1.1.1",
+        "8.8.8.8",
+        {
+          "address": "77.88.8.8",
+          "domains": [
+            "geosite:private",
+            "geosite:category-ru",
+            "domain:monkeyvillage.pro",
+            "domain:gstatic.com"
+          ],
+          "port": 53
+        }
+      ],
+      "queryStrategy": "UseIPv4"
+    },
+    "remarks": "🇸🇪 Швеция",
+    "routing": {
+      "balancers": [
+        {
+          "fallbackTag": "LOOP-WL",
+          "selector": [
+            "DIRECT"
+          ],
+          "tag": "WL-BALANCER"
+        },
+        {
+          "selector": [
+            "WL-BRIDGE"
+          ],
+          "tag": "WL-BRIDGE-BALANCER"
+        },
+        {
+          "fallbackTag": "LOOP-01",
+          "selector": [
+            "WL-01"
+          ],
+          "tag": "01-FALLBACK"
+        },
+        {
+          "fallbackTag": "LOOP-02",
+          "selector": [
+            "WL-02"
+          ],
+          "tag": "02-FALLBACK"
+        },
+        {
+          "fallbackTag": "DIRECT",
+          "selector": [
+            "WL-03"
+          ],
+          "tag": "03-FALLBACK"
+        }
+      ],
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "network": "udp",
+          "outboundTag": "BLOCK",
+          "port": "443"
+        },
+        {
+          "balancerTag": "WL-BALANCER",
+          "inboundTag": [
+            "WL-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "WL-BRIDGE-BALANCER",
+          "inboundTag": [
+            "WL-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "01-FALLBACK",
+          "inboundTag": [
+            "ROUTING-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "02-FALLBACK",
+          "inboundTag": [
+            "01-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "03-FALLBACK",
+          "inboundTag": [
+            "02-REROUTE"
+          ]
+        },
+        {
+          "ip": [
+            "1.1.1.1",
+            "8.8.8.8"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "ip": [
+            "77.88.8.8",
+            "5.61.237.120",
+            "195.208.4.1"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:habr.com",
+            "domain:jut.su",
+            "4pda"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "domain": [
+            "geosite:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:dom.ru",
+            "domain:tochka.com",
+            "domain:nic.ru",
+            "domain:sber.ru",
+            "domain:sber.com",
+            "domain:sberbank.ru",
+            "domain:sberbank.com",
+            "domain:alfabank.ru",
+            "domain:gazprombank.ru",
+            "domain:psbank.ru",
+            "domain:tbank.ru",
+            "domain:tbank-online.com",
+            "domain:vtb.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:ads.x5.ru",
+            "domain:aif.ru",
+            "domain:aeroflot.ru",
+            "domain:avito.ru",
+            "domain:beeline.ru",
+            "domain:burgerkingrus.ru",
+            "domain:dellin.ru",
+            "domain:drive2.ru",
+            "domain:dzen.ru",
+            "domain:flypobeda.ru",
+            "domain:forbes.ru",
+            "domain:gazeta.ru",
+            "domain:gismeteo.ru",
+            "domain:gosuslugi.ru",
+            "domain:nalog.ru",
+            "domain:nalog.gov.ru",
+            "domain:hh.ru",
+            "domain:kontur.ru",
+            "domain:kontur.host",
+            "domain:kp.ru",
+            "domain:kuper.ru",
+            "domain:lenta.ru",
+            "domain:mail.ru",
+            "domain:max.ru",
+            "domain:megamarket.ru",
+            "domain:megamarket.tech",
+            "domain:megafon.ru",
+            "domain:moex.com",
+            "domain:motivtelecom.ru",
+            "domain:ozon.ru",
+            "domain:pervye.ru",
+            "domain:rambler.ru",
+            "domain:rambler-co.ru",
+            "domain:rbc.ru",
+            "domain:reg.ru",
+            "domain:reviews.2gis.com",
+            "domain:rg.ru",
+            "domain:ria.ru",
+            "domain:ruwiki.ru",
+            "domain:rustore.ru",
+            "domain:rutube.ru",
+            "domain:rzd.ru",
+            "domain:sirena-travel.ru",
+            "domain:sravni.ru",
+            "domain:t-j.ru",
+            "domain:t2.ru",
+            "domain:taximaxim.ru",
+            "domain:tildaapi.com",
+            "domain:tutu.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vkvideo.ru",
+            "domain:x5.ru",
+            "domain:ya.ru",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yandex.com",
+            "domain:yastatic.net",
+            "domain:yandexcloud.net",
+            "domain:dzen.ru",
+            "domain:go.yandex",
+            "domain:ruwiki.ru",
+            "domain:oneme.ru",
+            "domain:vk-analytics.ru"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "geosite:category-ru"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "network": "tcp",
+          "outboundTag": "FORCE-DIRECT",
+          "port": "25,465,587,8080"
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "mixed",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "routeOnly": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ]
+        },
+        "tag": "MIXED"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10809,
+        "protocol": "http",
+        "tag": "HTTP"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10810,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "ROUTING-SOCKS"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10811,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "WL-SOCKS"
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "se.monkeyvillage.pro",
+              "port": 443,
+              "users": [
+                {
+                  "id": "fbf73f7a-8f36-44ef-a906-2dd02cc5e617",
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "tcpSettings": {
+            "header": {
+              "type": "none"
+            }
+          },
+          "security": "reality",
+          "realitySettings": {
+            "serverName": "se.monkeyvillage.pro",
+            "publicKey": "Q7-sRiaAcmlJ_iwqiA46kDKso_r2kJ7X1mrVjL2illo",
+            "shortId": "a1b844f67cc4598e",
+            "fingerprint": "firefox"
+          },
+          "sockopt": {
+            "dialerProxy": "WL-IN"
+          }
+        }
+      },
+      {
+        "mux": {
+          "concurrency": 4,
+          "enabled": true,
+          "xudpConcurrency": 4,
+          "xudpProxyUDP443": "reject"
+        },
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-de.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "publicKey": "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+            "serverName": "pro-de.emrata.top"
+          },
+          "security": "reality",
+          "sockopt": {
+            "dialerProxy": "ROUTING-IN"
+          },
+          "tcpSettings": {}
+        },
+        "tag": "WL-BRIDGE-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-213.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "eh.vk.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-01-LM-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-m.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "ads.x5.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-02-LM-2"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "DIRECT"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "FORCE-DIRECT"
+      },
+      {
+        "protocol": "blackhole",
+        "tag": "BLOCK"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10810
+            }
+          ]
+        },
+        "tag": "ROUTING-IN"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10811
+            }
+          ]
+        },
+        "tag": "WL-IN"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "WL-REROUTE"
+        },
+        "tag": "LOOP-WL"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "01-REROUTE"
+        },
+        "tag": "LOOP-01"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "02-REROUTE"
+        },
+        "tag": "LOOP-02"
+      }
+    ]
+  },
+  {
+    "api": {
+      "listen": "127.0.0.1:10085",
+      "services": [
+        "StatsService"
+      ],
+      "tag": "api"
+    },
+    "log": {
+      "loglevel": "none"
+    },
+    "burstObservatory": {
+      "pingConfig": {
+        "timeout": "3s",
+        "interval": "5m",
+        "sampling": 1,
+        "destination": "http://connectivitycheck.gstatic.com/generate_204",
+        "connectivity": ""
+      },
+      "subjectSelector": [
+        "DIRECT",
+        "WL-0"
+      ]
+    },
+    "dns": {
+      "servers": [
+        "1.1.1.1",
+        "8.8.8.8",
+        {
+          "address": "77.88.8.8",
+          "domains": [
+            "geosite:private",
+            "geosite:category-ru",
+            "domain:monkeyvillage.pro",
+            "domain:gstatic.com"
+          ],
+          "port": 53
+        }
+      ],
+      "queryStrategy": "UseIPv4"
+    },
+    "remarks": "🇦🇹 Австрия",
+    "routing": {
+      "balancers": [
+        {
+          "fallbackTag": "LOOP-WL",
+          "selector": [
+            "DIRECT"
+          ],
+          "tag": "WL-BALANCER"
+        },
+        {
+          "selector": [
+            "WL-BRIDGE"
+          ],
+          "tag": "WL-BRIDGE-BALANCER"
+        },
+        {
+          "fallbackTag": "LOOP-01",
+          "selector": [
+            "WL-01"
+          ],
+          "tag": "01-FALLBACK"
+        },
+        {
+          "fallbackTag": "LOOP-02",
+          "selector": [
+            "WL-02"
+          ],
+          "tag": "02-FALLBACK"
+        },
+        {
+          "fallbackTag": "DIRECT",
+          "selector": [
+            "WL-03"
+          ],
+          "tag": "03-FALLBACK"
+        }
+      ],
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "network": "udp",
+          "outboundTag": "BLOCK",
+          "port": "443"
+        },
+        {
+          "balancerTag": "WL-BALANCER",
+          "inboundTag": [
+            "WL-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "WL-BRIDGE-BALANCER",
+          "inboundTag": [
+            "WL-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "01-FALLBACK",
+          "inboundTag": [
+            "ROUTING-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "02-FALLBACK",
+          "inboundTag": [
+            "01-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "03-FALLBACK",
+          "inboundTag": [
+            "02-REROUTE"
+          ]
+        },
+        {
+          "ip": [
+            "1.1.1.1",
+            "8.8.8.8"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "ip": [
+            "77.88.8.8",
+            "5.61.237.120",
+            "195.208.4.1"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:habr.com",
+            "domain:jut.su",
+            "4pda"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "domain": [
+            "geosite:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:dom.ru",
+            "domain:tochka.com",
+            "domain:nic.ru",
+            "domain:sber.ru",
+            "domain:sber.com",
+            "domain:sberbank.ru",
+            "domain:sberbank.com",
+            "domain:alfabank.ru",
+            "domain:gazprombank.ru",
+            "domain:psbank.ru",
+            "domain:tbank.ru",
+            "domain:tbank-online.com",
+            "domain:vtb.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:ads.x5.ru",
+            "domain:aif.ru",
+            "domain:aeroflot.ru",
+            "domain:avito.ru",
+            "domain:beeline.ru",
+            "domain:burgerkingrus.ru",
+            "domain:dellin.ru",
+            "domain:drive2.ru",
+            "domain:dzen.ru",
+            "domain:flypobeda.ru",
+            "domain:forbes.ru",
+            "domain:gazeta.ru",
+            "domain:gismeteo.ru",
+            "domain:gosuslugi.ru",
+            "domain:nalog.ru",
+            "domain:nalog.gov.ru",
+            "domain:hh.ru",
+            "domain:kontur.ru",
+            "domain:kontur.host",
+            "domain:kp.ru",
+            "domain:kuper.ru",
+            "domain:lenta.ru",
+            "domain:mail.ru",
+            "domain:max.ru",
+            "domain:megamarket.ru",
+            "domain:megamarket.tech",
+            "domain:megafon.ru",
+            "domain:moex.com",
+            "domain:motivtelecom.ru",
+            "domain:ozon.ru",
+            "domain:pervye.ru",
+            "domain:rambler.ru",
+            "domain:rambler-co.ru",
+            "domain:rbc.ru",
+            "domain:reg.ru",
+            "domain:reviews.2gis.com",
+            "domain:rg.ru",
+            "domain:ria.ru",
+            "domain:ruwiki.ru",
+            "domain:rustore.ru",
+            "domain:rutube.ru",
+            "domain:rzd.ru",
+            "domain:sirena-travel.ru",
+            "domain:sravni.ru",
+            "domain:t-j.ru",
+            "domain:t2.ru",
+            "domain:taximaxim.ru",
+            "domain:tildaapi.com",
+            "domain:tutu.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vkvideo.ru",
+            "domain:x5.ru",
+            "domain:ya.ru",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yandex.com",
+            "domain:yastatic.net",
+            "domain:yandexcloud.net",
+            "domain:dzen.ru",
+            "domain:go.yandex",
+            "domain:ruwiki.ru",
+            "domain:oneme.ru",
+            "domain:vk-analytics.ru"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "geosite:category-ru"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "network": "tcp",
+          "outboundTag": "FORCE-DIRECT",
+          "port": "25,465,587,8080"
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "mixed",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "routeOnly": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ]
+        },
+        "tag": "MIXED"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10809,
+        "protocol": "http",
+        "tag": "HTTP"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10810,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "ROUTING-SOCKS"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10811,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "WL-SOCKS"
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "ru.monkeyvillage.pro",
+              "port": 443,
+              "users": [
+                {
+                  "id": "fbf73f7a-8f36-0003-a906-2dd02cc5e617",
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "tcpSettings": {
+            "header": {
+              "type": "none"
+            }
+          },
+          "security": "reality",
+          "realitySettings": {
+            "serverName": "ru.monkeyvillage.pro",
+            "publicKey": "H0bAU_r0uJoCA-yq9TXr54tZZ13jON20h8oGPkvWuS0",
+            "shortId": "2b37241818aa665a",
+            "fingerprint": "firefox"
+          },
+          "sockopt": {
+            "dialerProxy": "WL-IN"
+          }
+        }
+      },
+      {
+        "mux": {
+          "concurrency": 4,
+          "enabled": true,
+          "xudpConcurrency": 4,
+          "xudpProxyUDP443": "reject"
+        },
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-de.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "publicKey": "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+            "serverName": "pro-de.emrata.top"
+          },
+          "security": "reality",
+          "sockopt": {
+            "dialerProxy": "ROUTING-IN"
+          },
+          "tcpSettings": {}
+        },
+        "tag": "WL-BRIDGE-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-213.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "eh.vk.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-01-LM-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-m.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "ads.x5.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-02-LM-2"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "DIRECT"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "FORCE-DIRECT"
+      },
+      {
+        "protocol": "blackhole",
+        "tag": "BLOCK"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10810
+            }
+          ]
+        },
+        "tag": "ROUTING-IN"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10811
+            }
+          ]
+        },
+        "tag": "WL-IN"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "WL-REROUTE"
+        },
+        "tag": "LOOP-WL"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "01-REROUTE"
+        },
+        "tag": "LOOP-01"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "02-REROUTE"
+        },
+        "tag": "LOOP-02"
+      }
+    ]
+  },
+  {
+    "api": {
+      "listen": "127.0.0.1:10085",
+      "services": [
+        "StatsService"
+      ],
+      "tag": "api"
+    },
+    "log": {
+      "loglevel": "none"
+    },
+    "burstObservatory": {
+      "pingConfig": {
+        "timeout": "3s",
+        "interval": "5m",
+        "sampling": 1,
+        "destination": "http://connectivitycheck.gstatic.com/generate_204",
+        "connectivity": ""
+      },
+      "subjectSelector": [
+        "DIRECT",
+        "WL-0"
+      ]
+    },
+    "dns": {
+      "servers": [
+        "1.1.1.1",
+        "8.8.8.8",
+        {
+          "address": "77.88.8.8",
+          "domains": [
+            "geosite:private",
+            "geosite:category-ru",
+            "domain:monkeyvillage.pro",
+            "domain:gstatic.com"
+          ],
+          "port": 53
+        }
+      ],
+      "queryStrategy": "UseIPv4"
+    },
+    "remarks": "🇧🇪 Бельгия",
+    "routing": {
+      "balancers": [
+        {
+          "fallbackTag": "LOOP-WL",
+          "selector": [
+            "DIRECT"
+          ],
+          "tag": "WL-BALANCER"
+        },
+        {
+          "selector": [
+            "WL-BRIDGE"
+          ],
+          "tag": "WL-BRIDGE-BALANCER"
+        },
+        {
+          "fallbackTag": "LOOP-01",
+          "selector": [
+            "WL-01"
+          ],
+          "tag": "01-FALLBACK"
+        },
+        {
+          "fallbackTag": "LOOP-02",
+          "selector": [
+            "WL-02"
+          ],
+          "tag": "02-FALLBACK"
+        },
+        {
+          "fallbackTag": "DIRECT",
+          "selector": [
+            "WL-03"
+          ],
+          "tag": "03-FALLBACK"
+        }
+      ],
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "network": "udp",
+          "outboundTag": "BLOCK",
+          "port": "443"
+        },
+        {
+          "balancerTag": "WL-BALANCER",
+          "inboundTag": [
+            "WL-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "WL-BRIDGE-BALANCER",
+          "inboundTag": [
+            "WL-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "01-FALLBACK",
+          "inboundTag": [
+            "ROUTING-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "02-FALLBACK",
+          "inboundTag": [
+            "01-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "03-FALLBACK",
+          "inboundTag": [
+            "02-REROUTE"
+          ]
+        },
+        {
+          "ip": [
+            "1.1.1.1",
+            "8.8.8.8"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "ip": [
+            "77.88.8.8",
+            "5.61.237.120",
+            "195.208.4.1"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:habr.com",
+            "domain:jut.su",
+            "4pda"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "domain": [
+            "geosite:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:dom.ru",
+            "domain:tochka.com",
+            "domain:nic.ru",
+            "domain:sber.ru",
+            "domain:sber.com",
+            "domain:sberbank.ru",
+            "domain:sberbank.com",
+            "domain:alfabank.ru",
+            "domain:gazprombank.ru",
+            "domain:psbank.ru",
+            "domain:tbank.ru",
+            "domain:tbank-online.com",
+            "domain:vtb.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:ads.x5.ru",
+            "domain:aif.ru",
+            "domain:aeroflot.ru",
+            "domain:avito.ru",
+            "domain:beeline.ru",
+            "domain:burgerkingrus.ru",
+            "domain:dellin.ru",
+            "domain:drive2.ru",
+            "domain:dzen.ru",
+            "domain:flypobeda.ru",
+            "domain:forbes.ru",
+            "domain:gazeta.ru",
+            "domain:gismeteo.ru",
+            "domain:gosuslugi.ru",
+            "domain:nalog.ru",
+            "domain:nalog.gov.ru",
+            "domain:hh.ru",
+            "domain:kontur.ru",
+            "domain:kontur.host",
+            "domain:kp.ru",
+            "domain:kuper.ru",
+            "domain:lenta.ru",
+            "domain:mail.ru",
+            "domain:max.ru",
+            "domain:megamarket.ru",
+            "domain:megamarket.tech",
+            "domain:megafon.ru",
+            "domain:moex.com",
+            "domain:motivtelecom.ru",
+            "domain:ozon.ru",
+            "domain:pervye.ru",
+            "domain:rambler.ru",
+            "domain:rambler-co.ru",
+            "domain:rbc.ru",
+            "domain:reg.ru",
+            "domain:reviews.2gis.com",
+            "domain:rg.ru",
+            "domain:ria.ru",
+            "domain:ruwiki.ru",
+            "domain:rustore.ru",
+            "domain:rutube.ru",
+            "domain:rzd.ru",
+            "domain:sirena-travel.ru",
+            "domain:sravni.ru",
+            "domain:t-j.ru",
+            "domain:t2.ru",
+            "domain:taximaxim.ru",
+            "domain:tildaapi.com",
+            "domain:tutu.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vkvideo.ru",
+            "domain:x5.ru",
+            "domain:ya.ru",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yandex.com",
+            "domain:yastatic.net",
+            "domain:yandexcloud.net",
+            "domain:dzen.ru",
+            "domain:go.yandex",
+            "domain:ruwiki.ru",
+            "domain:oneme.ru",
+            "domain:vk-analytics.ru"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "geosite:category-ru"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "network": "tcp",
+          "outboundTag": "FORCE-DIRECT",
+          "port": "25,465,587,8080"
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "mixed",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "routeOnly": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ]
+        },
+        "tag": "MIXED"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10809,
+        "protocol": "http",
+        "tag": "HTTP"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10810,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "ROUTING-SOCKS"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10811,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "WL-SOCKS"
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "be.monkeyvillage.pro",
+              "port": 443,
+              "users": [
+                {
+                  "id": "fbf73f7a-8f36-44ef-a906-2dd02cc5e617",
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "tcpSettings": {
+            "header": {
+              "type": "none"
+            }
+          },
+          "security": "reality",
+          "realitySettings": {
+            "serverName": "be.monkeyvillage.pro",
+            "publicKey": "Q7-sRiaAcmlJ_iwqiA46kDKso_r2kJ7X1mrVjL2illo",
+            "shortId": "9360feeeabfe3703",
+            "fingerprint": "firefox"
+          },
+          "sockopt": {
+            "dialerProxy": "WL-IN"
+          }
+        }
+      },
+      {
+        "mux": {
+          "concurrency": 4,
+          "enabled": true,
+          "xudpConcurrency": 4,
+          "xudpProxyUDP443": "reject"
+        },
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-de.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "publicKey": "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+            "serverName": "pro-de.emrata.top"
+          },
+          "security": "reality",
+          "sockopt": {
+            "dialerProxy": "ROUTING-IN"
+          },
+          "tcpSettings": {}
+        },
+        "tag": "WL-BRIDGE-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-213.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "eh.vk.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-01-LM-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-m.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "ads.x5.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-02-LM-2"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "DIRECT"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "FORCE-DIRECT"
+      },
+      {
+        "protocol": "blackhole",
+        "tag": "BLOCK"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10810
+            }
+          ]
+        },
+        "tag": "ROUTING-IN"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10811
+            }
+          ]
+        },
+        "tag": "WL-IN"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "WL-REROUTE"
+        },
+        "tag": "LOOP-WL"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "01-REROUTE"
+        },
+        "tag": "LOOP-01"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "02-REROUTE"
+        },
+        "tag": "LOOP-02"
+      }
+    ]
+  },
+  {
+    "api": {
+      "listen": "127.0.0.1:10085",
+      "services": [
+        "StatsService"
+      ],
+      "tag": "api"
+    },
+    "log": {
+      "loglevel": "none"
+    },
+    "burstObservatory": {
+      "pingConfig": {
+        "timeout": "3s",
+        "interval": "5m",
+        "sampling": 1,
+        "destination": "http://connectivitycheck.gstatic.com/generate_204",
+        "connectivity": ""
+      },
+      "subjectSelector": [
+        "DIRECT",
+        "WL-0"
+      ]
+    },
+    "dns": {
+      "servers": [
+        "1.1.1.1",
+        "8.8.8.8",
+        {
+          "address": "77.88.8.8",
+          "domains": [
+            "geosite:private",
+            "geosite:category-ru",
+            "domain:monkeyvillage.pro",
+            "domain:gstatic.com"
+          ],
+          "port": 53
+        }
+      ],
+      "queryStrategy": "UseIPv4"
+    },
+    "remarks": "🇺🇸 США",
+    "routing": {
+      "balancers": [
+        {
+          "fallbackTag": "LOOP-WL",
+          "selector": [
+            "DIRECT"
+          ],
+          "tag": "WL-BALANCER"
+        },
+        {
+          "selector": [
+            "WL-BRIDGE"
+          ],
+          "tag": "WL-BRIDGE-BALANCER"
+        },
+        {
+          "fallbackTag": "LOOP-01",
+          "selector": [
+            "WL-01"
+          ],
+          "tag": "01-FALLBACK"
+        },
+        {
+          "fallbackTag": "LOOP-02",
+          "selector": [
+            "WL-02"
+          ],
+          "tag": "02-FALLBACK"
+        },
+        {
+          "fallbackTag": "DIRECT",
+          "selector": [
+            "WL-03"
+          ],
+          "tag": "03-FALLBACK"
+        }
+      ],
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "network": "udp",
+          "outboundTag": "BLOCK",
+          "port": "443"
+        },
+        {
+          "balancerTag": "WL-BALANCER",
+          "inboundTag": [
+            "WL-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "WL-BRIDGE-BALANCER",
+          "inboundTag": [
+            "WL-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "01-FALLBACK",
+          "inboundTag": [
+            "ROUTING-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "02-FALLBACK",
+          "inboundTag": [
+            "01-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "03-FALLBACK",
+          "inboundTag": [
+            "02-REROUTE"
+          ]
+        },
+        {
+          "ip": [
+            "1.1.1.1",
+            "8.8.8.8"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "ip": [
+            "77.88.8.8",
+            "5.61.237.120",
+            "195.208.4.1"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:habr.com",
+            "domain:jut.su",
+            "4pda"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "domain": [
+            "geosite:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:dom.ru",
+            "domain:tochka.com",
+            "domain:nic.ru",
+            "domain:sber.ru",
+            "domain:sber.com",
+            "domain:sberbank.ru",
+            "domain:sberbank.com",
+            "domain:alfabank.ru",
+            "domain:gazprombank.ru",
+            "domain:psbank.ru",
+            "domain:tbank.ru",
+            "domain:tbank-online.com",
+            "domain:vtb.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:ads.x5.ru",
+            "domain:aif.ru",
+            "domain:aeroflot.ru",
+            "domain:avito.ru",
+            "domain:beeline.ru",
+            "domain:burgerkingrus.ru",
+            "domain:dellin.ru",
+            "domain:drive2.ru",
+            "domain:dzen.ru",
+            "domain:flypobeda.ru",
+            "domain:forbes.ru",
+            "domain:gazeta.ru",
+            "domain:gismeteo.ru",
+            "domain:gosuslugi.ru",
+            "domain:nalog.ru",
+            "domain:nalog.gov.ru",
+            "domain:hh.ru",
+            "domain:kontur.ru",
+            "domain:kontur.host",
+            "domain:kp.ru",
+            "domain:kuper.ru",
+            "domain:lenta.ru",
+            "domain:mail.ru",
+            "domain:max.ru",
+            "domain:megamarket.ru",
+            "domain:megamarket.tech",
+            "domain:megafon.ru",
+            "domain:moex.com",
+            "domain:motivtelecom.ru",
+            "domain:ozon.ru",
+            "domain:pervye.ru",
+            "domain:rambler.ru",
+            "domain:rambler-co.ru",
+            "domain:rbc.ru",
+            "domain:reg.ru",
+            "domain:reviews.2gis.com",
+            "domain:rg.ru",
+            "domain:ria.ru",
+            "domain:ruwiki.ru",
+            "domain:rustore.ru",
+            "domain:rutube.ru",
+            "domain:rzd.ru",
+            "domain:sirena-travel.ru",
+            "domain:sravni.ru",
+            "domain:t-j.ru",
+            "domain:t2.ru",
+            "domain:taximaxim.ru",
+            "domain:tildaapi.com",
+            "domain:tutu.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vkvideo.ru",
+            "domain:x5.ru",
+            "domain:ya.ru",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yandex.com",
+            "domain:yastatic.net",
+            "domain:yandexcloud.net",
+            "domain:dzen.ru",
+            "domain:go.yandex",
+            "domain:ruwiki.ru",
+            "domain:oneme.ru",
+            "domain:vk-analytics.ru"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "geosite:category-ru"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "network": "tcp",
+          "outboundTag": "FORCE-DIRECT",
+          "port": "25,465,587,8080"
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "mixed",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "routeOnly": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ]
+        },
+        "tag": "MIXED"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10809,
+        "protocol": "http",
+        "tag": "HTTP"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10810,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "ROUTING-SOCKS"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10811,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "WL-SOCKS"
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "us.monkeyvillage.pro",
+              "port": 443,
+              "users": [
+                {
+                  "id": "fbf73f7a-8f36-44ef-a906-2dd02cc5e617",
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "tcpSettings": {
+            "header": {
+              "type": "none"
+            }
+          },
+          "security": "reality",
+          "realitySettings": {
+            "serverName": "us.monkeyvillage.pro",
+            "publicKey": "Q7-sRiaAcmlJ_iwqiA46kDKso_r2kJ7X1mrVjL2illo",
+            "shortId": "032cf928d97d0c4c",
+            "fingerprint": "firefox"
+          },
+          "sockopt": {
+            "dialerProxy": "WL-IN"
+          }
+        }
+      },
+      {
+        "mux": {
+          "concurrency": 4,
+          "enabled": true,
+          "xudpConcurrency": 4,
+          "xudpProxyUDP443": "reject"
+        },
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-de.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "publicKey": "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+            "serverName": "pro-de.emrata.top"
+          },
+          "security": "reality",
+          "sockopt": {
+            "dialerProxy": "ROUTING-IN"
+          },
+          "tcpSettings": {}
+        },
+        "tag": "WL-BRIDGE-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-213.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "eh.vk.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-01-LM-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-m.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "ads.x5.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-02-LM-2"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "DIRECT"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "FORCE-DIRECT"
+      },
+      {
+        "protocol": "blackhole",
+        "tag": "BLOCK"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10810
+            }
+          ]
+        },
+        "tag": "ROUTING-IN"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10811
+            }
+          ]
+        },
+        "tag": "WL-IN"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "WL-REROUTE"
+        },
+        "tag": "LOOP-WL"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "01-REROUTE"
+        },
+        "tag": "LOOP-01"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "02-REROUTE"
+        },
+        "tag": "LOOP-02"
+      }
+    ]
+  },
+  {
+    "api": {
+      "listen": "127.0.0.1:10085",
+      "services": [
+        "StatsService"
+      ],
+      "tag": "api"
+    },
+    "log": {
+      "loglevel": "none"
+    },
+    "burstObservatory": {
+      "pingConfig": {
+        "timeout": "3s",
+        "interval": "5m",
+        "sampling": 1,
+        "destination": "http://connectivitycheck.gstatic.com/generate_204",
+        "connectivity": ""
+      },
+      "subjectSelector": [
+        "DIRECT",
+        "WL-0"
+      ]
+    },
+    "dns": {
+      "servers": [
+        "1.1.1.1",
+        "8.8.8.8",
+        {
+          "address": "77.88.8.8",
+          "domains": [
+            "geosite:private",
+            "geosite:category-ru",
+            "domain:monkeyvillage.pro",
+            "domain:gstatic.com"
+          ],
+          "port": 53
+        }
+      ],
+      "queryStrategy": "UseIPv4"
+    },
+    "remarks": "🇵🇱 Польша",
+    "routing": {
+      "balancers": [
+        {
+          "fallbackTag": "LOOP-WL",
+          "selector": [
+            "DIRECT"
+          ],
+          "tag": "WL-BALANCER"
+        },
+        {
+          "selector": [
+            "WL-BRIDGE"
+          ],
+          "tag": "WL-BRIDGE-BALANCER"
+        },
+        {
+          "fallbackTag": "LOOP-01",
+          "selector": [
+            "WL-01"
+          ],
+          "tag": "01-FALLBACK"
+        },
+        {
+          "fallbackTag": "LOOP-02",
+          "selector": [
+            "WL-02"
+          ],
+          "tag": "02-FALLBACK"
+        },
+        {
+          "fallbackTag": "DIRECT",
+          "selector": [
+            "WL-03"
+          ],
+          "tag": "03-FALLBACK"
+        }
+      ],
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "network": "udp",
+          "outboundTag": "BLOCK",
+          "port": "443"
+        },
+        {
+          "balancerTag": "WL-BALANCER",
+          "inboundTag": [
+            "WL-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "WL-BRIDGE-BALANCER",
+          "inboundTag": [
+            "WL-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "01-FALLBACK",
+          "inboundTag": [
+            "ROUTING-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "02-FALLBACK",
+          "inboundTag": [
+            "01-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "03-FALLBACK",
+          "inboundTag": [
+            "02-REROUTE"
+          ]
+        },
+        {
+          "ip": [
+            "1.1.1.1",
+            "8.8.8.8"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "ip": [
+            "77.88.8.8",
+            "5.61.237.120",
+            "195.208.4.1"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:habr.com",
+            "domain:jut.su",
+            "4pda"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "domain": [
+            "geosite:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:dom.ru",
+            "domain:tochka.com",
+            "domain:nic.ru",
+            "domain:sber.ru",
+            "domain:sber.com",
+            "domain:sberbank.ru",
+            "domain:sberbank.com",
+            "domain:alfabank.ru",
+            "domain:gazprombank.ru",
+            "domain:psbank.ru",
+            "domain:tbank.ru",
+            "domain:tbank-online.com",
+            "domain:vtb.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:ads.x5.ru",
+            "domain:aif.ru",
+            "domain:aeroflot.ru",
+            "domain:avito.ru",
+            "domain:beeline.ru",
+            "domain:burgerkingrus.ru",
+            "domain:dellin.ru",
+            "domain:drive2.ru",
+            "domain:dzen.ru",
+            "domain:flypobeda.ru",
+            "domain:forbes.ru",
+            "domain:gazeta.ru",
+            "domain:gismeteo.ru",
+            "domain:gosuslugi.ru",
+            "domain:nalog.ru",
+            "domain:nalog.gov.ru",
+            "domain:hh.ru",
+            "domain:kontur.ru",
+            "domain:kontur.host",
+            "domain:kp.ru",
+            "domain:kuper.ru",
+            "domain:lenta.ru",
+            "domain:mail.ru",
+            "domain:max.ru",
+            "domain:megamarket.ru",
+            "domain:megamarket.tech",
+            "domain:megafon.ru",
+            "domain:moex.com",
+            "domain:motivtelecom.ru",
+            "domain:ozon.ru",
+            "domain:pervye.ru",
+            "domain:rambler.ru",
+            "domain:rambler-co.ru",
+            "domain:rbc.ru",
+            "domain:reg.ru",
+            "domain:reviews.2gis.com",
+            "domain:rg.ru",
+            "domain:ria.ru",
+            "domain:ruwiki.ru",
+            "domain:rustore.ru",
+            "domain:rutube.ru",
+            "domain:rzd.ru",
+            "domain:sirena-travel.ru",
+            "domain:sravni.ru",
+            "domain:t-j.ru",
+            "domain:t2.ru",
+            "domain:taximaxim.ru",
+            "domain:tildaapi.com",
+            "domain:tutu.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vkvideo.ru",
+            "domain:x5.ru",
+            "domain:ya.ru",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yandex.com",
+            "domain:yastatic.net",
+            "domain:yandexcloud.net",
+            "domain:dzen.ru",
+            "domain:go.yandex",
+            "domain:ruwiki.ru",
+            "domain:oneme.ru",
+            "domain:vk-analytics.ru"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "geosite:category-ru"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "network": "tcp",
+          "outboundTag": "FORCE-DIRECT",
+          "port": "25,465,587,8080"
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "mixed",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "routeOnly": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ]
+        },
+        "tag": "MIXED"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10809,
+        "protocol": "http",
+        "tag": "HTTP"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10810,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "ROUTING-SOCKS"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10811,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "WL-SOCKS"
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pl.monkeyvillage.pro",
+              "port": 443,
+              "users": [
+                {
+                  "id": "fbf73f7a-8f36-44ef-a906-2dd02cc5e617",
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "tcpSettings": {
+            "header": {
+              "type": "none"
+            }
+          },
+          "security": "reality",
+          "realitySettings": {
+            "serverName": "pl.monkeyvillage.pro",
+            "publicKey": "Q7-sRiaAcmlJ_iwqiA46kDKso_r2kJ7X1mrVjL2illo",
+            "shortId": "492d593d82fc6674",
+            "fingerprint": "firefox"
+          },
+          "sockopt": {
+            "dialerProxy": "WL-IN"
+          }
+        }
+      },
+      {
+        "mux": {
+          "concurrency": 4,
+          "enabled": true,
+          "xudpConcurrency": 4,
+          "xudpProxyUDP443": "reject"
+        },
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-de.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "publicKey": "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+            "serverName": "pro-de.emrata.top"
+          },
+          "security": "reality",
+          "sockopt": {
+            "dialerProxy": "ROUTING-IN"
+          },
+          "tcpSettings": {}
+        },
+        "tag": "WL-BRIDGE-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-213.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "eh.vk.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-01-LM-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-m.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "ads.x5.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-02-LM-2"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "DIRECT"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "FORCE-DIRECT"
+      },
+      {
+        "protocol": "blackhole",
+        "tag": "BLOCK"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10810
+            }
+          ]
+        },
+        "tag": "ROUTING-IN"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10811
+            }
+          ]
+        },
+        "tag": "WL-IN"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "WL-REROUTE"
+        },
+        "tag": "LOOP-WL"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "01-REROUTE"
+        },
+        "tag": "LOOP-01"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "02-REROUTE"
+        },
+        "tag": "LOOP-02"
+      }
+    ]
+  },
+  {
+    "api": {
+      "listen": "127.0.0.1:10085",
+      "services": [
+        "StatsService"
+      ],
+      "tag": "api"
+    },
+    "log": {
+      "loglevel": "none"
+    },
+    "burstObservatory": {
+      "pingConfig": {
+        "timeout": "3s",
+        "interval": "5m",
+        "sampling": 1,
+        "destination": "http://connectivitycheck.gstatic.com/generate_204",
+        "connectivity": ""
+      },
+      "subjectSelector": [
+        "DIRECT",
+        "WL-0"
+      ]
+    },
+    "dns": {
+      "servers": [
+        "1.1.1.1",
+        "8.8.8.8",
+        {
+          "address": "77.88.8.8",
+          "domains": [
+            "geosite:private",
+            "geosite:category-ru",
+            "domain:monkeyvillage.pro",
+            "domain:gstatic.com"
+          ],
+          "port": 53
+        }
+      ],
+      "queryStrategy": "UseIPv4"
+    },
+    "remarks": "🇫🇮 Финляндия",
+    "routing": {
+      "balancers": [
+        {
+          "fallbackTag": "LOOP-WL",
+          "selector": [
+            "DIRECT"
+          ],
+          "tag": "WL-BALANCER"
+        },
+        {
+          "selector": [
+            "WL-BRIDGE"
+          ],
+          "tag": "WL-BRIDGE-BALANCER"
+        },
+        {
+          "fallbackTag": "LOOP-01",
+          "selector": [
+            "WL-01"
+          ],
+          "tag": "01-FALLBACK"
+        },
+        {
+          "fallbackTag": "LOOP-02",
+          "selector": [
+            "WL-02"
+          ],
+          "tag": "02-FALLBACK"
+        },
+        {
+          "fallbackTag": "DIRECT",
+          "selector": [
+            "WL-03"
+          ],
+          "tag": "03-FALLBACK"
+        }
+      ],
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "network": "udp",
+          "outboundTag": "BLOCK",
+          "port": "443"
+        },
+        {
+          "balancerTag": "WL-BALANCER",
+          "inboundTag": [
+            "WL-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "WL-BRIDGE-BALANCER",
+          "inboundTag": [
+            "WL-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "01-FALLBACK",
+          "inboundTag": [
+            "ROUTING-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "02-FALLBACK",
+          "inboundTag": [
+            "01-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "03-FALLBACK",
+          "inboundTag": [
+            "02-REROUTE"
+          ]
+        },
+        {
+          "ip": [
+            "1.1.1.1",
+            "8.8.8.8"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "ip": [
+            "77.88.8.8",
+            "5.61.237.120",
+            "195.208.4.1"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:habr.com",
+            "domain:jut.su",
+            "4pda"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "domain": [
+            "geosite:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:dom.ru",
+            "domain:tochka.com",
+            "domain:nic.ru",
+            "domain:sber.ru",
+            "domain:sber.com",
+            "domain:sberbank.ru",
+            "domain:sberbank.com",
+            "domain:alfabank.ru",
+            "domain:gazprombank.ru",
+            "domain:psbank.ru",
+            "domain:tbank.ru",
+            "domain:tbank-online.com",
+            "domain:vtb.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:ads.x5.ru",
+            "domain:aif.ru",
+            "domain:aeroflot.ru",
+            "domain:avito.ru",
+            "domain:beeline.ru",
+            "domain:burgerkingrus.ru",
+            "domain:dellin.ru",
+            "domain:drive2.ru",
+            "domain:dzen.ru",
+            "domain:flypobeda.ru",
+            "domain:forbes.ru",
+            "domain:gazeta.ru",
+            "domain:gismeteo.ru",
+            "domain:gosuslugi.ru",
+            "domain:nalog.ru",
+            "domain:nalog.gov.ru",
+            "domain:hh.ru",
+            "domain:kontur.ru",
+            "domain:kontur.host",
+            "domain:kp.ru",
+            "domain:kuper.ru",
+            "domain:lenta.ru",
+            "domain:mail.ru",
+            "domain:max.ru",
+            "domain:megamarket.ru",
+            "domain:megamarket.tech",
+            "domain:megafon.ru",
+            "domain:moex.com",
+            "domain:motivtelecom.ru",
+            "domain:ozon.ru",
+            "domain:pervye.ru",
+            "domain:rambler.ru",
+            "domain:rambler-co.ru",
+            "domain:rbc.ru",
+            "domain:reg.ru",
+            "domain:reviews.2gis.com",
+            "domain:rg.ru",
+            "domain:ria.ru",
+            "domain:ruwiki.ru",
+            "domain:rustore.ru",
+            "domain:rutube.ru",
+            "domain:rzd.ru",
+            "domain:sirena-travel.ru",
+            "domain:sravni.ru",
+            "domain:t-j.ru",
+            "domain:t2.ru",
+            "domain:taximaxim.ru",
+            "domain:tildaapi.com",
+            "domain:tutu.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vkvideo.ru",
+            "domain:x5.ru",
+            "domain:ya.ru",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yandex.com",
+            "domain:yastatic.net",
+            "domain:yandexcloud.net",
+            "domain:dzen.ru",
+            "domain:go.yandex",
+            "domain:ruwiki.ru",
+            "domain:oneme.ru",
+            "domain:vk-analytics.ru"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "geosite:category-ru"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "network": "tcp",
+          "outboundTag": "FORCE-DIRECT",
+          "port": "25,465,587,8080"
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "mixed",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "routeOnly": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ]
+        },
+        "tag": "MIXED"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10809,
+        "protocol": "http",
+        "tag": "HTTP"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10810,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "ROUTING-SOCKS"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10811,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "WL-SOCKS"
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "ru.monkeyvillage.pro",
+              "port": 443,
+              "users": [
+                {
+                  "id": "fbf73f7a-8f36-0004-a906-2dd02cc5e617",
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "tcpSettings": {
+            "header": {
+              "type": "none"
+            }
+          },
+          "security": "reality",
+          "realitySettings": {
+            "serverName": "ru.monkeyvillage.pro",
+            "publicKey": "H0bAU_r0uJoCA-yq9TXr54tZZ13jON20h8oGPkvWuS0",
+            "shortId": "be2ee1fd01f17f0e",
+            "fingerprint": "firefox"
+          },
+          "sockopt": {
+            "dialerProxy": "WL-IN"
+          }
+        }
+      },
+      {
+        "mux": {
+          "concurrency": 4,
+          "enabled": true,
+          "xudpConcurrency": 4,
+          "xudpProxyUDP443": "reject"
+        },
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-de.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "publicKey": "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+            "serverName": "pro-de.emrata.top"
+          },
+          "security": "reality",
+          "sockopt": {
+            "dialerProxy": "ROUTING-IN"
+          },
+          "tcpSettings": {}
+        },
+        "tag": "WL-BRIDGE-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-213.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "eh.vk.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-01-LM-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-m.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "ads.x5.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-02-LM-2"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "DIRECT"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "FORCE-DIRECT"
+      },
+      {
+        "protocol": "blackhole",
+        "tag": "BLOCK"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10810
+            }
+          ]
+        },
+        "tag": "ROUTING-IN"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10811
+            }
+          ]
+        },
+        "tag": "WL-IN"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "WL-REROUTE"
+        },
+        "tag": "LOOP-WL"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "01-REROUTE"
+        },
+        "tag": "LOOP-01"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "02-REROUTE"
+        },
+        "tag": "LOOP-02"
+      }
+    ]
+  },
+  {
+    "api": {
+      "listen": "127.0.0.1:10085",
+      "services": [
+        "StatsService"
+      ],
+      "tag": "api"
+    },
+    "log": {
+      "loglevel": "none"
+    },
+    "burstObservatory": {
+      "pingConfig": {
+        "timeout": "3s",
+        "interval": "5m",
+        "sampling": 1,
+        "destination": "http://connectivitycheck.gstatic.com/generate_204",
+        "connectivity": ""
+      },
+      "subjectSelector": [
+        "DIRECT",
+        "WL-0"
+      ]
+    },
+    "dns": {
+      "servers": [
+        "1.1.1.1",
+        "8.8.8.8",
+        {
+          "address": "77.88.8.8",
+          "domains": [
+            "geosite:private",
+            "geosite:category-ru",
+            "domain:monkeyvillage.pro",
+            "domain:gstatic.com"
+          ],
+          "port": 53
+        }
+      ],
+      "queryStrategy": "UseIPv4"
+    },
+    "remarks": "🇯🇵 Япония",
+    "routing": {
+      "balancers": [
+        {
+          "fallbackTag": "LOOP-WL",
+          "selector": [
+            "DIRECT"
+          ],
+          "tag": "WL-BALANCER"
+        },
+        {
+          "selector": [
+            "WL-BRIDGE"
+          ],
+          "tag": "WL-BRIDGE-BALANCER"
+        },
+        {
+          "fallbackTag": "LOOP-01",
+          "selector": [
+            "WL-01"
+          ],
+          "tag": "01-FALLBACK"
+        },
+        {
+          "fallbackTag": "LOOP-02",
+          "selector": [
+            "WL-02"
+          ],
+          "tag": "02-FALLBACK"
+        },
+        {
+          "fallbackTag": "DIRECT",
+          "selector": [
+            "WL-03"
+          ],
+          "tag": "03-FALLBACK"
+        }
+      ],
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "network": "udp",
+          "outboundTag": "BLOCK",
+          "port": "443"
+        },
+        {
+          "balancerTag": "WL-BALANCER",
+          "inboundTag": [
+            "WL-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "WL-BRIDGE-BALANCER",
+          "inboundTag": [
+            "WL-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "01-FALLBACK",
+          "inboundTag": [
+            "ROUTING-SOCKS"
+          ]
+        },
+        {
+          "balancerTag": "02-FALLBACK",
+          "inboundTag": [
+            "01-REROUTE"
+          ]
+        },
+        {
+          "balancerTag": "03-FALLBACK",
+          "inboundTag": [
+            "02-REROUTE"
+          ]
+        },
+        {
+          "ip": [
+            "1.1.1.1",
+            "8.8.8.8"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "ip": [
+            "77.88.8.8",
+            "5.61.237.120",
+            "195.208.4.1"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:habr.com",
+            "domain:jut.su",
+            "4pda"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "domain": [
+            "geosite:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "domain:dom.ru",
+            "domain:tochka.com",
+            "domain:nic.ru",
+            "domain:sber.ru",
+            "domain:sber.com",
+            "domain:sberbank.ru",
+            "domain:sberbank.com",
+            "domain:alfabank.ru",
+            "domain:gazprombank.ru",
+            "domain:psbank.ru",
+            "domain:tbank.ru",
+            "domain:tbank-online.com",
+            "domain:vtb.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:ads.x5.ru",
+            "domain:aif.ru",
+            "domain:aeroflot.ru",
+            "domain:avito.ru",
+            "domain:beeline.ru",
+            "domain:burgerkingrus.ru",
+            "domain:dellin.ru",
+            "domain:drive2.ru",
+            "domain:dzen.ru",
+            "domain:flypobeda.ru",
+            "domain:forbes.ru",
+            "domain:gazeta.ru",
+            "domain:gismeteo.ru",
+            "domain:gosuslugi.ru",
+            "domain:nalog.ru",
+            "domain:nalog.gov.ru",
+            "domain:hh.ru",
+            "domain:kontur.ru",
+            "domain:kontur.host",
+            "domain:kp.ru",
+            "domain:kuper.ru",
+            "domain:lenta.ru",
+            "domain:mail.ru",
+            "domain:max.ru",
+            "domain:megamarket.ru",
+            "domain:megamarket.tech",
+            "domain:megafon.ru",
+            "domain:moex.com",
+            "domain:motivtelecom.ru",
+            "domain:ozon.ru",
+            "domain:pervye.ru",
+            "domain:rambler.ru",
+            "domain:rambler-co.ru",
+            "domain:rbc.ru",
+            "domain:reg.ru",
+            "domain:reviews.2gis.com",
+            "domain:rg.ru",
+            "domain:ria.ru",
+            "domain:ruwiki.ru",
+            "domain:rustore.ru",
+            "domain:rutube.ru",
+            "domain:rzd.ru",
+            "domain:sirena-travel.ru",
+            "domain:sravni.ru",
+            "domain:t-j.ru",
+            "domain:t2.ru",
+            "domain:taximaxim.ru",
+            "domain:tildaapi.com",
+            "domain:tutu.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vkvideo.ru",
+            "domain:x5.ru",
+            "domain:ya.ru",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yandex.com",
+            "domain:yastatic.net",
+            "domain:yandexcloud.net",
+            "domain:dzen.ru",
+            "domain:go.yandex",
+            "domain:ruwiki.ru",
+            "domain:oneme.ru",
+            "domain:vk-analytics.ru"
+          ],
+          "outboundTag": "FORCE-DIRECT"
+        },
+        {
+          "domain": [
+            "geosite:category-ru"
+          ],
+          "outboundTag": "proxy"
+        },
+        {
+          "network": "tcp",
+          "outboundTag": "FORCE-DIRECT",
+          "port": "25,465,587,8080"
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "mixed",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "routeOnly": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ]
+        },
+        "tag": "MIXED"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10809,
+        "protocol": "http",
+        "tag": "HTTP"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10810,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "ROUTING-SOCKS"
+      },
+      {
+        "listen": "127.0.0.1",
+        "port": 10811,
+        "protocol": "socks",
+        "settings": {
+          "udp": true
+        },
+        "sniffing": {
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "enabled": false,
+          "routeOnly": true
+        },
+        "tag": "WL-SOCKS"
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "jp.monkeyvillage.pro",
+              "port": 443,
+              "users": [
+                {
+                  "id": "fbf73f7a-8f36-44ef-a906-2dd02cc5e617",
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "tcpSettings": {
+            "header": {
+              "type": "none"
+            }
+          },
+          "security": "reality",
+          "realitySettings": {
+            "serverName": "jp.monkeyvillage.pro",
+            "publicKey": "Q7-sRiaAcmlJ_iwqiA46kDKso_r2kJ7X1mrVjL2illo",
+            "shortId": "6158642ae2c72ecc",
+            "fingerprint": "firefox"
+          },
+          "sockopt": {
+            "dialerProxy": "WL-IN"
+          }
+        }
+      },
+      {
+        "mux": {
+          "concurrency": 4,
+          "enabled": true,
+          "xudpConcurrency": 4,
+          "xudpProxyUDP443": "reject"
+        },
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-de.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "publicKey": "F2VfBr2UmjDTErB_oruvW5aIvzH_xGfM2AW5_w-DF0I",
+            "serverName": "pro-de.emrata.top"
+          },
+          "security": "reality",
+          "sockopt": {
+            "dialerProxy": "ROUTING-IN"
+          },
+          "tcpSettings": {}
+        },
+        "tag": "WL-BRIDGE-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-213.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "eh.vk.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-01-LM-2"
+      },
+      {
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "pro-ru-m.emrata.top",
+              "port": 443,
+              "users": [
+                {
+                  "encryption": "none",
+                  "flow": "xtls-rprx-vision",
+                  "id": "cc6fd100-b264-0001-a81f-6ab34679f2cb"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "realitySettings": {
+            "fingerprint": "qq",
+            "publicKey": "AAZjVvbC7AwPKot_1ygO5VMpN7XYifCA7lG0RNR5sEk",
+            "serverName": "ads.x5.ru"
+          },
+          "security": "reality",
+          "tcpSettings": {}
+        },
+        "tag": "WL-02-LM-2"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "DIRECT"
+      },
+      {
+        "protocol": "freedom",
+        "settings": {
+          "domainStrategy": "UseIPv4"
+        },
+        "tag": "FORCE-DIRECT"
+      },
+      {
+        "protocol": "blackhole",
+        "tag": "BLOCK"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10810
+            }
+          ]
+        },
+        "tag": "ROUTING-IN"
+      },
+      {
+        "protocol": "socks",
+        "settings": {
+          "servers": [
+            {
+              "address": "127.0.0.1",
+              "port": 10811
+            }
+          ]
+        },
+        "tag": "WL-IN"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "WL-REROUTE"
+        },
+        "tag": "LOOP-WL"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "01-REROUTE"
+        },
+        "tag": "LOOP-01"
+      },
+      {
+        "protocol": "loopback",
+        "settings": {
+          "inboundTag": "02-REROUTE"
+        },
+        "tag": "LOOP-02"
+      }
+    ]
+  }
+]
